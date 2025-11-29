@@ -3,6 +3,8 @@ package com.jeong.runninggoaltracker.presentation.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -11,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -35,6 +38,8 @@ fun HomeScreen(
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> "알 수 없음"
         else -> activityState.label   // RUNNING, WALKING, STILL, IN_VEHICLE 등
     }
+
+    val activityLogs by ActivityLogHolder.logs.collectAsState()
 
     Column(
         modifier = Modifier
@@ -84,6 +89,25 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("러닝 알림 설정")
+        }
+
+        if (activityLogs.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("최근 활동 로그")
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(activityLogs) { log ->
+                    Text("${log.time} - ${log.label} (${log.confidence}%)")
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("최근 활동이 없습니다.")
         }
     }
 }

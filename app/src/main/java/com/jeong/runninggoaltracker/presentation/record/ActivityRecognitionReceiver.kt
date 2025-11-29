@@ -50,6 +50,11 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             label = smoothLabel,
             confidence = confidence
         )
+
+        ActivityLogHolder.add(
+            label = smoothLabel,
+            confidence = confidence
+        )
     }
 
     /**
