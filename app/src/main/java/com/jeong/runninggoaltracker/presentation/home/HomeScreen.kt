@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -26,6 +27,15 @@ fun HomeScreen(
 
     val state by viewModel.uiState.collectAsState()
 
+    // 활동 인식 상태
+    val activityState by ActivityRecognitionStateHolder.state.collectAsState()
+    val activityLabel = when (activityState.label) {
+        "NO_PERMISSION" -> "권한 필요"
+        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> "활동 감지 실패"
+        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> "알 수 없음"
+        else -> activityState.label   // RUNNING, WALKING, STILL, IN_VEHICLE 등
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,6 +43,9 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Text("러닝 목표 관리")
+
+        // 현재 활동 상태 요약
+        Text("현재 활동 상태: $activityLabel (${activityState.confidence}%)")
 
         // 목표 정보
         if (state.weeklyGoalKm != null) {
@@ -65,9 +78,12 @@ fun HomeScreen(
         ) {
             Text("주간 목표 설정")
         }
+
         Button(
             onClick = onReminderClick,
             modifier = Modifier.fillMaxWidth()
-        ) { Text("러닝 알림 설정") }
+        ) {
+            Text("러닝 알림 설정")
+        }
     }
 }
