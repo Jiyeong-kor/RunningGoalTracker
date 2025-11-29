@@ -12,6 +12,8 @@
 /.idea/deploymentTargetSelector.xml
 /.idea/deviceManager.xml
 /.idea/migrations.xml
+/.idea/gradle.xml
+/.idea/misc.xml
 
 .DS_Store
 /build
