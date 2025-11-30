@@ -8,10 +8,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -40,8 +49,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             RunningGoalTrackerTheme {
                 val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
                 Scaffold(
+                    topBar = {
+                        AppTopBar(currentRoute = currentRoute)
+                    },
                     bottomBar = {
                         BottomNavBar(navController = navController)
                     }
@@ -80,16 +94,58 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppTopBar(
+    currentRoute: String
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
+    val title = when (currentRoute) {
+        "home" -> "홈"
+        "record" -> "러닝 기록"
+        "goal" -> "주간 목표"
+        "reminder" -> "알림 설정"
+        else -> "Running Goal Tracker"
+    }
+
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = title,
+                style = typography.titleMedium
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorScheme.surface,
+            titleContentColor = colorScheme.onSurface
+        )
+    )
+}
+
 @Composable
 private fun BottomNavBar(
     navController: NavHostController
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = colorScheme.surface
+    ) {
         bottomNavItems.forEach { item ->
             val selected = currentRoute == item.route
+
+            val icon = when (item.route) {
+                "home" -> Icons.Filled.Home
+                "record" -> Icons.AutoMirrored.Filled.DirectionsRun
+                "reminder" -> Icons.Filled.Notifications
+                else -> Icons.Filled.Home
+            }
 
             NavigationBarItem(
                 selected = selected,
@@ -104,9 +160,18 @@ private fun BottomNavBar(
                         }
                     }
                 },
-                // 아이콘은 일단 라벨 첫 글자로 표시
-                icon = { Text(item.label.take(1)) },
-                label = { Text(item.label) }
+                icon = {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = item.label
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.label,
+                        style = typography.labelSmall
+                    )
+                }
             )
         }
     }
