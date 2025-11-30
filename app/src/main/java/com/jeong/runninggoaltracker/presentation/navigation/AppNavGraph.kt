@@ -1,5 +1,7 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -11,6 +13,7 @@ import com.jeong.runninggoaltracker.presentation.goal.GoalSettingScreen
 import com.jeong.runninggoaltracker.presentation.reminder.ReminderSettingScreen
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
