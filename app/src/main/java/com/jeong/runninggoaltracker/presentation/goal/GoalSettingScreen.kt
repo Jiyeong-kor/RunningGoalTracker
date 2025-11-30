@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
@@ -37,17 +40,26 @@ fun GoalSettingScreen(
     }
     var errorText by remember { mutableStateOf<String?>(null) }
 
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("주간 목표 설정")
+        Text(
+            text = "주간 목표 설정",
+            style = typography.titleLarge
+        )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = colorScheme.surfaceContainerLow
+            ),
+            elevation = CardDefaults.cardElevation(1.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -56,9 +68,15 @@ fun GoalSettingScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (state.currentGoalKm != null) {
-                    Text("현재 목표: ${"%.1f".format(state.currentGoalKm)} km")
+                    Text(
+                        text = "현재 목표: ${"%.1f".format(state.currentGoalKm)} km",
+                        style = typography.bodyLarge
+                    )
                 } else {
-                    Text("현재 설정된 목표가 없습니다.")
+                    Text(
+                        text = "현재 설정된 목표가 없습니다.",
+                        style = typography.bodyLarge
+                    )
                 }
 
                 OutlinedTextField(
@@ -68,11 +86,16 @@ fun GoalSettingScreen(
                         errorText = null
                     },
                     label = { Text("주간 목표 거리 (km)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
                 if (errorText != null) {
-                    Text(errorText!!)
+                    Text(
+                        text = errorText!!,
+                        color = colorScheme.error,
+                        style = typography.bodyMedium
+                    )
                 }
 
                 Button(
@@ -96,13 +119,6 @@ fun GoalSettingScreen(
                     Text("저장하기")
                 }
             }
-        }
-
-        Button(
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("뒤로가기")
         }
     }
 }

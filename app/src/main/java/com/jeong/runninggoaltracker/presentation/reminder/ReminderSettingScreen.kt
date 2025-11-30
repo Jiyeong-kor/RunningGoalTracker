@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
@@ -43,17 +46,26 @@ fun ReminderSettingScreen(
     var minuteText by remember { mutableStateOf(state.minute.toString()) }
     var errorText by remember { mutableStateOf<String?>(null) }
 
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("러닝 알림 설정")
+        Text(
+            text = "러닝 알림 설정",
+            style = typography.titleLarge
+        )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = colorScheme.surfaceContainerLow
+            ),
+            elevation = CardDefaults.cardElevation(1.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -61,12 +73,17 @@ fun ReminderSettingScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // 현재 설정 요약
                 val currentTimeLabel = "%02d:%02d".format(state.hour, state.minute)
-                Text("현재 알림 시각: $currentTimeLabel")
-                Text(if (state.enabled) "알림 사용: 켜짐" else "알림 사용: 꺼짐")
+                Text(
+                    text = "현재 알림 시각: $currentTimeLabel",
+                    style = typography.bodyLarge
+                )
+                Text(
+                    text = if (state.enabled) "알림 사용: 켜짐" else "알림 사용: 꺼짐",
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant
+                )
 
-                // 시/분 입력
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -78,7 +95,8 @@ fun ReminderSettingScreen(
                             errorText = null
                         },
                         label = { Text("시 (0~23)") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     OutlinedTextField(
                         value = minuteText,
@@ -87,16 +105,16 @@ fun ReminderSettingScreen(
                             errorText = null
                         },
                         label = { Text("분 (0~59)") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
 
-                // 알림 사용 스위치
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("알림 사용")
+                    Text("알림 사용", style = typography.bodyLarge)
                     Switch(
                         checked = state.enabled,
                         onCheckedChange = { enabled ->
@@ -106,7 +124,11 @@ fun ReminderSettingScreen(
                 }
 
                 if (errorText != null) {
-                    Text(errorText!!)
+                    Text(
+                        text = errorText!!,
+                        color = colorScheme.error,
+                        style = typography.bodyMedium
+                    )
                 }
 
                 Button(
@@ -118,19 +140,18 @@ fun ReminderSettingScreen(
                             h == null || m == null -> {
                                 errorText = "시/분을 숫자로 입력해주세요."
                             }
+
                             h !in 0..23 || m !in 0..59 -> {
                                 errorText = "시(0~23), 분(0~59) 범위로 입력해주세요."
                             }
+
                             else -> {
                                 vm.updateTime(h, m)
-
-                                val enabled = state.enabled
-                                if (enabled) {
+                                if (state.enabled) {
                                     scheduler.schedule(h, m)
                                 } else {
                                     scheduler.cancel(h, m)
                                 }
-
                                 onBack()
                             }
                         }
