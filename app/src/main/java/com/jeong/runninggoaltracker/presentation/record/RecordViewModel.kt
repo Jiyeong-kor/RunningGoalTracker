@@ -8,6 +8,7 @@ import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -16,8 +17,12 @@ class RecordViewModel(
     private val repository: RunningRepository
 ) : ViewModel() {
 
+    // 최신 기록이 위로 오도록 정렬
     val records: StateFlow<List<RunningRecord>> =
         repository.getAllRecords()
+            .map { list ->
+                list.sortedByDescending { it.date }
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),

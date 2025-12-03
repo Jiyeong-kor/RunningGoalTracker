@@ -49,11 +49,6 @@ fun GoalSettingScreen(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = "주간 목표 설정",
-            style = typography.titleLarge
-        )
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(

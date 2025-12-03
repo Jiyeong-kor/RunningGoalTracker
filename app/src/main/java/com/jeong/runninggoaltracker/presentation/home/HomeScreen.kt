@@ -39,6 +39,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
+import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
 
@@ -66,10 +68,13 @@ fun HomeScreen(
         else -> rawLabel
     }
 
+    // nullable 값은 로컬 변수로 빼서 사용
+    val weeklyGoalKm = state.weeklyGoalKm
+    val totalThisWeekKm = state.totalThisWeekKm
+
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    // 활동 상태 칩 색상 애니메이션
     val activityChipColor by animateColorAsState(
         targetValue = when (rawLabel) {
             "RUNNING" -> colorScheme.tertiaryContainer
@@ -94,14 +99,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 화면 타이틀
-        Text(
-            text = "러닝 목표 관리",
-            style = typography.titleLarge,
-            color = colorScheme.onBackground
-        )
-
-        // 카드 1: 오늘 상태 / 주간 목표 요약
+        // 오늘 상태 / 주간 목표
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -122,7 +120,6 @@ fun HomeScreen(
                     color = colorScheme.onSurface
                 )
 
-                // 활동 상태 칩
                 Row(
                     modifier = Modifier
                         .wrapContentWidth()
@@ -137,15 +134,15 @@ fun HomeScreen(
                         tint = colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "$activityLabel  (${activityState.confidence}%)",
+                        text = activityLabel,
                         style = typography.bodyMedium,
                         color = colorScheme.onPrimaryContainer
                     )
                 }
 
-                if (state.weeklyGoalKm != null) {
+                if (weeklyGoalKm != null) {
                     Text(
-                        text = "주간 목표: ${"%.1f".format(state.weeklyGoalKm)} km",
+                        text = "주간 목표: ${weeklyGoalKm.toDistanceLabel()}",
                         style = typography.bodyLarge
                     )
                 } else {
@@ -156,7 +153,7 @@ fun HomeScreen(
                 }
 
                 Text(
-                    text = "이번 주 누적 거리: ${"%.1f".format(state.totalThisWeekKm)} km",
+                    text = "이번 주 누적 거리: ${totalThisWeekKm.toDistanceLabel()}",
                     style = typography.bodyMedium
                 )
                 Text(
@@ -178,7 +175,7 @@ fun HomeScreen(
             }
         }
 
-        // 카드 2: 빠른 메뉴
+        // 빠른 메뉴
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -221,46 +218,63 @@ fun HomeScreen(
             }
         }
 
-        // 카드 3: 최근 활동 로그
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "최근 활동 로그",
-                    style = typography.titleMedium
-                )
+        // 최근 활동 로그 (있을 때만)
+        if (activityLogs.isNotEmpty()) {
+            val lastLogs = activityLogs.takeLast(5).asReversed()
 
-                if (activityLogs.isNotEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = colorScheme.surfaceContainerLow
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "최근 활동 로그",
+                        style = typography.titleMedium
+                    )
+
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 200.dp)
                     ) {
-                        items(activityLogs) { log ->
-                            Text(
-                                text = "${log.time}  •  ${log.label} (${log.confidence}%)",
-                                style = typography.bodyMedium
-                            )
+                        items(lastLogs) { log ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = colorScheme.surfaceContainerHigh
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "${log.label} (${log.confidence}%)",
+                                        style = typography.bodyLarge
+                                    )
+                                    Text(
+                                        text = log.time.toKoreanDateLabel(),
+                                        style = typography.labelSmall,
+                                        color = colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
-                } else {
-                    Text(
-                        text = "최근 활동이 없습니다.",
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }

@@ -38,6 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
+import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -75,12 +77,6 @@ fun RecordScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = "러닝 기록",
-            style = typography.titleLarge
-        )
-
-        // 카드 1: 활동 인식
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -109,17 +105,10 @@ fun RecordScreen(
                         contentDescription = null,
                         tint = colorScheme.primary
                     )
-                    Column {
-                        Text(
-                            text = "현재 활동: $displayLabel",
-                            style = typography.bodyLarge
-                        )
-                        Text(
-                            text = "신뢰도: ${activityState.confidence}%",
-                            style = typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "현재 활동: $displayLabel",
+                        style = typography.bodyLarge
+                    )
                 }
 
                 Row(
@@ -201,9 +190,11 @@ fun RecordScreen(
                             distance == null || duration == null -> {
                                 errorText = "숫자 형식으로 입력해주세요."
                             }
+
                             distance <= 0.0 || duration <= 0 -> {
                                 errorText = "0보다 큰 값을 입력해주세요."
                             }
+
                             else -> {
                                 viewModel.addRecord(distance, duration)
                                 distanceText = ""
@@ -284,7 +275,7 @@ fun RecordScreen(
                                                 tint = colorScheme.onSurfaceVariant
                                             )
                                             Text(
-                                                text = record.date,
+                                                text = record.date.toKoreanDateLabel(),
                                                 style = typography.bodyMedium
                                             )
                                         }
@@ -292,7 +283,7 @@ fun RecordScreen(
                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
                                             Text(
-                                                text = "${record.distanceKm} km",
+                                                text = record.distanceKm.toDistanceLabel(),
                                                 style = typography.bodyMedium
                                             )
                                             Row(
