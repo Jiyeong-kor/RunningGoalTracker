@@ -19,9 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.R
 
 @Composable
 fun GoalSettingScreen(
@@ -34,6 +36,9 @@ fun GoalSettingScreen(
         mutableStateOf(state.currentGoalKm?.toString().orEmpty())
     }
     var errorText by remember { mutableStateOf<String?>(null) }
+
+    val errorEnterNumber = stringResource(R.string.error_enter_number)
+    val errorEnterPositiveValue = stringResource(R.string.error_enter_positive_value)
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -59,12 +64,15 @@ fun GoalSettingScreen(
             ) {
                 if (state.currentGoalKm != null) {
                     Text(
-                        text = "현재 목표: ${"%.1f".format(state.currentGoalKm)} km",
+                        text = stringResource(
+                            R.string.goal_current_format,
+                            state.currentGoalKm!!
+                        ),
                         style = typography.bodyLarge
                     )
                 } else {
                     Text(
-                        text = "현재 설정된 목표가 없습니다.",
+                        text = stringResource(R.string.goal_no_current_goal),
                         style = typography.bodyLarge
                     )
                 }
@@ -75,7 +83,7 @@ fun GoalSettingScreen(
                         goalText = it
                         errorText = null
                     },
-                    label = { Text("주간 목표 거리 (km)") },
+                    label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -93,11 +101,13 @@ fun GoalSettingScreen(
                         val goal = goalText.toDoubleOrNull()
                         when {
                             goal == null -> {
-                                errorText = "숫자를 입력해주세요."
+                                errorText = errorEnterNumber
                             }
+
                             goal <= 0.0 -> {
-                                errorText = "0보다 큰 값을 입력해주세요."
+                                errorText = errorEnterPositiveValue
                             }
+
                             else -> {
                                 viewModel.saveGoal(goal)
                                 onBack()
@@ -106,7 +116,7 @@ fun GoalSettingScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("저장하기")
+                    Text(stringResource(R.string.button_save))
                 }
             }
         }

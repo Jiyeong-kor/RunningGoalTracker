@@ -36,8 +36,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
@@ -58,9 +60,9 @@ fun HomeScreen(
 
     val rawLabel = activityState.label
     val activityLabel = when (rawLabel) {
-        "NO_PERMISSION" -> "권한 필요"
-        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> "활동 감지 실패"
-        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> "알 수 없음"
+        "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
+        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> stringResource(R.string.activity_recognition_failed)
+        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
         else -> rawLabel
     }
 
@@ -109,7 +111,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "오늘 상태",
+                    text = stringResource(R.string.home_title_today_status),
                     style = typography.titleMedium,
                     color = colorScheme.onSurface
                 )
@@ -124,7 +126,7 @@ fun HomeScreen(
                 ) {
                     Icon(
                         imageVector = activityIcon,
-                        contentDescription = "현재 활동",
+                        contentDescription = stringResource(R.string.content_description_current_activity),
                         tint = colorScheme.onPrimaryContainer
                     )
                     Text(
@@ -136,23 +138,29 @@ fun HomeScreen(
 
                 if (weeklyGoalKm != null) {
                     Text(
-                        text = "주간 목표: ${weeklyGoalKm.toDistanceLabel()}",
-                        style = typography.bodyLarge
+                        text = stringResource(
+                            R.string.home_weekly_goal_format,
+                            weeklyGoalKm.toDistanceLabel()
+                        ), style = typography.bodyLarge
                     )
                 } else {
                     Text(
-                        text = "주간 목표: 설정되지 않음",
+                        text = stringResource(R.string.home_weekly_goal_not_set),
                         style = typography.bodyLarge
                     )
                 }
 
                 Text(
-                    text = "이번 주 누적 거리: ${totalThisWeekKm.toDistanceLabel()}",
-                    style = typography.bodyMedium
+                    text = stringResource(
+                        R.string.home_total_distance_this_week_format,
+                        totalThisWeekKm.toDistanceLabel()
+                    ), style = typography.bodyMedium
                 )
                 Text(
-                    text = "이번 주 러닝 횟수: ${state.recordCountThisWeek} 회",
-                    style = typography.bodyMedium
+                    text = stringResource(
+                        R.string.home_running_count_this_week_format,
+                        state.recordCountThisWeek
+                    ), style = typography.bodyMedium
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -162,8 +170,10 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
-                    text = "${(state.progress * 100).toInt()}% 달성",
-                    style = typography.labelSmall,
+                    text = stringResource(
+                        R.string.home_progress_format,
+                        (state.progress * 100).toInt()
+                    ), style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant
                 )
             }
@@ -184,7 +194,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "빠른 메뉴",
+                    text = stringResource(R.string.home_title_quick_menu),
                     style = typography.titleMedium
                 )
 
@@ -192,21 +202,21 @@ fun HomeScreen(
                     onClick = onRecordClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("러닝 기록 추가 / 보기")
+                    Text(stringResource(R.string.button_add_view_record))
                 }
 
                 Button(
                     onClick = onGoalClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("주간 목표 설정")
+                    Text(stringResource(R.string.button_set_weekly_goal))
                 }
 
                 Button(
                     onClick = onReminderClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("러닝 알림 설정")
+                    Text(stringResource(R.string.button_set_reminder))
                 }
             }
         }
@@ -229,7 +239,7 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "최근 활동 로그",
+                        text = stringResource(R.string.home_title_recent_activity_logs),
                         style = typography.titleMedium
                     )
 

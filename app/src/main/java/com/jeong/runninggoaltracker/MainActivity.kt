@@ -24,6 +24,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
@@ -104,11 +105,11 @@ private fun AppTopBar(
     val typography = MaterialTheme.typography
 
     val title = when (currentRoute) {
-        "home" -> "홈"
-        "record" -> "러닝 기록"
-        "goal" -> "주간 목표"
-        "reminder" -> "알림 설정"
-        else -> "Running Goal Tracker"
+        "home" -> stringResource(R.string.title_home)
+        "record" -> stringResource(R.string.title_record)
+        "goal" -> stringResource(R.string.title_goal)
+        "reminder" -> stringResource(R.string.title_reminder)
+        else -> stringResource(R.string.app_name_full)
     }
 
     CenterAlignedTopAppBar(
@@ -162,16 +163,10 @@ private fun BottomNavBar(
                     }
                 },
                 icon = {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = item.label
-                    )
+                    Icon(imageVector = icon, contentDescription = stringResource(item.labelResId))
                 },
                 label = {
-                    Text(
-                        text = item.label,
-                        style = typography.labelSmall
-                    )
+                    Text(text = stringResource(item.labelResId), style = typography.labelSmall)
                 }
             )
         }

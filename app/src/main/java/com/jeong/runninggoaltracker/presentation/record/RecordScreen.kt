@@ -34,16 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordScreen(
-    viewModel : RecordViewModel = hiltViewModel(),
+    viewModel: RecordViewModel = hiltViewModel(),
 ) {
 
     var distanceText by remember { mutableStateOf("") }
@@ -57,11 +59,15 @@ fun RecordScreen(
     val activityState by ActivityRecognitionStateHolder.state.collectAsState()
 
     val displayLabel = when (activityState.label) {
-        "NO_PERMISSION" -> "권한 필요"
-        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> "활동 감지 실패"
-        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> "알 수 없음"
+        "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
+        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> stringResource(R.string.activity_recognition_failed)
+        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
         else -> activityState.label
     }
+
+    val recordDurationLabel = stringResource(R.string.record_duration_label)
+    val errorEnterNumberFormat = stringResource(R.string.error_enter_number_format)
+    val errorEnterPositiveValue = stringResource(R.string.error_enter_positive_value)
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -88,7 +94,7 @@ fun RecordScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "활동 인식",
+                    text = stringResource(R.string.record_title_activity_recognition),
                     style = typography.titleMedium
                 )
 
@@ -102,8 +108,10 @@ fun RecordScreen(
                         tint = colorScheme.primary
                     )
                     Text(
-                        text = "현재 활동: $displayLabel",
-                        style = typography.bodyLarge
+                        text = stringResource(
+                            R.string.record_current_activity_format,
+                            displayLabel
+                        ), style = typography.bodyLarge
                     )
                 }
 
@@ -115,19 +123,18 @@ fun RecordScreen(
                         onClick = { activityManager.startUpdates() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("활동 감지 시작")
+                        Text(stringResource(R.string.button_start_detection))
                     }
                     Button(
                         onClick = { activityManager.stopUpdates() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("활동 감지 중지")
+                        Text(stringResource(R.string.button_stop_detection))
                     }
                 }
             }
         }
 
-        // 카드 2: 러닝 기록 추가
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -143,7 +150,7 @@ fun RecordScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "러닝 기록 추가",
+                    text = stringResource(R.string.record_title_add_record),
                     style = typography.titleMedium
                 )
 
@@ -153,7 +160,7 @@ fun RecordScreen(
                         distanceText = it
                         errorText = null
                     },
-                    label = { Text("거리 (km)") },
+                    label = { Text(stringResource(R.string.record_distance_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -164,7 +171,7 @@ fun RecordScreen(
                         durationText = it
                         errorText = null
                     },
-                    label = { Text("시간 (분)") },
+                    label = { Text(recordDurationLabel) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -184,11 +191,11 @@ fun RecordScreen(
 
                         when {
                             distance == null || duration == null -> {
-                                errorText = "숫자 형식으로 입력해주세요."
+                                errorText = errorEnterNumberFormat
                             }
 
                             distance <= 0.0 || duration <= 0 -> {
-                                errorText = "0보다 큰 값을 입력해주세요."
+                                errorText = errorEnterPositiveValue
                             }
 
                             else -> {
@@ -201,12 +208,11 @@ fun RecordScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("저장하기")
+                    Text(stringResource(R.string.button_save))
                 }
             }
         }
 
-        // 카드 3: 저장된 기록
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -222,13 +228,13 @@ fun RecordScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "저장된 러닝 기록",
+                    text = stringResource(R.string.record_title_saved_records),
                     style = typography.titleMedium
                 )
 
                 if (records.isEmpty()) {
                     Text(
-                        text = "저장된 기록이 없습니다.",
+                        text = stringResource(R.string.record_no_saved_records),
                         style = typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )
@@ -291,8 +297,10 @@ fun RecordScreen(
                                                     tint = colorScheme.onSurfaceVariant
                                                 )
                                                 Text(
-                                                    text = "${record.durationMinutes} 분",
-                                                    style = typography.bodyMedium
+                                                    text = stringResource(
+                                                        R.string.record_duration_minutes_format,
+                                                        record.durationMinutes
+                                                    ), style = typography.bodyMedium
                                                 )
                                             }
                                         }

@@ -1,21 +1,24 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
+import androidx.annotation.StringRes
+import com.jeong.runninggoaltracker.R
+
 data class BottomNavItem(
     val route: String,
-    val label: String
+    @param:StringRes val labelResId: Int
 )
 
 val bottomNavItems = listOf(
     BottomNavItem(
         route = "home",
-        label = "홈"
+        labelResId = R.string.nav_home
     ),
     BottomNavItem(
         route = "record",
-        label = "기록"
+        labelResId = R.string.nav_record
     ),
     BottomNavItem(
         route = "reminder",
-        label = "알림"
+        labelResId = R.string.nav_reminder
     )
 )
