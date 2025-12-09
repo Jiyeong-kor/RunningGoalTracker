@@ -19,7 +19,9 @@ class ActivityRecognitionManager(
         ActivityRecognition.getClient(context)
 
     private fun createPendingIntent(): PendingIntent {
-        val intent = Intent(context.applicationContext, ActivityRecognitionReceiver::class.java)
+        val intent = Intent(
+            context.applicationContext, ActivityRecognitionReceiver::class.java
+        )
         return PendingIntent.getBroadcast(
             context.applicationContext,
             REQUEST_CODE,
@@ -36,7 +38,7 @@ class ActivityRecognitionManager(
             ) == PackageManager.PERMISSION_GRANTED
 
             if (!granted) {
-                ActivityRecognitionStateHolder.update("NO_PERMISSION", 0)
+                ActivityRecognitionStateHolder.update("NO_PERMISSION")
                 return
             }
         }
@@ -46,12 +48,11 @@ class ActivityRecognitionManager(
                 INTERVAL_MILLIS,
                 createPendingIntent()
             ).addOnSuccessListener {
-                // 그냥 이전 상태 유지
             }.addOnFailureListener {
-                ActivityRecognitionStateHolder.update("REQUEST_FAILED", 0)
+                ActivityRecognitionStateHolder.update("REQUEST_FAILED")
             }
         } catch (_: SecurityException) {
-            ActivityRecognitionStateHolder.update("SECURITY_EXCEPTION", 0)
+            ActivityRecognitionStateHolder.update("SECURITY_EXCEPTION")
         }
     }
 
@@ -60,9 +61,8 @@ class ActivityRecognitionManager(
         try {
             client.removeActivityUpdates(createPendingIntent())
         } catch (_: SecurityException) {
-            // 실패해도 앱 크래시만 막고, 상태만 업데이트
         }
-        ActivityRecognitionStateHolder.update("STOPPED", 0)
+        ActivityRecognitionStateHolder.update("STOPPED")
     }
 
     companion object {

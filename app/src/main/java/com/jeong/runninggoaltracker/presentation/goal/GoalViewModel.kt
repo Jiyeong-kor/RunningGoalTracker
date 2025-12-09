@@ -2,8 +2,8 @@ package com.jeong.runninggoaltracker.presentation.goal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeong.runninggoaltracker.domain.model.RunningGoal
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
+import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,11 +18,12 @@ data class GoalUiState(
 
 @HiltViewModel
 class GoalViewModel @Inject constructor(
-    private val repository: RunningRepository
+    getRunningGoalUseCase: GetRunningGoalUseCase,
+    private val upsertRunningGoalUseCase: UpsertRunningGoalUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<GoalUiState> =
-        repository.getGoal()
+        getRunningGoalUseCase()
             .map { goal ->
                 GoalUiState(currentGoalKm = goal?.weeklyGoalKm)
             }
@@ -34,9 +35,7 @@ class GoalViewModel @Inject constructor(
 
     fun saveGoal(km: Double) {
         viewModelScope.launch {
-            repository.upsertGoal(
-                RunningGoal(weeklyGoalKm = km)
-            )
+            upsertRunningGoalUseCase(km)
         }
     }
 }

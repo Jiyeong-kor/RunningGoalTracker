@@ -5,9 +5,11 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,13 +29,14 @@ import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
@@ -176,25 +179,28 @@ fun HomeScreen(
 
             Spacer(Modifier.height(dimensionResource(R.dimen.card_spacing_small)))
 
-            LinearProgressIndicator(
-                progress = { state.progress },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = stringResource(
-                    R.string.home_progress_format,
-                    (state.progress * 100).toInt()
-                ), style = typography.labelSmall,
-                color = colorScheme.onSurfaceVariant
-            )
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                CircularProgressIndicator(
+                    progress = { state.progress },
+                    modifier = Modifier.matchParentSize()
+                )
+                Text(
+                    text = stringResource(
+                        R.string.home_progress_format,
+                        (state.progress * 100).toInt()
+                    ), style = typography.titleMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
 
         AppContentCard {
-            Text(
-                text = stringResource(R.string.home_title_quick_menu),
-                style = typography.titleMedium
-            )
-
             Button(
                 onClick = onRecordClick,
                 modifier = Modifier.fillMaxWidth()
@@ -250,7 +256,7 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "${log.label} (${log.confidence}%)",
+                                    text = log.label,
                                     style = typography.bodyLarge
                                 )
                                 Text(

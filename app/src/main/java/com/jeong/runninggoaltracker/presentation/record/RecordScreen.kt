@@ -45,9 +45,8 @@ import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordScreen(
-    viewModel: RecordViewModel = hiltViewModel(),
+    viewModel: RecordViewModel = hiltViewModel()
 ) {
-
     var distanceText by remember { mutableStateOf("") }
     var durationText by remember { mutableStateOf("") }
     var errorText by remember { mutableStateOf<String?>(null) }
@@ -60,7 +59,9 @@ fun RecordScreen(
 
     val displayLabel = when (activityState.label) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
-        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> stringResource(R.string.activity_recognition_failed)
+        "REQUEST_FAILED", "SECURITY_EXCEPTION" ->
+            stringResource(R.string.activity_recognition_failed)
+
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
         else -> activityState.label
     }

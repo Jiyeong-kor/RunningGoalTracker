@@ -9,11 +9,11 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 fun String.toKoreanDateLabel(): String {
     return try {
-        val parsed = LocalDate.parse(this) // "yyyy-MM-dd" 기준
+        val parsed = LocalDate.parse(this)
         val formatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREA)
         parsed.format(formatter)
     } catch (_: Exception) {
-        this // 파싱 실패하면 원문 그대로
+        this
     }
 }
 

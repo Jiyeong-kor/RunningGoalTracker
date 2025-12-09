@@ -131,6 +131,7 @@ fun ReminderSettingScreen(
     }
 }
 
+@SuppressLint("ScheduleExactAlarm")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderCard(

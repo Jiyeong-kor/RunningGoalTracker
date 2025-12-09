@@ -13,7 +13,6 @@
     <string name="home_total_distance_this_week_format">이번 주 누적 거리: %s</string>
     <string name="home_running_count_this_week_format">이번 주 러닝 횟수: %d 회</string>
     <string name="home_progress_format">%d%% 달성</string>
-    <string name="home_title_quick_menu">빠른 메뉴</string>
     <string name="home_title_recent_activity_logs">최근 활동 로그</string>
 
     <string name="record_title_activity_recognition">활동 인식</string>

@@ -19,26 +19,26 @@ class RunningRepositoryImpl @Inject constructor(
         dao.getAllRecords()
             .map { list -> list.map { it.toDomain() } }
 
-    override suspend fun addRecord(record: RunningRecord) {
+    override suspend fun addRecord(record: RunningRecord) =
         dao.insertRecord(record.toEntity())
-    }
+
 
     override fun getGoal(): Flow<RunningGoal?> =
         dao.getGoal().map { entity -> entity?.toDomain() }
 
-    override suspend fun upsertGoal(goal: RunningGoal) {
+    override suspend fun upsertGoal(goal: RunningGoal) =
         dao.upsertGoal(goal.toEntity())
-    }
+
 
     override fun getAllReminders(): Flow<List<RunningReminder>> =
         dao.getAllReminders()
             .map { list -> list.map { it.toDomain() } }
 
-    override suspend fun upsertReminder(reminder: RunningReminder) {
+    override suspend fun upsertReminder(reminder: RunningReminder) =
         dao.upsertReminder(reminder.toEntity())
-    }
 
-    override suspend fun deleteReminder(reminderId: Int) {
+
+    override suspend fun deleteReminder(reminderId: Int) =
         dao.deleteReminder(reminderId)
-    }
+
 }

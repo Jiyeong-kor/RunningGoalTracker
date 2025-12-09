@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -16,7 +17,7 @@ import com.jeong.runninggoaltracker.R
 
 @Composable
 fun AppContentCard(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(dimensionResource(R.dimen.card_spacing_small)),
     content: @Composable ColumnScope.() -> Unit
@@ -24,7 +25,9 @@ fun AppContentCard(
     val colorScheme = MaterialTheme.colorScheme
 
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surfaceContainerLow
         ),
@@ -36,6 +39,7 @@ fun AppContentCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(dimensionResource(R.dimen.card_padding_large)),
             verticalArrangement = verticalArrangement,
             content = content

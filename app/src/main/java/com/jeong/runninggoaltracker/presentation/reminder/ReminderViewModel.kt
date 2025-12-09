@@ -3,9 +3,15 @@ package com.jeong.runninggoaltracker.presentation.reminder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.domain.usecase.AddRunningReminderUseCase
+import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
+import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
+import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,11 +29,14 @@ data class ReminderListUiState(
 
 @HiltViewModel
 class ReminderViewModel @Inject constructor(
-    private val repository: RunningRepository
+    getRunningRemindersUseCase: GetRunningRemindersUseCase,
+    private val addRunningReminderUseCase: AddRunningReminderUseCase,
+    private val deleteRunningReminderUseCase: DeleteRunningReminderUseCase,
+    private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<ReminderListUiState> =
-        repository.getAllReminders()
+        getRunningRemindersUseCase()
             .map { reminders ->
                 ReminderListUiState(
                     reminders = reminders.map { reminder ->
@@ -38,7 +47,7 @@ class ReminderViewModel @Inject constructor(
                             enabled = reminder.enabled,
                             days = reminder.days
                         )
-                    }.sortedBy { it.id }
+                    }
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -47,18 +56,14 @@ class ReminderViewModel @Inject constructor(
             )
 
     fun addReminder() {
-        val newReminder = RunningReminder(
-            hour = 8,
-            minute = 0,
-            enabled = false,
-            days = emptySet()
-        )
-        save(newReminder)
+        viewModelScope.launch {
+            addRunningReminderUseCase()
+        }
     }
 
     fun deleteReminder(id: Int) {
         viewModelScope.launch {
-            repository.deleteReminder(id)
+            deleteRunningReminderUseCase(id)
         }
     }
 
@@ -66,15 +71,17 @@ class ReminderViewModel @Inject constructor(
         val currentReminder = uiState.value.reminders.find { it.id == id } ?: return
         val newReminderUiState = update(currentReminder)
 
-        save(
-            RunningReminder(
-                id = newReminderUiState.id,
-                hour = newReminderUiState.hour,
-                minute = newReminderUiState.minute,
-                enabled = newReminderUiState.enabled,
-                days = newReminderUiState.days
-            )
+        val runningReminder = RunningReminder(
+            id = newReminderUiState.id,
+            hour = newReminderUiState.hour,
+            minute = newReminderUiState.minute,
+            enabled = newReminderUiState.enabled,
+            days = newReminderUiState.days
         )
+
+        viewModelScope.launch {
+            upsertRunningReminderUseCase(runningReminder)
+        }
     }
 
     fun updateEnabled(id: Int, enabled: Boolean) {
@@ -93,12 +100,6 @@ class ReminderViewModel @Inject constructor(
                 current.days.plus(day)
             }
             current.copy(days = newDays)
-        }
-    }
-
-    private fun save(reminder: RunningReminder) {
-        viewModelScope.launch {
-            repository.upsertReminder(reminder)
         }
     }
 }

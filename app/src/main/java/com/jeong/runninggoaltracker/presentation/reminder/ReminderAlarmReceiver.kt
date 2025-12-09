@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.presentation.reminder
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import androidx.core.content.ContextCompat
 
 class ReminderAlarmReceiver : BroadcastReceiver() {
 
+    @SuppressLint("ScheduleExactAlarm")
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getIntExtra("id", 0)
         val hour = intent.getIntExtra("hour", 0)

@@ -8,8 +8,7 @@ import java.util.Locale
 
 data class ActivityLogEntry(
     val time: String,
-    val label: String,
-    val confidence: Int
+    val label: String
 )
 
 object ActivityLogHolder {
@@ -19,19 +18,16 @@ object ActivityLogHolder {
     private val _logs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
 
-    fun add(label: String, confidence: Int) {
+    fun add(label: String) {
         val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
 
         val newEntry = ActivityLogEntry(
             time = time,
-            label = label,
-            confidence = confidence
+            label = label
         )
 
-        // 최근 항목이랑 같으면 굳이 추가 안 함 (원하면 제거해도 됨)
         val current = _logs.value
-        if (current.firstOrNull()?.label == label &&
-            current.firstOrNull()?.confidence == confidence
+        if (current.firstOrNull()?.label == label
         ) {
             return
         }
