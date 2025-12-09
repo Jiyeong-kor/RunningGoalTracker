@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -12,6 +13,12 @@ import androidx.room.RoomDatabase
     version = 5,
     exportSchema = false
 )
+
+@TypeConverters(
+    LocalDateConverter::class,
+    DayOfWeekConverter::class
+)
+
 abstract class RunningDatabase : RoomDatabase() {
     abstract fun runningDao(): RunningDao
 

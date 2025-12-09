@@ -6,9 +6,7 @@ import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 class UpsertRunningGoalUseCase(
     private val repository: RunningGoalRepository
 ) {
-    suspend operator fun invoke(weeklyGoalKm: Double) {
-        repository.upsertGoal(
-            RunningGoal(weeklyGoalKm = weeklyGoalKm)
-        )
+    suspend operator fun invoke(goal: RunningGoal) {
+        repository.upsertGoal(goal)
     }
 }

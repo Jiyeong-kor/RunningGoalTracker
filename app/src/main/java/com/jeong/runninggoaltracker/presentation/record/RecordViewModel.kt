@@ -34,10 +34,14 @@ class RecordViewModel @Inject constructor(
             )
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun addRecord(distanceKm: Double, durationMinutes: Int) {
+    fun addRecord(dateString: String, distanceKm: Double, durationMinutes: Int) {
         viewModelScope.launch {
-            val today = LocalDate.now().toString()
-            addRunningRecordUseCase(today, distanceKm, durationMinutes)
+            val date = runCatching { LocalDate.parse(dateString) }.getOrNull()
+
+            if (date == null) {
+                return@launch
+            }
+            addRunningRecordUseCase(date, distanceKm, durationMinutes)
         }
     }
 }

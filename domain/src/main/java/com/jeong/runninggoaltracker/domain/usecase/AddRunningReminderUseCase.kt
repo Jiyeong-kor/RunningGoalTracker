@@ -6,13 +6,7 @@ import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 class AddRunningReminderUseCase(
     private val repository: RunningReminderRepository
 ) {
-    suspend operator fun invoke() {
-        val newReminder = RunningReminder(
-            hour = 8,
-            minute = 0,
-            enabled = false,
-            days = emptySet()
-        )
-        repository.upsertReminder(newReminder)
+    suspend operator fun invoke(reminder: RunningReminder) {
+        repository.upsertReminder(reminder)
     }
 }

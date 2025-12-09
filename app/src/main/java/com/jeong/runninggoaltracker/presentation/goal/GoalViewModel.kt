@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.presentation.goal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,9 +34,14 @@ class GoalViewModel @Inject constructor(
                 initialValue = GoalUiState()
             )
 
-    fun saveGoal(km: Double) {
+    fun saveGoal(weeklyGoalKm: Double) {
         viewModelScope.launch {
-            upsertRunningGoalUseCase(km)
+            val goal = try {
+                RunningGoal(weeklyGoalKm = weeklyGoalKm)
+            } catch (_: IllegalArgumentException) {
+                return@launch
+            }
+            upsertRunningGoalUseCase(goal)
         }
     }
 }

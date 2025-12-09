@@ -41,6 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -200,7 +201,12 @@ fun RecordScreen(
                             }
 
                             else -> {
-                                viewModel.addRecord(distance, duration)
+                                val todayString = LocalDate.now().toString()
+                                viewModel.addRecord(
+                                    dateString = todayString,
+                                    distanceKm = distance,
+                                    durationMinutes = duration
+                                )
                                 distanceText = ""
                                 durationText = ""
                                 errorText = null

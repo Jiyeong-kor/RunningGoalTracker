@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import javax.inject.Inject
 
 data class ReminderUiState(
@@ -45,7 +46,7 @@ class ReminderViewModel @Inject constructor(
                             hour = reminder.hour,
                             minute = reminder.minute,
                             enabled = reminder.enabled,
-                            days = reminder.days
+                            days = reminder.days.map { it.value }.toSet()
                         )
                     }
                 )
@@ -57,7 +58,13 @@ class ReminderViewModel @Inject constructor(
 
     fun addReminder() {
         viewModelScope.launch {
-            addRunningReminderUseCase()
+            val newReminder = RunningReminder(
+                hour = 8,
+                minute = 0,
+                enabled = false,
+                days = emptySet()
+            )
+            addRunningReminderUseCase(newReminder)
         }
     }
 
@@ -71,13 +78,19 @@ class ReminderViewModel @Inject constructor(
         val currentReminder = uiState.value.reminders.find { it.id == id } ?: return
         val newReminderUiState = update(currentReminder)
 
-        val runningReminder = RunningReminder(
-            id = newReminderUiState.id,
-            hour = newReminderUiState.hour,
-            minute = newReminderUiState.minute,
-            enabled = newReminderUiState.enabled,
-            days = newReminderUiState.days
-        )
+        val runningReminder = try {
+            RunningReminder(
+                id = newReminderUiState.id,
+                hour = newReminderUiState.hour,
+                minute = newReminderUiState.minute,
+                enabled = newReminderUiState.enabled,
+                days = newReminderUiState.days
+                    .mapNotNull { DayOfWeek.of(it) }
+                    .toSet()
+            )
+        } catch (_: IllegalArgumentException) {
+            return
+        }
 
         viewModelScope.launch {
             upsertRunningReminderUseCase(runningReminder)
