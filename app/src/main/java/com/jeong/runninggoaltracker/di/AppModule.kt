@@ -20,7 +20,7 @@ import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.shared.util.SystemDateProvider
+import com.jeong.runninggoaltracker.util.SystemDateProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
