@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.presentation.reminder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import com.jeong.runninggoaltracker.domain.usecase.AddRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
@@ -31,7 +30,6 @@ data class ReminderListUiState(
 @HiltViewModel
 class ReminderViewModel @Inject constructor(
     getRunningRemindersUseCase: GetRunningRemindersUseCase,
-    private val addRunningReminderUseCase: AddRunningReminderUseCase,
     private val deleteRunningReminderUseCase: DeleteRunningReminderUseCase,
     private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase
 ) : ViewModel() {
@@ -40,7 +38,9 @@ class ReminderViewModel @Inject constructor(
         getRunningRemindersUseCase()
             .map { reminders ->
                 ReminderListUiState(
-                    reminders = reminders.map { reminder ->
+                    reminders = reminders
+                        .sortedBy { it.id ?: Int.MAX_VALUE }
+                        .map { reminder ->
                         ReminderUiState(
                             id = reminder.id,
                             hour = reminder.hour,
@@ -64,7 +64,7 @@ class ReminderViewModel @Inject constructor(
                 enabled = false,
                 days = emptySet()
             )
-            addRunningReminderUseCase(newReminder)
+            upsertRunningReminderUseCase(newReminder)
         }
     }
 

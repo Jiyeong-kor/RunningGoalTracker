@@ -11,7 +11,6 @@ import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
-import com.jeong.runninggoaltracker.domain.usecase.AddRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
@@ -21,7 +20,7 @@ import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.domain.util.SystemDateProvider
+import com.jeong.runninggoaltracker.util.SystemDateProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -68,11 +67,6 @@ object AppProvidesModule {
     @Provides
     fun provideRunningSummaryCalculator(): RunningSummaryCalculator =
         WeeklySummaryCalculator()
-
-    @Provides
-    fun provideAddRunningReminderUseCase(repository: RunningReminderRepository): AddRunningReminderUseCase =
-        AddRunningReminderUseCase(repository)
-
 
     @Provides
     fun provideDeleteRunningReminderUseCase(repository: RunningReminderRepository): DeleteRunningReminderUseCase =
