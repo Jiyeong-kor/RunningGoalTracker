@@ -13,7 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import com.jeong.runninggoaltracker.shared.util.R
+import com.jeong.runninggoaltracker.shared.designsystem.R
 
 @Composable
 fun AppContentCard(

@@ -53,6 +53,7 @@ kotlin {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
+    implementation(project(":shared:util"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

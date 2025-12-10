@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.shared.util"
+    namespace = "com.jeong.runninggoaltracker.shared.designsystem"
     compileSdk {
         version = release(36)
     }

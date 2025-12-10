@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.jeong.runninggoaltracker.shared.util.test", appContext.packageName)
+        assertEquals("com.jeong.runninggoaltracker.shared.designsystem.test", appContext.packageName)
     }
 }
