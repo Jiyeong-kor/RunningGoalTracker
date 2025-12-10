@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.ui.theme
+package com.jeong.runninggoaltracker.shared.util.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.shared.util.R
 
 val Pretendard = FontFamily(
     Font(R.font.pretendard_thin, FontWeight.Thin),               // 100

@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.ui.theme
+package com.jeong.runninggoaltracker.shared.util.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.common
+package com.jeong.runninggoaltracker.shared.util.common
 
 import android.os.Build
 import androidx.annotation.RequiresApi

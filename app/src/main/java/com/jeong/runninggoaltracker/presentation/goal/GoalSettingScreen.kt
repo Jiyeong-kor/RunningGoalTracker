@@ -22,7 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.presentation.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.util.R as SharedR
+import com.jeong.runninggoaltracker.shared.util.common.AppContentCard
 
 @Composable
 fun GoalSettingScreen(
@@ -46,11 +47,11 @@ fun GoalSettingScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                horizontal = dimensionResource(R.dimen.padding_screen_horizontal),
-                vertical = dimensionResource(R.dimen.padding_screen_vertical)
+                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal),
+                vertical = dimensionResource(SharedR.dimen.padding_screen_vertical)
             ),
         verticalArrangement = Arrangement.spacedBy(
-            dimensionResource(R.dimen.spacing_screen_elements)
+            dimensionResource(SharedR.dimen.spacing_screen_elements)
         )
     ) {
         AppContentCard {

@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.common
+package com.jeong.runninggoaltracker.shared.util.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.shared.util.R
 
 @Composable
 fun AppContentCard(

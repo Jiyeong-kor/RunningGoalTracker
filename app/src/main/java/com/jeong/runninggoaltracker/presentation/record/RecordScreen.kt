@@ -39,8 +39,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
-import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.util.common.toDistanceLabel
+import com.jeong.runninggoaltracker.shared.util.common.toKoreanDateLabel
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -44,9 +44,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.presentation.common.AppContentCard
-import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
-import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.util.R as SharedR
+import com.jeong.runninggoaltracker.shared.util.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.util.common.toDistanceLabel
+import com.jeong.runninggoaltracker.shared.util.common.toKoreanDateLabel
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
 
@@ -100,17 +101,17 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                horizontal = dimensionResource(R.dimen.padding_screen_horizontal),
-                vertical = dimensionResource(R.dimen.padding_screen_vertical)
+                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal),
+                vertical = dimensionResource(SharedR.dimen.padding_screen_vertical)
             )
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(
-            dimensionResource(R.dimen.spacing_screen_elements)
+            dimensionResource(SharedR.dimen.spacing_screen_elements)
         )
     ) {
         AppContentCard(
             verticalArrangement = Arrangement.spacedBy(
-                dimensionResource(R.dimen.card_spacing_medium)
+                dimensionResource(SharedR.dimen.card_spacing_medium)
             )
         ) {
             Text(
@@ -124,16 +125,16 @@ fun HomeScreen(
                     .wrapContentWidth()
                     .clip(
                         RoundedCornerShape(
-                            dimensionResource(R.dimen.chip_corner_radius)
+                            dimensionResource(SharedR.dimen.chip_corner_radius)
                         )
                     )
                     .background(activityChipColor)
                     .padding(
-                        horizontal = dimensionResource(R.dimen.chip_padding_horizontal),
-                        vertical = dimensionResource(R.dimen.chip_padding_vertical)
+                        horizontal = dimensionResource(SharedR.dimen.chip_padding_horizontal),
+                        vertical = dimensionResource(SharedR.dimen.chip_padding_vertical)
                     ),
                 horizontalArrangement = Arrangement.spacedBy(
-                    dimensionResource(R.dimen.card_spacing_small)
+                    dimensionResource(SharedR.dimen.card_spacing_small)
                 )
             ) {
                 Icon(
@@ -177,7 +178,7 @@ fun HomeScreen(
                 ), style = typography.bodyMedium
             )
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.card_spacing_small)))
+            Spacer(Modifier.height(dimensionResource(SharedR.dimen.card_spacing_small)))
 
             Box(
                 Modifier
@@ -246,13 +247,13 @@ fun HomeScreen(
                             ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                             shape = RoundedCornerShape(
-                                dimensionResource(R.dimen.log_card_corner_radius)
+                                dimensionResource(SharedR.dimen.log_card_corner_radius)
                             )
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(dimensionResource(R.dimen.log_card_padding)),
+                                    .padding(dimensionResource(SharedR.dimen.log_card_padding)),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
