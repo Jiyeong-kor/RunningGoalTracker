@@ -7,6 +7,7 @@ class UpsertRunningGoalUseCase(
     private val repository: RunningGoalRepository
 ) {
     suspend operator fun invoke(goal: RunningGoal) {
+        require(goal.weeklyGoalKm > 0.0)
         repository.upsertGoal(goal)
     }
 }

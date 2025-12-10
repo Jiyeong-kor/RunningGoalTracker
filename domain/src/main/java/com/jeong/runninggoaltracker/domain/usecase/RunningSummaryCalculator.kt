@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
+import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import java.time.DayOfWeek
 import java.time.LocalDate
 
