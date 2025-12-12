@@ -1,0 +1,10 @@
+<resources>
+    <string name="goal_current_format">현재 목표: %.1f km</string>
+    <string name="goal_no_current_goal">현재 설정된 목표가 없습니다.</string>
+    <string name="goal_weekly_distance_label">주간 목표 거리 (km)</string>
+
+    <string name="button_save">저장하기</string>
+
+    <string name="error_enter_number">숫자를 입력해주세요.</string>
+    <string name="error_enter_positive_value">0보다 큰 값을 입력해주세요.</string>
+</resources>

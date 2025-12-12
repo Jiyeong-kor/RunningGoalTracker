@@ -2,10 +2,6 @@
     <string name="app_name">RunningGoalTracker</string>
     <string name="app_name_full">Running Goal Tracker</string>
 
-    <string name="goal_current_format">현재 목표: %.1f km</string>
-    <string name="goal_no_current_goal">현재 설정된 목표가 없습니다.</string>
-    <string name="goal_weekly_distance_label">주간 목표 거리 (km)</string>
-
     <string name="record_title_activity_recognition">활동 인식</string>
     <string name="record_current_activity_format">현재 활동: %s</string>
     <string name="record_title_add_record">러닝 기록 추가</string>

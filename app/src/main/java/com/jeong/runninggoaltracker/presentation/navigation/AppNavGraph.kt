@@ -8,9 +8,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityLogUiModel
+import com.jeong.runninggoaltracker.feature.goal.presentation.GoalRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitionUiState
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
-import com.jeong.runninggoaltracker.presentation.goal.GoalSettingScreen
 import com.jeong.runninggoaltracker.presentation.record.RecordScreen
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
@@ -49,9 +49,7 @@ fun AppNavGraph(
         }
 
         composable("goal") {
-            GoalSettingScreen(
-                onBack = { navController.popBackStack() }
-            )
+            GoalRoute(onBack = { navController.popBackStack() })
         }
 
         composable("reminder") {

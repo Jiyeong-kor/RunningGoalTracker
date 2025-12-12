@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.goal
+package com.jeong.runninggoaltracker.feature.goal.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,32 +13,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.feature.goal.R
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 
 @Composable
-fun GoalSettingScreen(
-    viewModel: GoalViewModel = hiltViewModel(),
-    onBack: () -> Unit
+fun GoalRoute(
+    onBack: () -> Unit,
+    viewModel: GoalViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    var goalText by remember {
-        mutableStateOf(state.currentGoalKm?.toString().orEmpty())
-    }
-    var errorText by remember { mutableStateOf<String?>(null) }
+    GoalScreen(
+        state = state,
+        onGoalChange = viewModel::onWeeklyGoalChanged,
+        onSave = { viewModel.saveGoal(onBack) }
+    )
+}
 
-    val errorEnterNumber = stringResource(R.string.error_enter_number)
-    val errorEnterPositiveValue = stringResource(R.string.error_enter_positive_value)
+@Composable
+fun GoalScreen(
+    state: GoalUiState,
+    onGoalChange: (String) -> Unit,
+    onSave: () -> Unit
+) {
+    val errorText = when (state.error) {
+        GoalInputError.INVALID_NUMBER -> stringResource(R.string.error_enter_number)
+        GoalInputError.NON_POSITIVE -> stringResource(R.string.error_enter_positive_value)
+        null -> null
+    }
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -59,7 +67,7 @@ fun GoalSettingScreen(
                 Text(
                     text = stringResource(
                         R.string.goal_current_format,
-                        state.currentGoalKm!!
+                        state.currentGoalKm
                     ),
                     style = typography.bodyLarge
                 )
@@ -71,11 +79,8 @@ fun GoalSettingScreen(
             }
 
             OutlinedTextField(
-                value = goalText,
-                onValueChange = {
-                    goalText = it
-                    errorText = null
-                },
+                value = state.weeklyGoalInput,
+                onValueChange = onGoalChange,
                 label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -83,30 +88,14 @@ fun GoalSettingScreen(
 
             if (errorText != null) {
                 Text(
-                    text = errorText!!,
+                    text = errorText,
                     color = colorScheme.error,
                     style = typography.bodyMedium
                 )
             }
 
             Button(
-                onClick = {
-                    val goal = goalText.toDoubleOrNull()
-                    when {
-                        goal == null -> {
-                            errorText = errorEnterNumber
-                        }
-
-                        goal <= 0.0 -> {
-                            errorText = errorEnterPositiveValue
-                        }
-
-                        else -> {
-                            viewModel.saveGoal(goal)
-                            onBack()
-                        }
-                    }
-                },
+                onClick = onSave,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_save))
