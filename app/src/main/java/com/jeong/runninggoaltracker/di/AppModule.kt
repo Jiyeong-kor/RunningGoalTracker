@@ -1,9 +1,9 @@
 package com.jeong.runninggoaltracker.di
 
 import android.content.Context
-import androidx.room.Room
 import com.jeong.runninggoaltracker.data.local.RunningDao
 import com.jeong.runninggoaltracker.data.local.RunningDatabase
+import com.jeong.runninggoaltracker.data.local.RunningDatabaseFactory
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
@@ -37,13 +37,10 @@ object AppProvidesModule {
 
     @Provides
     @Singleton
-    fun provideRunningDatabase(@ApplicationContext context: Context): RunningDatabase =
-        Room.databaseBuilder(
-            context,
-            RunningDatabase::class.java,
-            RunningDatabase.NAME
-        ).fallbackToDestructiveMigration(false)
-            .build()
+    fun provideRunningDatabase(
+        @ApplicationContext context: Context,
+        factory: RunningDatabaseFactory,
+    ): RunningDatabase = factory.create(context)
 
     @Provides
     fun provideRunningDao(db: RunningDatabase): RunningDao = db.runningDao()

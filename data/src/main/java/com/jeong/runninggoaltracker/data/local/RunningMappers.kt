@@ -1,5 +1,7 @@
 package com.jeong.runninggoaltracker.data.local
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
@@ -8,6 +10,7 @@ import java.time.LocalDate
 
 private const val DAYS_DELIMITER = ","
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun RunningRecordEntity.toDomain(): RunningRecord =
     RunningRecord(
         id = id,
@@ -34,6 +37,7 @@ fun RunningGoal.toEntity(): RunningGoalEntity =
         weeklyGoalKm = weeklyGoalKm
     )
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun RunningReminderEntity.toDomain(): RunningReminder =
     RunningReminder(
         id = id,
@@ -48,6 +52,7 @@ fun RunningReminderEntity.toDomain(): RunningReminder =
             }.toSet()
     )
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun RunningReminder.toEntity(): RunningReminderEntity =
     RunningReminderEntity(
         id = id,

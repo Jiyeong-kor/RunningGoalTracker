@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -41,6 +42,13 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+
+    // Room
+    implementation(libs.bundles.room)
+    ksp(libs.androidx.room.compiler)
+
+    // DI core
+    implementation(libs.javax.inject)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)

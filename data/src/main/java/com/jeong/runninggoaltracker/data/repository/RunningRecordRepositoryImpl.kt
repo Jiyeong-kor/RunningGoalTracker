@@ -1,6 +1,7 @@
-// data/src/main/java/com/jeong/runninggoaltracker/data/repository/RunningRecordRepositoryImpl.kt
 package com.jeong.runninggoaltracker.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.jeong.runninggoaltracker.data.local.RunningDao
 import com.jeong.runninggoaltracker.data.local.toDomain
 import com.jeong.runninggoaltracker.data.local.toEntity
@@ -14,6 +15,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val dao: RunningDao
 ) : RunningRecordRepository {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getAllRecords(): Flow<List<RunningRecord>> {
         return dao.getAllRecords().map { records ->
             records.map { it.toDomain() }

@@ -51,6 +51,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":data"))
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
 
@@ -62,9 +63,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // Room
-    implementation(libs.bundles.room)
-    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
 
     // Hilt
     implementation(libs.hilt.android)
