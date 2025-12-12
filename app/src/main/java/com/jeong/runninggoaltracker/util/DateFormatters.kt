@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.shared.util
+package com.jeong.runninggoaltracker.util
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

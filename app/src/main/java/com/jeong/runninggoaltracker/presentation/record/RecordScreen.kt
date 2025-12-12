@@ -42,8 +42,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.util.toDistanceLabel
-import com.jeong.runninggoaltracker.shared.util.toKoreanDateLabel
+import com.jeong.runninggoaltracker.util.toDistanceLabel
+import com.jeong.runninggoaltracker.util.toKoreanDateLabel
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
