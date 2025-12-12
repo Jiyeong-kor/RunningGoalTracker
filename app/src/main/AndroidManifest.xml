@@ -31,11 +31,6 @@
             android:name=".presentation.reminder.ReminderAlarmReceiver"
             android:exported="false" />
 
-        <receiver
-            android:name=".presentation.record.ActivityRecognitionReceiver"
-            android:exported="true"
-            android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-
     </application>
 
 </manifest>

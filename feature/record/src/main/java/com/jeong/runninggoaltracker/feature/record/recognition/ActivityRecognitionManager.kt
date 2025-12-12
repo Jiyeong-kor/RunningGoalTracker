@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.record
+package com.jeong.runninggoaltracker.feature.record.recognition
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -18,6 +18,14 @@ class ActivityRecognitionManager(
     private val client: ActivityRecognitionClient =
         ActivityRecognition.getClient(context)
 
+    fun hasPermission(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_GRANTED
+    }
+
     private fun createPendingIntent(): PendingIntent {
         val intent = Intent(
             context.applicationContext, ActivityRecognitionReceiver::class.java
@@ -30,17 +38,11 @@ class ActivityRecognitionManager(
         )
     }
 
+    @SuppressLint("MissingPermission")
     fun startUpdates() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val granted = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (!granted) {
-                ActivityRecognitionStateHolder.update("NO_PERMISSION")
-                return
-            }
+        if (!hasPermission()) {
+            ActivityRecognitionStateHolder.update("NO_PERMISSION")
+            return
         }
 
         try {

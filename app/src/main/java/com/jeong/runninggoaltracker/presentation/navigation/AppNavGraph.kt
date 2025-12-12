@@ -11,11 +11,11 @@ import com.jeong.runninggoaltracker.feature.home.presentation.ActivityLogUiModel
 import com.jeong.runninggoaltracker.feature.goal.presentation.GoalRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitionUiState
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
-import com.jeong.runninggoaltracker.presentation.record.RecordScreen
-import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
-import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
-import com.jeong.runninggoaltracker.presentation.record.ActivityLogEntry
-import com.jeong.runninggoaltracker.presentation.record.ActivityState
+import com.jeong.runninggoaltracker.feature.record.presentation.RecordRoute
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogHolder
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
 import com.jeong.runninggoaltracker.presentation.reminder.ReminderSettingScreen
 import kotlinx.coroutines.flow.map
 
@@ -45,7 +45,7 @@ fun AppNavGraph(
         }
 
         composable("record") {
-            RecordScreen()
+            RecordRoute()
         }
 
         composable("goal") {

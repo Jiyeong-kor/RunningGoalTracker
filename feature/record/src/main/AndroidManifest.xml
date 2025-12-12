@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <receiver
+            android:name=".recognition.ActivityRecognitionReceiver"
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    </application>
 
 </manifest>

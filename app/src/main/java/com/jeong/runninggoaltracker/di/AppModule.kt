@@ -14,6 +14,7 @@ import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.CreateDefaultReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
+import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
@@ -52,6 +53,11 @@ object AppProvidesModule {
     @Provides
     fun provideAddRunningRecordUseCase(repository: RunningRecordRepository): AddRunningRecordUseCase =
         AddRunningRecordUseCase(repository)
+
+    @Provides
+    fun provideGetRunningRecordsUseCase(
+        repository: RunningRecordRepository
+    ): GetRunningRecordsUseCase = GetRunningRecordsUseCase(repository)
 
     @Provides
     fun provideGetRunningSummaryUseCase(

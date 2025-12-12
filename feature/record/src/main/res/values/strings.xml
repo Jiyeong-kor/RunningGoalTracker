@@ -1,0 +1,21 @@
+<resources>
+    <string name="record_title_activity_recognition">활동 인식</string>
+    <string name="record_current_activity_format">현재 활동: %s</string>
+    <string name="record_title_add_record">러닝 기록 추가</string>
+    <string name="record_distance_label">거리 (km)</string>
+    <string name="record_duration_label">시간 (분)</string>
+    <string name="record_title_saved_records">저장된 러닝 기록</string>
+    <string name="record_no_saved_records">저장된 기록이 없습니다.</string>
+    <string name="record_duration_minutes_format">%d 분</string>
+
+    <string name="activity_permission_needed">활동 권한이 필요합니다</string>
+    <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
+    <string name="activity_unknown">활동 알 수 없음</string>
+
+    <string name="button_start_detection">활동 감지 시작</string>
+    <string name="button_stop_detection">활동 감지 중지</string>
+    <string name="button_save">저장하기</string>
+
+    <string name="error_enter_number_format">숫자 형식으로 입력해주세요.</string>
+    <string name="error_enter_positive_value">0보다 큰 값을 입력해주세요.</string>
+</resources>

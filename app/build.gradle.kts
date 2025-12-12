@@ -56,6 +56,7 @@ dependencies {
     implementation(project(":shared:designsystem"))
     implementation(project(":feature:home"))
     implementation(project(":feature:goal"))
+    implementation(project(":feature:record"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

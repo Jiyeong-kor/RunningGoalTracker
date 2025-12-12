@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.record
+package com.jeong.runninggoaltracker.feature.record.recognition
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

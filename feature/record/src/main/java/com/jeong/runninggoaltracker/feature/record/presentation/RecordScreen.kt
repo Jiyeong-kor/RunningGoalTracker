@@ -1,6 +1,9 @@
-package com.jeong.runninggoaltracker.presentation.record
+package com.jeong.runninggoaltracker.feature.record.presentation
 
+import android.Manifest
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,9 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -39,35 +40,46 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
 import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
-import java.time.LocalDate
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun RecordRoute(
+    viewModel: RecordViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val activityState by ActivityRecognitionStateHolder.state.collectAsState()
+
+    RecordScreen(
+        uiState = uiState,
+        activityLabel = activityState.label,
+        onDistanceChange = viewModel::onDistanceChanged,
+        onDurationChange = viewModel::onDurationChanged,
+        onSaveRecord = viewModel::saveRecord
+    )
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordScreen(
-    viewModel: RecordViewModel = hiltViewModel()
+    uiState: RecordUiState,
+    activityLabel: String,
+    onDistanceChange: (String) -> Unit,
+    onDurationChange: (String) -> Unit,
+    onSaveRecord: () -> Unit
 ) {
-    var distanceText by remember { mutableStateOf("") }
-    var durationText by remember { mutableStateOf("") }
-    var errorText by remember { mutableStateOf<String?>(null) }
-
-    val records by viewModel.records.collectAsState()
-
-    val context = LocalContext.current
-    val activityManager = remember { ActivityRecognitionManager(context.applicationContext) }
-    val activityState by ActivityRecognitionStateHolder.state.collectAsState()
-
-    val displayLabel = when (activityState.label) {
+    val displayLabel = when (activityLabel) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
         "REQUEST_FAILED", "SECURITY_EXCEPTION" ->
             stringResource(R.string.activity_recognition_failed)
 
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
-        else -> activityState.label
+        else -> activityLabel
     }
 
     val recordDurationLabel = stringResource(R.string.record_duration_label)
@@ -92,6 +104,18 @@ fun RecordScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
+        val context = LocalContext.current
+        val activityManager = remember { ActivityRecognitionManager(context.applicationContext) }
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                activityManager.startUpdates()
+            } else {
+                ActivityRecognitionStateHolder.update("NO_PERMISSION")
+            }
+        }
+
         AppContentCard(
             verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
         ) {
@@ -122,7 +146,13 @@ fun RecordScreen(
                 horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
                 Button(
-                    onClick = { activityManager.startUpdates() },
+                    onClick = {
+                        if (activityManager.hasPermission()) {
+                            activityManager.startUpdates()
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                        }
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(R.string.button_start_detection))
@@ -145,62 +175,43 @@ fun RecordScreen(
             )
 
             OutlinedTextField(
-                value = distanceText,
-                onValueChange = {
-                    distanceText = it
-                    errorText = null
-                },
+                value = uiState.distanceInput,
+                onValueChange = onDistanceChange,
                 label = { Text(stringResource(R.string.record_distance_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
             OutlinedTextField(
-                value = durationText,
-                onValueChange = {
-                    durationText = it
-                    errorText = null
-                },
+                value = uiState.durationInput,
+                onValueChange = onDurationChange,
                 label = { Text(recordDurationLabel) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
-            if (errorText != null) {
-                Text(
-                    text = errorText!!,
-                    color = colorScheme.error,
-                    style = typography.bodyMedium
-                )
+            when (uiState.error) {
+                RecordInputError.INVALID_NUMBER -> {
+                    Text(
+                        text = errorEnterNumberFormat,
+                        color = colorScheme.error,
+                        style = typography.bodyMedium
+                    )
+                }
+
+                RecordInputError.NON_POSITIVE -> {
+                    Text(
+                        text = errorEnterPositiveValue,
+                        color = colorScheme.error,
+                        style = typography.bodyMedium
+                    )
+                }
+
+                null -> Unit
             }
 
             Button(
-                onClick = {
-                    val distance = distanceText.toDoubleOrNull()
-                    val duration = durationText.toIntOrNull()
-
-                    when {
-                        distance == null || duration == null -> {
-                            errorText = errorEnterNumberFormat
-                        }
-
-                        distance <= 0.0 || duration <= 0 -> {
-                            errorText = errorEnterPositiveValue
-                        }
-
-                        else -> {
-                            val todayString = LocalDate.now().toString()
-                            viewModel.addRecord(
-                                dateString = todayString,
-                                distanceKm = distance,
-                                durationMinutes = duration
-                            )
-                            distanceText = ""
-                            durationText = ""
-                            errorText = null
-                        }
-                    }
-                },
+                onClick = onSaveRecord,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_save))
@@ -215,7 +226,7 @@ fun RecordScreen(
                 style = typography.titleMedium
             )
 
-            if (records.isEmpty()) {
+            if (uiState.records.isEmpty()) {
                 Text(
                     text = stringResource(R.string.record_no_saved_records),
                     style = typography.bodyMedium,
@@ -228,7 +239,7 @@ fun RecordScreen(
                         .fillMaxWidth()
                         .heightIn(max = recordListMaxHeight)
                 ) {
-                    items(records) { record ->
+                    items(uiState.records) { record ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
