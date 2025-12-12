@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.reminder
+package com.jeong.runninggoaltracker.feature.reminder.alarm
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -8,10 +8,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
+import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
 
 class ReminderAlarmReceiver : BroadcastReceiver() {
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @SuppressLint("ScheduleExactAlarm")
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getIntExtra("id", 0)

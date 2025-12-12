@@ -2,18 +2,6 @@
     <string name="app_name">RunningGoalTracker</string>
     <string name="app_name_full">Running Goal Tracker</string>
 
-    <string name="reminder_select_time_format">알림 시간 선택: %s</string>
-    <string name="reminder_dialog_title_select_time">알림 시간 선택</string>
-    <string name="reminder_select_days_label">요일 반복 설정</string>
-    <string name="reminder_add_button_label">알림 추가</string>
-    <string name="reminder_delete_button_label">삭제</string>
-    <string name="reminder_error_select_at_least_one_day">알림을 켜기 전에 요일을 하나 이상 선택해 주세요.</string>
-    <string name="reminder_error_notification_permission_denied">알림 권한이 거부되어 리마인더 알림이 표시되지 않을 수 있습니다.</string>
-    <string name="reminder_notification_title">러닝 리마인더</string>
-    <string name="reminder_notification_text_format">%1$02d:%2$02d 러닝할 시간이에요!</string>
-    <string name="reminder_channel_name">러닝 리마인더</string>
-    <string name="reminder_channel_description">러닝 알림을 위한 채널</string>
-
     <string name="nav_home">홈</string>
     <string name="nav_record">기록</string>
     <string name="nav_reminder">알림</string>
@@ -21,16 +9,5 @@
     <string name="title_record">러닝 기록</string>
     <string name="title_goal">주간 목표</string>
     <string name="title_reminder">알림 설정</string>
-
-    <string name="day_sun">일</string>
-    <string name="day_mon">월</string>
-    <string name="day_tue">화</string>
-    <string name="day_wed">수</string>
-    <string name="day_thu">목</string>
-    <string name="day_fri">금</string>
-    <string name="day_sat">토</string>
-
-    <string name="button_confirm">확인</string>
-    <string name="button_cancel">취소</string>
     <string name="error_enter_number">숫자를 입력해주세요.</string>
 </resources>

@@ -1,11 +1,11 @@
-package com.jeong.runninggoaltracker.presentation.reminder
+package com.jeong.runninggoaltracker.feature.reminder.notification
 
 import android.Manifest
 import android.content.Context
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.feature.reminder.R
 
 object ReminderNotifier {
 
@@ -22,7 +22,7 @@ object ReminderNotifier {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.reminder_notification_title))
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

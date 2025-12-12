@@ -16,7 +16,7 @@ import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
-import com.jeong.runninggoaltracker.presentation.reminder.ReminderSettingScreen
+import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderRoute
 import kotlinx.coroutines.flow.map
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -52,10 +52,7 @@ fun AppNavGraph(
             GoalRoute(onBack = { navController.popBackStack() })
         }
 
-        composable("reminder") {
-            ReminderSettingScreen(
-            )
-        }
+        composable("reminder") { ReminderRoute() }
     }
 }
 

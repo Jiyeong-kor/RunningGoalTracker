@@ -27,10 +27,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".presentation.reminder.ReminderAlarmReceiver"
-            android:exported="false" />
-
     </application>
 
 </manifest>

@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":feature:home"))
     implementation(project(":feature:goal"))
     implementation(project(":feature:record"))
+    implementation(project(":feature:reminder"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.reminder
+package com.jeong.runninggoaltracker.feature.reminder.alarm
 
 import android.Manifest
 import android.app.AlarmManager

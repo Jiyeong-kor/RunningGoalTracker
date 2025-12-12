@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.reminder
+package com.jeong.runninggoaltracker.feature.reminder.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,14 +9,13 @@ import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,21 +41,46 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.feature.reminder.R
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderAlarmScheduler
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
 import java.util.Calendar
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
-@SuppressLint("ScheduleExactAlarm")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReminderSettingScreen(
+fun ReminderRoute(
     viewModel: ReminderViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scheduler = remember { ReminderAlarmScheduler(context) }
 
+    ReminderScreen(
+        state = state,
+        context = context,
+        scheduler = scheduler,
+        onAddReminder = viewModel::addReminder,
+        onDeleteReminder = viewModel::deleteReminder,
+        onToggleReminder = viewModel::updateEnabled,
+        onUpdateTime = viewModel::updateTime,
+        onToggleDay = viewModel::toggleDay
+    )
+}
+
+@SuppressLint("ScheduleExactAlarm")
+@Composable
+fun ReminderScreen(
+    state: ReminderListUiState,
+    context: Context,
+    scheduler: ReminderAlarmScheduler,
+    onAddReminder: () -> Unit,
+    onDeleteReminder: (Int) -> Unit,
+    onToggleReminder: (Int, Boolean) -> Unit,
+    onUpdateTime: (Int, Int, Int) -> Unit,
+    onToggleDay: (Int, Int) -> Unit
+) {
     val reminderErrorNotificationPermissionDenied =
         stringResource(R.string.reminder_error_notification_permission_denied)
 
@@ -108,7 +132,10 @@ fun ReminderSettingScreen(
         ) { index ->
             ReminderCard(
                 reminder = list[index],
-                viewModel = viewModel,
+                onToggleReminder = onToggleReminder,
+                onUpdateTime = onUpdateTime,
+                onToggleDay = onToggleDay,
+                onDeleteReminder = onDeleteReminder,
                 scheduler = scheduler,
                 context = context,
                 colorScheme = colorScheme,
@@ -118,7 +145,7 @@ fun ReminderSettingScreen(
 
         item {
             Button(
-                onClick = { viewModel.addReminder() },
+                onClick = { onAddReminder() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.reminder_add_button_label))
@@ -127,75 +154,50 @@ fun ReminderSettingScreen(
     }
 }
 
-@SuppressLint("ScheduleExactAlarm")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderCard(
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ReminderCard(
     reminder: ReminderUiState,
-    viewModel: ReminderViewModel,
+    onToggleReminder: (Int, Boolean) -> Unit,
+    onUpdateTime: (Int, Int, Int) -> Unit,
+    onToggleDay: (Int, Int) -> Unit,
+    onDeleteReminder: (Int) -> Unit,
     scheduler: ReminderAlarmScheduler,
     context: Context,
     colorScheme: ColorScheme,
-    typography: androidx.compose.material3.Typography,
+    typography: androidx.compose.material3.Typography
 ) {
-    val daysOfWeek = rememberDaysOfWeek()
-
     val showTimePicker = remember { mutableStateOf(false) }
-
-    val displayTimeLabel = run {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, reminder.hour)
-            set(Calendar.MINUTE, reminder.minute)
-        }
-        DateFormat.getTimeFormat(context).format(cal.time)
-    }
-
     val id = reminder.id ?: return
 
-    AppContentCard(
-        verticalArrangement = Arrangement.spacedBy(
-            dimensionResource(SharedR.dimen.card_spacing_medium)
-        )
-    ) {
+    val daysOfWeek = rememberDaysOfWeek()
+
+    AppContentCard {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(
-                onClick = { showTimePicker.value = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.reminder_select_time_format,
-                        displayTimeLabel
-                    ), style = typography.bodyLarge
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.width(
-                    dimensionResource(SharedR.dimen.card_spacing_medium)
-                )
+            Text(
+                text = stringResource(
+                    R.string.reminder_select_time_format,
+                    formatTime(reminder.hour, reminder.minute)
+                ),
+                style = typography.titleMedium
             )
-
             Switch(
                 checked = reminder.enabled,
                 onCheckedChange = { enabled ->
-
                     if (enabled && reminder.days.isEmpty()) {
                         Toast.makeText(
                             context,
-                            context.getString(
-                                R.string.reminder_error_select_at_least_one_day
-                            ),
+                            R.string.reminder_error_select_at_least_one_day,
                             Toast.LENGTH_SHORT
                         ).show()
                         return@Switch
                     }
 
-                    viewModel.updateEnabled(id, enabled)
+                    onToggleReminder(id, enabled)
 
                     if (enabled && reminder.days.isNotEmpty()) {
                         scheduler.schedule(id, reminder.hour, reminder.minute, reminder.days)
@@ -225,7 +227,7 @@ fun ReminderCard(
                         dayName = dayName,
                         isSelected = reminder.days.contains(dayInt),
                         onClick = {
-                            viewModel.toggleDay(id, dayInt)
+                            onToggleDay(id, dayInt)
 
                             if (reminder.enabled) {
                                 scheduler.cancel(
@@ -248,7 +250,7 @@ fun ReminderCard(
                                         newDays
                                     )
                                 } else {
-                                    viewModel.updateEnabled(id, false)
+                                    onToggleReminder(id, false)
                                 }
                             }
                         }
@@ -264,7 +266,7 @@ fun ReminderCard(
             OutlinedButton(
                 onClick = {
                     scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
-                    viewModel.deleteReminder(id)
+                    onDeleteReminder(id)
                 },
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
             ) {
@@ -285,7 +287,7 @@ fun ReminderCard(
                     val h = timeState.hour
                     val m = timeState.minute
 
-                    viewModel.updateTime(id, h, m)
+                    onUpdateTime(id, h, m)
 
                     if (reminder.enabled && reminder.days.isNotEmpty()) {
                         scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
@@ -320,4 +322,12 @@ private fun rememberDaysOfWeek(): Map<Int, String> {
         Calendar.FRIDAY to stringResource(R.string.day_fri),
         Calendar.SATURDAY to stringResource(R.string.day_sat)
     )
+}
+
+private fun formatTime(hour: Int, minute: Int): String {
+    val calendar = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+    }
+    return DateFormat.format("HH:mm", calendar).toString()
 }

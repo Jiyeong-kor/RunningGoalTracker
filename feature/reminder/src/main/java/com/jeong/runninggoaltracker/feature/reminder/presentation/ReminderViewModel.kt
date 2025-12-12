@@ -1,5 +1,7 @@
-package com.jeong.runninggoaltracker.presentation.reminder
+package com.jeong.runninggoaltracker.feature.reminder.presentation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
@@ -22,7 +24,7 @@ data class ReminderUiState(
     val hour: Int = 20,
     val minute: Int = 0,
     val enabled: Boolean = false,
-    val days: Set<Int> = setOf()
+    val days: Set<Int> = emptySet()
 )
 
 data class ReminderListUiState(
@@ -38,24 +40,13 @@ class ReminderViewModel @Inject constructor(
     private val toggleReminderDayUseCase: ToggleReminderDayUseCase
 ) : ViewModel() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     val uiState: StateFlow<ReminderListUiState> =
         getRunningRemindersUseCase()
-            .map { reminders ->
-                ReminderListUiState(
-                    reminders = reminders
-                        .map { reminder ->
-                            ReminderUiState(
-                                id = reminder.id,
-                                hour = reminder.hour,
-                                minute = reminder.minute,
-                                enabled = reminder.enabled,
-                                days = reminder.days.map { it.value }.toSet()
-                            )
-                        }
-                )
-            }.stateIn(
+            .map { reminders -> ReminderListUiState(reminders.map { it.toUiState() }) }
+            .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = ReminderListUiState()
             )
 
@@ -67,43 +58,20 @@ class ReminderViewModel @Inject constructor(
     }
 
     fun deleteReminder(id: Int) {
-        viewModelScope.launch {
-            deleteRunningReminderUseCase(id)
-        }
+        viewModelScope.launch { deleteRunningReminderUseCase(id) }
     }
 
-    private fun updateAndPersistReminder(id: Int, update: (RunningReminder) -> RunningReminder) {
-        val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
-
-        val currentRunningReminder = try {
-            RunningReminder(
-                id = currentReminderUiState.id,
-                hour = currentReminderUiState.hour,
-                minute = currentReminderUiState.minute,
-                enabled = currentReminderUiState.enabled,
-                days = currentReminderUiState.days
-                    .mapNotNull { DayOfWeek.of(it) }
-                    .toSet()
-            )
-        } catch (_: IllegalArgumentException) {
-            return
-        }
-
-        val newRunningReminder = update(currentRunningReminder)
-
-        viewModelScope.launch {
-            upsertRunningReminderUseCase(newRunningReminder)
-        }
-    }
-
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateEnabled(id: Int, enabled: Boolean) {
         updateAndPersistReminder(id) { it.copy(enabled = enabled) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(id: Int, hour: Int, minute: Int) {
         updateAndPersistReminder(id) { it.copy(hour = hour, minute = minute) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun toggleDay(id: Int, day: Int) {
         val dayOfWeek = try {
             DayOfWeek.of(day)
@@ -111,8 +79,46 @@ class ReminderViewModel @Inject constructor(
             return
         }
 
-        updateAndPersistReminder(id) { currentReminder ->
-            toggleReminderDayUseCase(currentReminder, dayOfWeek)
+        updateAndPersistReminder(id) { current ->
+            toggleReminderDayUseCase(current, dayOfWeek)
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateAndPersistReminder(
+        id: Int,
+        update: (RunningReminder) -> RunningReminder
+    ) {
+        val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
+
+        val currentRunningReminder = try {
+            currentReminderUiState.toDomain()
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+
+        val newRunningReminder = update(currentRunningReminder)
+
+        viewModelScope.launch { upsertRunningReminderUseCase(newRunningReminder) }
+    }
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun RunningReminder.toUiState(): ReminderUiState =
+    ReminderUiState(
+        id = id,
+        hour = hour,
+        minute = minute,
+        enabled = enabled,
+        days = days.map { it.value }.toSet()
+    )
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ReminderUiState.toDomain(): RunningReminder =
+    RunningReminder(
+        id = id,
+        hour = hour,
+        minute = minute,
+        enabled = enabled,
+        days = days.map { DayOfWeek.of(it) }.toSet()
+    )
