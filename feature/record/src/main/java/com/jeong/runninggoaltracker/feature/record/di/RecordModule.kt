@@ -7,6 +7,8 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import dagger.Binds
 import dagger.Module
@@ -65,4 +67,15 @@ object RecordSingletonModule {
         @ApplicationContext context: Context,
         stateHolder: ActivityRecognitionStateHolder
     ): ActivityRecognitionManager = ActivityRecognitionManager(context, stateHolder)
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RecordSingletonBindingsModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindActivityRecognitionMonitor(
+        holder: ActivityRecognitionMonitorHolder
+    ): ActivityRecognitionMonitor
 }

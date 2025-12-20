@@ -30,13 +30,18 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.presentation.navigation.AppNavGraph
 import com.jeong.runninggoaltracker.presentation.navigation.bottomNavItems
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var activityRecognitionMonitor: ActivityRecognitionMonitor
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +65,8 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     AppNavGraph(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        activityRecognitionMonitor = activityRecognitionMonitor
                     )
                 }
             }
