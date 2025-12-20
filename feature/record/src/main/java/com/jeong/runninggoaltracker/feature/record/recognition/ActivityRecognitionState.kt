@@ -9,13 +9,17 @@ data class ActivityState(
     val label: String = "UNKNOWN"
 )
 
+interface ActivityStateUpdater {
+    fun update(label: String)
+}
+
 @Singleton
-class ActivityRecognitionStateHolder @Inject constructor() {
+class ActivityRecognitionStateHolder @Inject constructor() : ActivityStateUpdater {
 
     private val _state = MutableStateFlow(ActivityState())
     val state: StateFlow<ActivityState> = _state
 
-    fun update(label: String) {
+    override fun update(label: String) {
         _state.value = ActivityState(
             label = label,
         )
