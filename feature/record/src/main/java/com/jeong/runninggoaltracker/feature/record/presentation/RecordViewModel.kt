@@ -9,7 +9,7 @@ import com.jeong.runninggoaltracker.domain.usecase.RunningRecordValidationResult
 import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +46,7 @@ class RecordViewModel @Inject constructor(
     private val dateProvider: DateProvider,
     private val validateRunningRecordInputUseCase: ValidateRunningRecordInputUseCase,
     private val activityRecognitionController: ActivityRecognitionController,
-    activityRecognitionStateHolder: ActivityRecognitionStateHolder
+    activityRecognitionMonitor: ActivityRecognitionMonitor
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(RecordInputState())
@@ -54,7 +54,7 @@ class RecordViewModel @Inject constructor(
     val uiState: StateFlow<RecordUiState> = combine(
         getRunningRecordsUseCase(),
         inputState,
-        activityRecognitionStateHolder.state
+        activityRecognitionMonitor.activityState
     ) { records, input, activity ->
         RecordUiState(
             records = records,

@@ -14,18 +14,18 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         if (!ActivityRecognitionResult.hasResult(intent)) {
-            getStateHolder(context).update("NO_RESULT")
+            getStateUpdater(context).update("NO_RESULT")
             return
         }
 
         val result = ActivityRecognitionResult.extractResult(intent) ?: run {
-            getStateHolder(context).update("NO_RESULT")
+            getStateUpdater(context).update("NO_RESULT")
             return
         }
 
         val activities: List<DetectedActivity> = result.probableActivities
         if (activities.isEmpty()) {
-            getStateHolder(context).update("NO_ACTIVITY")
+            getStateUpdater(context).update("NO_ACTIVITY")
             return
         }
 
@@ -45,7 +45,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             "raw=$rawLabel, smooth=$smoothLabel, all=$activities"
         )
 
-        getStateHolder(context).update(
+        getStateUpdater(context).update(
             label = smoothLabel
         )
 
@@ -79,6 +79,8 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
         )
         return entryPoint.activityRecognitionStateHolder()
     }
+
+    private fun getStateUpdater(context: Context): ActivityStateUpdater = getStateHolder(context)
 
     @dagger.hilt.EntryPoint
     @dagger.hilt.InstallIn(SingletonComponent::class)

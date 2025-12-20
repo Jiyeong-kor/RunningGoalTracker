@@ -66,7 +66,10 @@ object RecordSingletonModule {
     fun provideActivityRecognitionManager(
         @ApplicationContext context: Context,
         stateHolder: ActivityRecognitionStateHolder
-    ): ActivityRecognitionManager = ActivityRecognitionManager(context, stateHolder)
+    ): ActivityRecognitionManager = ActivityRecognitionManager(
+        context = context,
+        activityStateUpdater = stateHolder
+    )
 }
 
 @Module
