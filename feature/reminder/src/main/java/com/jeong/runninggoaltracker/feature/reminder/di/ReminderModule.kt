@@ -8,6 +8,7 @@ import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderScheduler
 import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulerCoordinator
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulingInteractor
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -47,6 +48,18 @@ object ReminderModule {
     fun provideUpsertRunningReminderUseCase(
         repository: RunningReminderRepository
     ): UpsertRunningReminderUseCase = UpsertRunningReminderUseCase(repository)
+
+    @Provides
+    @ViewModelScoped
+    fun provideReminderSchedulingInteractor(
+        upsertRunningReminderUseCase: UpsertRunningReminderUseCase,
+        deleteRunningReminderUseCase: DeleteRunningReminderUseCase,
+        reminderScheduler: ReminderScheduler
+    ): ReminderSchedulingInteractor = ReminderSchedulingInteractor(
+        upsertRunningReminderUseCase = upsertRunningReminderUseCase,
+        deleteRunningReminderUseCase = deleteRunningReminderUseCase,
+        reminderScheduler = reminderScheduler
+    )
 }
 
 @Module

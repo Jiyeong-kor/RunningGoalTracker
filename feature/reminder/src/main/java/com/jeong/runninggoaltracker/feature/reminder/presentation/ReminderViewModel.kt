@@ -6,11 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.usecase.CreateDefaultReminderUseCase
-import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
-import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
-import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderScheduler
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulingInteractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,11 +33,9 @@ data class ReminderListUiState(
 @HiltViewModel
 class ReminderViewModel @Inject constructor(
     getRunningRemindersUseCase: GetRunningRemindersUseCase,
-    private val deleteRunningReminderUseCase: DeleteRunningReminderUseCase,
-    private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase,
     private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
     private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
-    private val reminderScheduler: ReminderScheduler
+    private val reminderSchedulingInteractor: ReminderSchedulingInteractor
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -52,75 +48,67 @@ class ReminderViewModel @Inject constructor(
                 initialValue = ReminderListUiState()
             )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun addReminder() {
         viewModelScope.launch {
             val newReminder = createDefaultReminderUseCase()
-            upsertRunningReminderUseCase(newReminder)
+            reminderSchedulingInteractor.saveReminder(
+                updatedReminder = newReminder,
+                previousReminder = null
+            )
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun deleteReminder(id: Int) {
         val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
-        if (currentReminder != null) {
-            reminderScheduler.cancel(currentReminder)
+            ?: return
+
+        viewModelScope.launch {
+            reminderSchedulingInteractor.deleteReminder(currentReminder)
         }
-        viewModelScope.launch { deleteRunningReminderUseCase(id) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateEnabled(id: Int, enabled: Boolean) {
-        updateAndPersistReminder(id) { reminder ->
-            if (enabled && reminder.days.isEmpty()) {
-                reminder
-            } else {
-                reminder.copy(enabled = enabled)
-            }
-        }
+        updateReminder(id) { reminder -> reminder.copy(enabled = enabled) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(id: Int, hour: Int, minute: Int) {
-        updateAndPersistReminder(id) { it.copy(hour = hour, minute = minute) }
+        updateReminder(id) { it.copy(hour = hour, minute = minute) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleDay(id: Int, day: Int) {
-        updateAndPersistReminder(id) { current ->
-            val toggled = toggleReminderDayUseCase(current, day)
-            if (toggled.enabled && toggled.days.isEmpty()) {
-                toggled.copy(enabled = false)
-            } else {
-                toggled
-            }
-        }
+        updateReminder(id) { current -> toggleReminderDayUseCase(current, day) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun updateAndPersistReminder(
+    private fun updateReminder(
         id: Int,
         update: (RunningReminder) -> RunningReminder
     ) {
         val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
-
         val currentRunningReminder = currentReminderUiState.toDomainOrNull() ?: return
 
-        val newRunningReminder = update(currentRunningReminder)
+        val updatedReminder = update(currentRunningReminder).validateEnabledDays()
+        if (updatedReminder == currentRunningReminder) return
 
         viewModelScope.launch {
-            upsertRunningReminderUseCase(newRunningReminder)
-            rescheduleReminder(currentRunningReminder, newRunningReminder)
+            reminderSchedulingInteractor.saveReminder(
+                updatedReminder = updatedReminder,
+                previousReminder = currentRunningReminder
+            )
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun rescheduleReminder(
-        previous: RunningReminder,
-        updated: RunningReminder
-    ) {
-        reminderScheduler.cancel(previous)
-        reminderScheduler.scheduleIfNeeded(updated)
-    }
+    private fun RunningReminder.validateEnabledDays(): RunningReminder =
+        if (enabled && days.isEmpty()) {
+            copy(enabled = false)
+        } else {
+            this
+        }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
