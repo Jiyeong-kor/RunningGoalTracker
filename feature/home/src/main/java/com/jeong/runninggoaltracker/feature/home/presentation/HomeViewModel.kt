@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.feature.home.presentation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
@@ -24,7 +22,6 @@ class HomeViewModel @Inject constructor(
     getRunningSummaryUseCase: GetRunningSummaryUseCase
 ) : ViewModel() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     val uiState: StateFlow<HomeUiState> =
         getRunningSummaryUseCase()
             .map { summary ->
