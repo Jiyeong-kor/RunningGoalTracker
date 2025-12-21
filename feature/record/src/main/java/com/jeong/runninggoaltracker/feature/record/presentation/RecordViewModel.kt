@@ -65,7 +65,7 @@ class RecordViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.Eagerly,
         initialValue = RecordUiState()
     )
 
@@ -82,24 +82,24 @@ class RecordViewModel @Inject constructor(
     }
 
     fun saveRecord() {
-        when (val result = validateRunningRecordInputUseCase(
-            inputState.value.distanceInput,
-            inputState.value.durationInput
-        )) {
-            RunningRecordValidationResult.Error.INVALID_NUMBER -> {
-                inputState.update { current ->
-                    current.copy(error = RecordInputError.INVALID_NUMBER)
+        viewModelScope.launch {
+            when (val result = validateRunningRecordInputUseCase(
+                inputState.value.distanceInput,
+                inputState.value.durationInput
+            )) {
+                RunningRecordValidationResult.Error.INVALID_NUMBER -> {
+                    inputState.update { current ->
+                        current.copy(error = RecordInputError.INVALID_NUMBER)
+                    }
                 }
-            }
 
-            RunningRecordValidationResult.Error.NON_POSITIVE -> {
-                inputState.update { current ->
-                    current.copy(error = RecordInputError.NON_POSITIVE)
+                RunningRecordValidationResult.Error.NON_POSITIVE -> {
+                    inputState.update { current ->
+                        current.copy(error = RecordInputError.NON_POSITIVE)
+                    }
                 }
-            }
 
-            is RunningRecordValidationResult.Valid -> {
-                viewModelScope.launch {
+                is RunningRecordValidationResult.Valid -> {
                     addRunningRecordUseCase(
                         date = dateProvider.getToday(),
                         distanceKm = result.distanceKm,
