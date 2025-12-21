@@ -48,18 +48,21 @@ dependencies {
     implementation(project(":shared:designsystem"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.androidx.core.ktx)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
-
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.hilt.navigation.compose)
 
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.bundles.androidx.compose.test)
 }
