@@ -4,7 +4,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -98,5 +101,32 @@ class GoalScreenTest {
         composeRule.onNodeWithText("저장하기").performClick()
 
         assertTrue(saveInvoked)
+    }
+
+    @Test
+    fun updates_goal_input_and_shows_non_positive_error() {
+        var latestGoalInput = ""
+
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                GoalScreen(
+                    state = GoalUiState(
+                        currentGoalKm = 5.0,
+                        weeklyGoalInput = "0",
+                        error = GoalInputError.NON_POSITIVE
+                    ),
+                    onGoalChange = { latestGoalInput = it },
+                    onSave = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("주간 목표 거리 (km)").performTextClearance()
+        composeRule.onNodeWithText("주간 목표 거리 (km)").performTextInput("7.5")
+
+        composeRule
+            .onNodeWithText("0보다 큰 값을 입력해주세요.")
+            .assertIsDisplayed()
+        assertEquals("7.5", latestGoalInput)
     }
 }

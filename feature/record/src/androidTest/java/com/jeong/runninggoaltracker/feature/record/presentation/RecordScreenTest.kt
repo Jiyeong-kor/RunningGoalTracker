@@ -133,4 +133,53 @@ class RecordScreenTest {
         assertTrue(stopInvoked)
         assertTrue(saveInvoked)
     }
+
+    @Test
+    fun shows_error_messages_for_invalid_inputs() {
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                RecordScreen(
+                    uiState = RecordUiState(
+                        distanceInput = "abc",
+                        durationInput = "-1",
+                        error = RecordInputError.INVALID_NUMBER,
+                        activityLabel = "UNKNOWN"
+                    ),
+                    onStartActivityRecognition = {},
+                    onStopActivityRecognition = {},
+                    onPermissionDenied = {},
+                    onDistanceChange = {},
+                    onDurationChange = {},
+                    onSaveRecord = {}
+                )
+            }
+        }
+
+        composeRule
+            .onNodeWithText("숫자 형식으로 입력해주세요.")
+            .assertIsDisplayed()
+
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                RecordScreen(
+                    uiState = RecordUiState(
+                        distanceInput = "0",
+                        durationInput = "0",
+                        error = RecordInputError.NON_POSITIVE,
+                        activityLabel = "UNKNOWN"
+                    ),
+                    onStartActivityRecognition = {},
+                    onStopActivityRecognition = {},
+                    onPermissionDenied = {},
+                    onDistanceChange = {},
+                    onDurationChange = {},
+                    onSaveRecord = {}
+                )
+            }
+        }
+
+        composeRule
+            .onNodeWithText("0보다 큰 값을 입력해주세요.")
+            .assertIsDisplayed()
+    }
 }
