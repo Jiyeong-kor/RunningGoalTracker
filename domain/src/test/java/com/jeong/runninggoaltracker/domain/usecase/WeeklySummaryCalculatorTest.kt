@@ -11,7 +11,7 @@ class WeeklySummaryCalculatorTest {
     private val calculator = WeeklySummaryCalculator()
 
     @Test
-    fun `calculates totals for current week only`() {
+    fun `이번 주 기록만 합산함`() {
 
         //금요일
         val today = LocalDate.of(2024, 11, 8)
@@ -32,7 +32,7 @@ class WeeklySummaryCalculatorTest {
     }
 
     @Test
-    fun `returns zero progress when no goal is set`() {
+    fun `목표가 설정되지 않으면 진행률을 0으로 반환함`() {
         val today = LocalDate.of(2024, 1, 5)
         val records = listOf(
             RunningRecord(date = LocalDate.of(2024, 1, 1), distanceKm = 3.0, durationMinutes = 20),
@@ -48,7 +48,7 @@ class WeeklySummaryCalculatorTest {
     }
 
     @Test
-    fun `caps progress at 100 percent`() {
+    fun `진행률은 100퍼센트를 넘지 않음`() {
         val today = LocalDate.of(2024, 3, 10)
         val goal = RunningGoal(weeklyGoalKm = 5.0)
         val records = listOf(
@@ -61,5 +61,23 @@ class WeeklySummaryCalculatorTest {
         assertEquals(7.0, summary.totalThisWeekKm, 0.0)
         assertEquals(2, summary.recordCountThisWeek)
         assertEquals(1f, summary.progress)
+    }
+
+    @Test
+    fun `주간 목표가 0 또는 음수일 때 진행률을 0으로 반환함`() {
+        val today = LocalDate.of(2024, 5, 6)
+        val zeroGoal = RunningGoal(weeklyGoalKm = 0.0)
+        val negativeGoal = RunningGoal(weeklyGoalKm = -10.0)
+        val records = listOf(
+            RunningRecord(date = LocalDate.of(2024, 5, 6), distanceKm = 5.0, durationMinutes = 30)
+        )
+
+        val zeroGoalSummary = calculator.calculate(goal = zeroGoal, records = records, today = today)
+        val negativeGoalSummary = calculator.calculate(goal = negativeGoal, records = records, today = today)
+
+        assertEquals(0f, zeroGoalSummary.progress)
+        assertEquals(0f, negativeGoalSummary.progress)
+        assertEquals(5.0, zeroGoalSummary.totalThisWeekKm, 0.0)
+        assertEquals(5.0, negativeGoalSummary.totalThisWeekKm, 0.0)
     }
 }
