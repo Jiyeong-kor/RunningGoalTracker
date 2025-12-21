@@ -3,6 +3,8 @@ package com.jeong.runninggoaltracker
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -11,6 +13,7 @@ import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitio
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeScreen
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeUiState
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
 import java.time.LocalDateTime
 import org.junit.Rule
 import org.junit.Test
@@ -30,13 +33,15 @@ class HomeScreenTest {
             ActivityLogUiModel(time = now.minusDays(1).toString(), label = "STILL"),
             ActivityLogUiModel(time = now.toString(), label = "RUNNING")
         )
+        val weeklyGoalKm = 20.0
+        val totalThisWeekKm = 12.5
 
         composeRule.setContent {
             RunningGoalTrackerTheme {
                 HomeScreen(
                     uiState = HomeUiState(
-                        weeklyGoalKm = 20.0,
-                        totalThisWeekKm = 12.5,
+                        weeklyGoalKm = weeklyGoalKm,
+                        totalThisWeekKm = totalThisWeekKm,
                         recordCountThisWeek = 3,
                         progress = 0.5f
                     ),
@@ -49,13 +54,13 @@ class HomeScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("RUNNING").assertIsDisplayed()
-        composeRule.onNodeWithText("주간 목표: 20 km").assertIsDisplayed()
-        composeRule.onNodeWithText("이번 주 누적 거리: 12.5 km").assertIsDisplayed()
+        composeRule.onNodeWithTag("currentActivityText").assertIsDisplayed()
+        composeRule.onNodeWithText("주간 목표: ${weeklyGoalKm.toDistanceLabel()}").assertIsDisplayed()
+        composeRule.onNodeWithText("이번 주 누적 거리: ${totalThisWeekKm.toDistanceLabel()}").assertIsDisplayed()
         composeRule.onNodeWithText("이번 주 러닝 횟수: 3 회").assertIsDisplayed()
         composeRule.onNodeWithText("50% 달성").assertIsDisplayed()
         composeRule.onNodeWithText("최근 활동 로그").assertIsDisplayed()
         composeRule.onNodeWithText("STILL").assertIsDisplayed()
-        composeRule.onNodeWithText("RUNNING").assertIsDisplayed()
+        composeRule.onAllNodesWithText("RUNNING")[1].assertIsDisplayed()
     }
 }

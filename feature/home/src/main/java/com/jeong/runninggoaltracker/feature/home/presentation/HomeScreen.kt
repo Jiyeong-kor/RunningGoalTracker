@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -169,6 +170,7 @@ fun HomeScreen(
                     tint = colorScheme.onPrimaryContainer
                 )
                 Text(
+                    modifier = Modifier.testTag("currentActivityText"),
                     text = activityLabel,
                     style = typography.bodyMedium,
                     color = colorScheme.onPrimaryContainer
@@ -283,6 +285,7 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
+                                    modifier = Modifier.testTag("activityLogLabelText"),
                                     text = log.label,
                                     style = typography.bodyLarge
                                 )

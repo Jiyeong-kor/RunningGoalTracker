@@ -34,6 +34,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
         isCoreLibraryDesugaringEnabled = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 kotlin {
     jvmToolchain(21)
@@ -59,6 +62,9 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.espresso.core)
 }
