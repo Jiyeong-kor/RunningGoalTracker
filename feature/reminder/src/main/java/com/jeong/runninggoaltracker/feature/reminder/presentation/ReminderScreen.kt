@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ColorScheme
@@ -25,8 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -177,7 +178,8 @@ private fun ReminderCard(
                     R.string.reminder_select_time_format,
                     formatTime(reminder.hour, reminder.minute)
                 ),
-                style = typography.titleMedium
+                style = typography.titleMedium,
+                modifier = Modifier.clickable { showTimePicker.value = true }
             )
             Switch(
                 checked = reminder.enabled,
@@ -242,7 +244,7 @@ private fun ReminderCard(
             initialHour = reminder.hour,
             initialMinute = reminder.minute
         )
-        TimePickerDialog(
+        AlertDialog(
             onDismissRequest = { showTimePicker.value = false },
             confirmButton = {
                 Button(onClick = {
@@ -261,10 +263,9 @@ private fun ReminderCard(
                     Text(stringResource(R.string.button_cancel))
                 }
             },
-            title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) }
-        ) {
-            TimePicker(state = timeState)
-        }
+            title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) },
+            text = { TimeInput(state = timeState) }
+        )
     }
 }
 
