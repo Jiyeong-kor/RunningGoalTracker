@@ -104,6 +104,27 @@ class RecordScreenTest {
     }
 
     @Test
+    fun shows_error_message_when_activity_request_fails() {
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                RecordScreen(
+                    uiState = RecordUiState(activityLabel = "REQUEST_FAILED"),
+                    onStartActivityRecognition = {},
+                    onStopActivityRecognition = {},
+                    onPermissionDenied = {},
+                    onDistanceChange = {},
+                    onDurationChange = {},
+                    onSaveRecord = {}
+                )
+            }
+        }
+
+        composeRule
+            .onNodeWithText("현재 활동: 활동 인식에 실패했습니다")
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun updates_inputs_and_triggers_callbacks() {
         val state = MutableStateFlow(RecordUiState(activityLabel = "UNKNOWN"))
         var startInvoked = false
