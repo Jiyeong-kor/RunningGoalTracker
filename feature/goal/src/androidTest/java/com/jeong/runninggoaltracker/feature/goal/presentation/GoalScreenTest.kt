@@ -57,6 +57,27 @@ class GoalScreenTest {
     }
 
     @Test
+    fun shows_no_current_goal_message_when_goal_not_set() {
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                GoalScreen(
+                    state = GoalUiState(
+                        currentGoalKm = null,
+                        weeklyGoalInput = "",
+                        error = null
+                    ),
+                    onGoalChange = {},
+                    onSave = {}
+                )
+            }
+        }
+
+        composeRule
+            .onNodeWithText("현재 설정된 목표가 없습니다.")
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun triggers_save_action_when_button_clicked() {
         var saveInvoked = false
 
