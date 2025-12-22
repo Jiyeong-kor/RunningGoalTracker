@@ -1,9 +1,11 @@
 package com.jeong.runninggoaltracker.data.di
 
 import android.content.Context
-import com.jeong.runninggoaltracker.data.local.RunningDao
 import com.jeong.runninggoaltracker.data.local.RunningDatabase
 import com.jeong.runninggoaltracker.data.local.RunningDatabaseFactory
+import com.jeong.runninggoaltracker.data.local.RunningGoalDao
+import com.jeong.runninggoaltracker.data.local.RunningRecordDao
+import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
@@ -32,7 +34,13 @@ object DataProvidesModule {
     ): RunningDatabase = factory.create(context)
 
     @Provides
-    fun provideRunningDao(db: RunningDatabase): RunningDao = db.runningDao()
+    fun provideRunningRecordDao(db: RunningDatabase): RunningRecordDao = db.runningRecordDao()
+
+    @Provides
+    fun provideRunningGoalDao(db: RunningDatabase): RunningGoalDao = db.runningGoalDao()
+
+    @Provides
+    fun provideRunningReminderDao(db: RunningDatabase): RunningReminderDao = db.runningReminderDao()
 
     @Provides
     @Singleton

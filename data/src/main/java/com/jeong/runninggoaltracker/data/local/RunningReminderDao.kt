@@ -7,19 +7,7 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface RunningDao {
-
-    @Query("SELECT * FROM running_record ORDER BY date DESC")
-    fun getAllRecords(): Flow<List<RunningRecordEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRecord(record: RunningRecordEntity)
-
-    @Query("SELECT * FROM running_goal WHERE id = 0")
-    fun getGoal(): Flow<RunningGoalEntity?>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertGoal(goal: RunningGoalEntity)
+interface RunningReminderDao {
 
     @Query("SELECT * FROM running_reminder ORDER BY id ASC")
     fun getAllReminders(): Flow<List<RunningReminderEntity>>

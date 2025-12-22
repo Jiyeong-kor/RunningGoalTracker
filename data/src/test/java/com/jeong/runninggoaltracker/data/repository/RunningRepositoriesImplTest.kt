@@ -2,10 +2,12 @@ package com.jeong.runninggoaltracker.data.repository
 
 import android.os.Build
 import androidx.test.filters.SdkSuppress
+import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.local.RunningGoalEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
+import com.jeong.runninggoaltracker.data.local.RunningRecordDao
+import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
-import com.jeong.runninggoaltracker.data.local.RunningDao
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
@@ -22,15 +24,15 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class RunningRepositoriesImplTest {
 
-    private val fakeDao = FakeRunningDao()
-    private val recordRepository = RunningRecordRepositoryImpl(fakeDao)
-    private val goalRepository = RunningGoalRepositoryImpl(fakeDao)
-    private val reminderRepository = RunningReminderRepositoryImpl(fakeDao)
+    private val fakeDaos = FakeRunningDaos()
+    private val recordRepository = RunningRecordRepositoryImpl(fakeDaos)
+    private val goalRepository = RunningGoalRepositoryImpl(fakeDaos)
+    private val reminderRepository = RunningReminderRepositoryImpl(fakeDaos)
 
     @Test
     fun `record repository exposes mapped records and inserts entities`() = runBlocking {
         val recordDate = LocalDate.of(2024, 6, 1)
-        fakeDao.records.value = listOf(
+        fakeDaos.records.value = listOf(
             RunningRecordEntity(
                 id = 1L,
                 date = recordDate.toString(),
@@ -61,13 +63,13 @@ class RunningRepositoriesImplTest {
                 distanceKm = 10.0,
                 durationMinutes = 50
             ),
-            fakeDao.lastInsertedRecord
+            fakeDaos.lastInsertedRecord
         )
     }
 
     @Test
     fun `goal repository maps latest goal and upserts entity`() = runBlocking {
-        fakeDao.goal.value = RunningGoalEntity(weeklyGoalKm = 15.5)
+        fakeDaos.goal.value = RunningGoalEntity(weeklyGoalKm = 15.5)
 
         val goal = goalRepository.getGoal().first()
 
@@ -75,13 +77,13 @@ class RunningRepositoriesImplTest {
 
         goalRepository.upsertGoal(RunningGoal(weeklyGoalKm = 20.0))
 
-        assertEquals(RunningGoalEntity(weeklyGoalKm = 20.0), fakeDao.lastUpsertedGoal)
-        assertEquals(20.0, fakeDao.goal.value!!.weeklyGoalKm, 0.0)
+        assertEquals(RunningGoalEntity(weeklyGoalKm = 20.0), fakeDaos.lastUpsertedGoal)
+        assertEquals(20.0, fakeDaos.goal.value!!.weeklyGoalKm, 0.0)
     }
 
     @Test
     fun `reminder repository maps reminders and coordinates dao updates`() = runBlocking {
-        fakeDao.reminders.value = listOf(
+        fakeDaos.reminders.value = listOf(
             RunningReminderEntity(
                 id = 3,
                 hour = 6,
@@ -108,7 +110,7 @@ class RunningRepositoriesImplTest {
         reminderRepository.upsertReminder(newReminder)
         reminderRepository.deleteReminder(3)
 
-        assertTrue(fakeDao.upsertedReminders.contains(
+        assertTrue(fakeDaos.upsertedReminders.contains(
             RunningReminderEntity(
                 id = 4,
                 hour = 7,
@@ -117,11 +119,11 @@ class RunningRepositoriesImplTest {
                 days = "2"
             )
         ))
-        assertEquals(listOf(3), fakeDao.deletedReminderIds)
-        assertTrue(fakeDao.reminders.value.none { it.id == 3 })
+        assertEquals(listOf(3), fakeDaos.deletedReminderIds)
+        assertTrue(fakeDaos.reminders.value.none { it.id == 3 })
     }
 
-    private class FakeRunningDao : RunningDao {
+    private class FakeRunningDaos : RunningRecordDao, RunningGoalDao, RunningReminderDao {
         val records = MutableStateFlow<List<RunningRecordEntity>>(emptyList())
         val goal = MutableStateFlow<RunningGoalEntity?>(null)
         val reminders = MutableStateFlow<List<RunningReminderEntity>>(emptyList())

@@ -20,7 +20,9 @@ import androidx.room.TypeConverters
 )
 
 abstract class RunningDatabase : RoomDatabase() {
-    abstract fun runningDao(): RunningDao
+    abstract fun runningRecordDao(): RunningRecordDao
+    abstract fun runningGoalDao(): RunningGoalDao
+    abstract fun runningReminderDao(): RunningReminderDao
 
     companion object {
         const val NAME = "running_goal_tracker.db"
