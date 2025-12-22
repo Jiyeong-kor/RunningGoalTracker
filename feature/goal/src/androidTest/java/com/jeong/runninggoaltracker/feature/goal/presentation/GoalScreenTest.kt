@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -97,7 +98,7 @@ class GoalScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("주간 목표 거리 (km)").performTextInput("7.5")
+        composeRule.onNodeWithTag("goal_input").performTextInput("7.5")
 
         assertEquals("7.5", state.value.weeklyGoalInput)
     }
@@ -126,7 +127,7 @@ class GoalScreenTest {
 
         state.value = GoalUiState(error = GoalInputError.NON_POSITIVE)
         composeRule.onNodeWithText("0보다 큰 값을 입력해주세요.").assertIsDisplayed()
-        composeRule.onNodeWithText("숫자 형식으로 입력해주세요.").assertDoesNotExist()
+        composeRule.onNodeWithText("숫자를 입력해주세요.").assertDoesNotExist()
 
         state.value = GoalUiState(error = null)
         composeRule.onNodeWithText("숫자를 입력해주세요.").assertDoesNotExist()

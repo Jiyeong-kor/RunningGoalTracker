@@ -103,7 +103,7 @@ class HomeViewModelTest {
         override fun getAllRecords(): Flow<List<RunningRecord>> = recordsState
 
         override suspend fun addRecord(record: RunningRecord) {
-            recordsState.value = recordsState.value + record
+            recordsState.value += record
         }
 
         fun setRecords(records: List<RunningRecord>) {

@@ -80,6 +80,7 @@ private fun Intent.toAlarmPayload() = AlarmPayload(
     dayOfWeekRaw = getIntExtra(EXTRA_DAY_OF_WEEK, 0),
 )
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun Context.hasPostNotificationsPermission(): Boolean =
     ContextCompat.checkSelfPermission(
         this,

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -82,7 +83,9 @@ fun GoalScreen(
                 value = state.weeklyGoalInput,
                 onValueChange = onGoalChange,
                 label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("goal_input"),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 

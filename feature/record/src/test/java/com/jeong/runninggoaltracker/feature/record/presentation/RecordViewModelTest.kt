@@ -115,7 +115,7 @@ class RecordViewModelTest {
         override fun getAllRecords(): Flow<List<RunningRecord>> = records
 
         override suspend fun addRecord(record: RunningRecord) {
-            records.value = records.value + record
+            records.value += record
         }
     }
 
