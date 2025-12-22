@@ -70,15 +70,14 @@
 ```mermaid
 %%{init: {
   "theme":"base",
-  "flowchart": { 
-    "curve": "stepAfter", 
-    "nodeSpacing": 50, 
-    "rankSpacing": 80
-  },
   "themeVariables":{
-    "lineColor":"#CBD5E1",
-    "textColor":"#1E293B",
-    "mainBkg":"#FFFFFF"
+    "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
+    "lineColor":"#333333",
+    "textColor":"#000000",
+    "background":"#FFFFFF"
+  },
+  "flowchart": {
+    "curve": "stepAfter"
   }
 }}%%
 graph LR
@@ -89,42 +88,60 @@ graph LR
 
     %% Feature Layer
     subgraph Feature_Layer [Feature Layer]
-        FEATURES[":features"]
         HOME[":feature:home"]
         GOAL[":feature:goal"]
         RECORD[":feature:record"]
         REMINDER[":feature:reminder"]
     end
 
-    %% Data / Domain / Shared
-    subgraph Core_Layers [Core Layers]
+    %% Data Layer
+    subgraph Data_Layer [Data Layer]
         DATA[":data"]
+    end
+
+    %% Domain Layer
+    subgraph Domain_Layer [Domain Layer]
         DOMAIN[":domain"]
-        DS[":shared:designsystem"]
+    end
+
+    %% Shared Layer
+    subgraph Shared_Layer [Shared Layer]
+        DesignSystem[":shared:designsystem"]
     end
 
     %% Dependencies
-    APP --> FEATURES
+    APP --> HOME
+    APP --> GOAL
+    APP --> RECORD
+    APP --> REMINDER
     APP --> DATA
-    APP --> DS
+    APP --> DesignSystem
 
-    FEATURES --> DOMAIN
-    FEATURES --> DS
+    HOME --> DOMAIN
+    GOAL --> DOMAIN
+    RECORD --> DOMAIN
+    REMINDER --> DOMAIN
+
+    HOME --> DesignSystem
+    GOAL --> DesignSystem
+    RECORD --> DesignSystem
+    REMINDER --> DesignSystem
 
     DATA --> DOMAIN
 
-    %% 스타일 정의
-    classDef app fill:#1E293B,stroke:#0F172A,color:#FFFFFF
-    classDef data fill:#64748B,stroke:#475569,color:#FFFFFF
-    classDef shared fill:#94A3B8,stroke:#64748B,color:#FFFFFF
-    classDef domain fill:#E2E8F0,stroke:#CBD5E1,color:#1E293B
-    classDef feature fill:#FFFFFF,stroke:#E2E8F0,color:#1E293B
-
+    %% Layer classes
     class APP app
-    class DATA data
-    class DS shared
+    class HOME,GOAL,RECORD,REMINDER feature
     class DOMAIN domain
-    class FEATURES,HOME,GOAL,RECORD,REMINDER feature
+    class DATA data
+    class DesignSystem shared
+
+    %% Grayscale Palette
+    classDef app fill:#333333,stroke:#000000,stroke-width:2px,color:#FFFFFF
+    classDef data fill:#777777,stroke:#000000,stroke-width:1.5px,color:#FFFFFF
+    classDef shared fill:#AAAAAA,stroke:#000000,stroke-width:1.5px,color:#000000
+    classDef domain fill:#DDDDDD,stroke:#000000,stroke-width:1px,color:#000000
+    classDef feature fill:#FFFFFF,stroke:#000000,stroke-width:1px,color:#000000
 ```
 
 ---
