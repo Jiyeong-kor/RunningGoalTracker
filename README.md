@@ -71,14 +71,12 @@
 %%{init: {
   "theme":"base",
   "themeVariables":{
-    "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
-    "lineColor":"#333333"
+    "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif"
   },
   "flowchart": {
     "curve": "linear",
-    "rankSpacing": 120,
-    "nodeSpacing": 80, 
-    "ranker": "network-simplex"
+    "rankSpacing": 80,
+    "nodeSpacing": 30
   }
 }}%%
 graph LR
@@ -95,45 +93,50 @@ graph LR
         REMINDER[":feature:reminder"]
     end
 
-    %% Data Layer
+    %% 중간 경로 분리를 위한 투명 노드
+    subgraph Space [ ]
+        direction TB
+        s1[ ] --- s2[ ] --- s3[ ] --- s4[ ]
+    end
+    style Space fill:none,stroke:none
+    style s1 fill:none,stroke:none
+    style s2 fill:none,stroke:none
+    style s3 fill:none,stroke:none
+    style s4 fill:none,stroke:none
+
+    %% Data / Domain / Shared
     subgraph Data_Layer [Data Layer]
         DATA[":data"]
     end
-
-    %% Domain Layer
     subgraph Domain_Layer [Domain Layer]
         DOMAIN[":domain"]
     end
-
-    %% Shared Layer
     subgraph Shared_Layer [Shared Layer]
         DesignSystem[":shared:designsystem"]
     end
 
-    %% Dependencies
-    %% App에서 나가는 선 분리 유도
+    %% 선 겹침 방지를 위한 개별 연결
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
     APP --> REMINDER
+    
+    %% 개별 노드에서 각각의 경로로 분리 유도
+    HOME --> DOMAIN
+    GOAL --> DOMAIN
+    RECORD --> DOMAIN
+    REMINDER --> DOMAIN
+
+    HOME --> DesignSystem
+    GOAL --> DesignSystem
+    RECORD --> DesignSystem
+    REMINDER --> DesignSystem
+
     APP --> DATA
     APP --> DesignSystem
-
-    %% Feature에서 Domain으로 가는 선 분리
-    HOME --- DOMAIN
-    GOAL --- DOMAIN
-    RECORD --- DOMAIN
-    REMINDER --- DOMAIN
-    
-    %% Feature에서 DesignSystem으로 가는 선 분리
-    HOME --- DesignSystem
-    GOAL --- DesignSystem
-    RECORD --- DesignSystem
-    REMINDER --- DesignSystem
-
     DATA --> DOMAIN
 
-    %% Styling 및 클래스 적용 (기존과 동일)
+    %% 클래스 설정
     classDef app fill:#333333,stroke:#000000,color:#FFFFFF
     classDef data fill:#777777,stroke:#000000,color:#FFFFFF
     classDef shared fill:#AAAAAA,stroke:#000000,color:#000000
