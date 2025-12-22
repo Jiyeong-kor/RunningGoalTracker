@@ -71,54 +71,55 @@
 
 ```mermaid
 graph LR
+    %% App Layer
     subgraph App_Layer
-        APP
+        APP[":app"]
     end
 
+    %% Feature Layer
     subgraph Feature_Layer
-        direction TB
-        HOME
-        GOAL
-        RECORD
-        REMINDER
+        HOME[":feature:home"]
+        GOAL[":feature:goal"]
+        RECORD[":feature:record"]
+        REMINDER[":feature:reminder"]
     end
 
+    %% Domain Layer
     subgraph Domain_Layer
-        DOMAIN
+        DOMAIN[":domain"]
     end
 
+    %% Data Layer
     subgraph Data_Layer
-        DATA
+        DATA[":data"]
     end
 
+    %% Shared Layer
     subgraph Shared_Layer
-        DS
+        DesignSystem[":shared:designsystem"]
     end
 
+    %% App -> Feature
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
     APP --> REMINDER
     APP --> DATA
-    APP --> DS
+    APP --> DesignSystem
 
+    %% Feature -> Domain / Shared
     HOME --> DOMAIN
     GOAL --> DOMAIN
     RECORD --> DOMAIN
     REMINDER --> DOMAIN
 
-    HOME --> DS
-    GOAL --> DS
-    RECORD --> DS
-    REMINDER --> DS
+    HOME --> DesignSystem
+    GOAL --> DesignSystem
+    RECORD --> DesignSystem
+    REMINDER --> DesignSystem
 
+    %% Data -> Domain
     DATA --> DOMAIN
-
-    %% 정렬용 invisible links
-    HOME -.-> GOAL
-    GOAL -.-> RECORD
-    RECORD -.-> REMINDER
-
 ```
 
 ---
