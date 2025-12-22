@@ -1,7 +1,7 @@
 # 🏃‍♂️ RunningGoalTracker
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.2.21-blue.svg?logo=kotlin)](https://kotlinlang.org)
-[![KSP](https://img.shields.io/badge/KSP-2.2.21-2.0.4-blue.svg)](https://github.com/google/ksp)
+[![KSP](https://img.shields.io/badge/KSP-2.2.21%2D2.0.4-blue.svg)](https://github.com/google/ksp)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)]()
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?logo=android)]()
