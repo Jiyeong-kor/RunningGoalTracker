@@ -70,32 +70,31 @@
 ### 🏗 Module Dependency Architecture
 
 ```mermaid
-graph TD
-    %% 모듈 정의
-    subgraph App_Layer [App Layer]
-        APP[":app"]
+graph LR
+    subgraph App_Layer
+        APP
     end
 
-    subgraph Feature_Layer [Feature Layer]
-        HOME[":feature:home"]
-        GOAL[":feature:goal"]
-        RECORD[":feature:record"]
-        REMINDER[":feature:reminder"]
+    subgraph Feature_Layer
+        direction TB
+        HOME
+        GOAL
+        RECORD
+        REMINDER
     end
 
-    subgraph Data_Layer [Data Layer]
-        DATA[":data"]
+    subgraph Domain_Layer
+        DOMAIN
     end
 
-    subgraph Domain_Layer [Domain Layer]
-        DOMAIN[":domain"]
+    subgraph Data_Layer
+        DATA
     end
 
-    subgraph Shared_Layer [Shared Layer]
-        DS[":shared:designsystem"]
+    subgraph Shared_Layer
+        DS
     end
 
-    %% 의존성 관계 (build.gradle.kts 기반)
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
@@ -103,17 +102,23 @@ graph TD
     APP --> DATA
     APP --> DS
 
-    %% 일반적인 Clean Architecture 흐름
     HOME --> DOMAIN
-    HOME --> DS
     GOAL --> DOMAIN
-    GOAL --> DS
     RECORD --> DOMAIN
-    RECORD --> DS
     REMINDER --> DOMAIN
+
+    HOME --> DS
+    GOAL --> DS
+    RECORD --> DS
     REMINDER --> DS
 
     DATA --> DOMAIN
+
+    %% 정렬용 invisible links
+    HOME -.-> GOAL
+    GOAL -.-> RECORD
+    RECORD -.-> REMINDER
+
 ```
 
 ---
