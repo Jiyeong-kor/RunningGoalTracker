@@ -68,55 +68,56 @@
 
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: LINEAR_SEGMENTS
+---
+
 flowchart LR
+    subgraph App_Layer["App Layer"]
+        APP[":app"]
+    end
 
-subgraph App_Layer["App Layer"]
-    direction TB
-    APP[":app"]
-end
+    subgraph Feature_Layer["Feature Layer"]
+        HOME[":feature:home"]
+        GOAL[":feature:goal"]
+        RECORD[":feature:record"]
+        REMINDER[":feature:reminder"]
+    end
 
-subgraph Feature_Layer["Feature Layer"]
-    direction TB
-    HOME[":feature:home"]
-    GOAL[":feature:goal"]
-    RECORD[":feature:record"]
-    REMINDER[":feature:reminder"]
-end
+    subgraph Domain_Layer["Domain Layer"]
+        DOMAIN[":domain"]
+    end
 
-subgraph Domain_Layer["Domain Layer"]
-    direction TB
-    DOMAIN[":domain"]
-end
+    subgraph Data_Layer["Data Layer"]
+        DATA[":data"]
+    end
 
-subgraph Data_Layer["Data Layer"]
-    direction TB
-    DATA[":data"]
-end
+    subgraph Shared_Layer["Shared Layer"]
+        DS[":shared:designsystem"]
+    end
 
-subgraph Shared_Layer["Shared Layer"]
-    direction TB
-    DS[":shared:designsystem"]
-end
+    APP --> HOME
+    APP --> GOAL
+    APP --> RECORD
+    APP --> REMINDER
+    APP --> DATA
+    APP --> DS
 
-APP --> HOME
-APP --> GOAL
-APP --> RECORD
-APP --> REMINDER
-APP --> DATA
-APP --> DS
+    HOME --> DOMAIN
+    GOAL --> DOMAIN
+    RECORD --> DOMAIN
+    REMINDER --> DOMAIN
 
-HOME --> DOMAIN
-GOAL --> DOMAIN
-RECORD --> DOMAIN
-REMINDER --> DOMAIN
+    HOME --> DS
+    GOAL --> DS
+    RECORD --> DS
+    REMINDER --> DS
 
-HOME --> DS
-GOAL --> DS
-RECORD --> DS
-REMINDER --> DS
-
-DATA --> DOMAIN
-
+    DATA --> DOMAIN
 ```
 
 ---
