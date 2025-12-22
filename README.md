@@ -66,8 +66,6 @@
 - **`:app`**: 최종 애플리케이션 모듈로, 위 모듈들을 통합하여 완전한 앱을 구성합니다.
 
 ### 의존성 구조 다이어그램
-### 🏗 Module Dependency Architecture
-
 ```mermaid
 graph TD
     %% 모듈 정의
@@ -113,8 +111,7 @@ graph TD
     REMINDER --> DS
 
     DATA --> DOMAIN
-
-### 🏗 Module Dependency Architecture
+```
 
 ```mermaid
 graph LR
