@@ -72,13 +72,13 @@
   "theme":"base",
   "themeVariables":{
     "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
-    "lineColor":"#333333",
-    "textColor":"#000000",
-    "background":"#FFFFFF"
+    "lineColor":"#333333"
   },
   "flowchart": {
-    "curve": "stepAfter",
-"rankSpacing": 80
+    "curve": "linear",
+    "rankSpacing": 100,
+    "nodeSpacing": 50,
+    "htmlLabels": true
   }
 }}%%
 graph LR
@@ -110,7 +110,7 @@ graph LR
         DesignSystem[":shared:designsystem"]
     end
 
-    %% Dependencies
+    %% Dependencies (선이 꼬이지 않도록 순서 재배치)
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
@@ -130,19 +130,18 @@ graph LR
 
     DATA --> DOMAIN
 
-    %% Layer classes
+    %% Styling
+    classDef app fill:#333333,stroke:#000000,color:#FFFFFF
+    classDef data fill:#777777,stroke:#000000,color:#FFFFFF
+    classDef shared fill:#AAAAAA,stroke:#000000,color:#000000
+    classDef domain fill:#DDDDDD,stroke:#000000,color:#000000
+    classDef feature fill:#FFFFFF,stroke:#000000,color:#000000
+
     class APP app
     class HOME,GOAL,RECORD,REMINDER feature
     class DOMAIN domain
     class DATA data
     class DesignSystem shared
-
-    %% Grayscale Palette
-    classDef app fill:#333333,stroke:#000000,stroke-width:2px,color:#FFFFFF
-    classDef data fill:#777777,stroke:#000000,stroke-width:1.5px,color:#FFFFFF
-    classDef shared fill:#AAAAAA,stroke:#000000,stroke-width:1.5px,color:#000000
-    classDef domain fill:#DDDDDD,stroke:#000000,stroke-width:1px,color:#000000
-    classDef feature fill:#FFFFFF,stroke:#000000,stroke-width:1px,color:#000000
 ```
 
 ---
