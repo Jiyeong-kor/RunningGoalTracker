@@ -71,102 +71,75 @@
 %%{init: {
   "theme": "base",
   "themeVariables": {
-    "background": "#ffffff",
-    "primaryColor": "#f2f2f2",
+    "primaryColor": "#ffffff",
     "primaryTextColor": "#111111",
-    "primaryBorderColor": "#444444",
-    "lineColor": "#444444",
-    "fontSize": "14px"
+    "primaryBorderColor": "#333333",
+    "lineColor": "#666666",
+    "fontSize": "13px",
+    "fontFamily": "Inter, system-ui, sans-serif"
   }
 }}%%
 
 flowchart TD
   %% =========================
-  %% App Layer
+  %% Layer Definitions
   %% =========================
-  subgraph App_Layer["App Layer"]
+  
+  subgraph App_Layer ["App Layer"]
     APP[":app"]
   end
 
-  %% =========================
-  %% Feature Layer
-  %% =========================
-  subgraph Feature_Layer["Feature Layer"]
+  subgraph Feature_Layer ["Feature Layer"]
+    direction LR
     HOME[":feature:home"]
     GOAL[":feature:goal"]
     RECORD[":feature:record"]
     REMINDER[":feature:reminder"]
-
-    %% layout only (no semantic meaning)
-    HOME ~~~ GOAL
-    GOAL ~~~ RECORD
-    RECORD ~~~ REMINDER
   end
 
-  %% =========================
-  %% Domain Layer
-  %% =========================
-  subgraph Domain_Layer["Domain Layer"]
-    DOMAIN[":domain"]
-  end
-
-  %% =========================
-  %% Data Layer
-  %% =========================
-  subgraph Data_Layer["Data Layer"]
+  subgraph Data_Layer ["Data Layer"]
     DATA[":data"]
   end
 
-  %% =========================
-  %% Shared Layer
-  %% =========================
-  subgraph Shared_Layer["Shared Layer"]
+  subgraph Domain_Layer ["Domain Layer"]
+    DOMAIN[":domain"]
+  end
+
+  subgraph Shared_Layer ["Shared Layer"]
     DS[":shared:designsystem"]
   end
 
   %% =========================
-  %% Dependencies (semantic)
+  %% Dependency Flows
   %% =========================
-  APP --> HOME
-  APP --> GOAL
-  APP --> RECORD
-  APP --> REMINDER
+  
+  %% App to Features
+  APP --> HOME & GOAL & RECORD & REMINDER
   APP --> DATA
   APP --> DS
 
-  HOME --> DOMAIN
-  GOAL --> DOMAIN
-  RECORD --> DOMAIN
-  REMINDER --> DOMAIN
+  %% Features to Domain/Shared
+  HOME & GOAL & RECORD & REMINDER --> DOMAIN
+  HOME & GOAL & RECORD & REMINDER --> DS
 
-  HOME --> DS
-  GOAL --> DS
-  RECORD --> DS
-  REMINDER --> DS
-
+  %% Data to Domain
   DATA --> DOMAIN
 
   %% =========================
-  %% Monotone Styling (lightness only)
+  %% Styling & Aesthetics
   %% =========================
-  classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
-  classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  
+  classDef app fill:#D1D5DB,stroke:#111827,stroke-width:2px,font-weight:bold;
+  classDef feature fill:#F3F4F6,stroke:#4B5563,stroke-width:1px;
+  classDef data fill:#E5E7EB,stroke:#4B5563,stroke-width:1px;
+  classDef domain fill:#FFFFFF,stroke:#1F2937,stroke-width:2px,font-weight:bold;
+  classDef shared fill:#F9FAFB,stroke:#9CA3AF,stroke-dasharray: 5 5;
 
   class APP app;
   class HOME,GOAL,RECORD,REMINDER feature;
-  class DOMAIN domain;
   class DATA data;
+  class DOMAIN domain;
   class DS shared;
-
-  %% =========================
-  %% Hide layout-only links
-  %% (HOME~GOAL, GOAL~RECORD, RECORD~REMINDER)
-  %% =========================
-  linkStyle 0,1,2 stroke-width:0px;
-
 ```
 
 ---
