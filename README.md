@@ -71,75 +71,85 @@
 %%{init: {
   "theme": "base",
   "themeVariables": {
-    "primaryColor": "#ffffff",
-    "primaryTextColor": "#111111",
-    "primaryBorderColor": "#333333",
-    "lineColor": "#666666",
-    "fontSize": "13px",
-    "fontFamily": "Inter, system-ui, sans-serif"
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "fontSize": "14px",
+    "clusterBkg": "#fcfcfc",
+    "clusterBorder": "#d1d1d1"
   }
 }}%%
 
 flowchart TD
   %% =========================
-  %% Layer Definitions
+  %% App Layer
   %% =========================
-  
-  subgraph App_Layer ["App Layer"]
+  subgraph App_Layer["📱 App Layer"]
     APP[":app"]
   end
 
-  subgraph Feature_Layer ["Feature Layer"]
+  %% =========================
+  %% Feature Layer
+  %% =========================
+  subgraph Feature_Layer["✨ Feature Layer"]
     direction LR
     HOME[":feature:home"]
     GOAL[":feature:goal"]
     RECORD[":feature:record"]
     REMINDER[":feature:reminder"]
+
+    %% 레이아웃 정렬용
+    HOME ~~~ GOAL ~~~ RECORD ~~~ REMINDER
   end
 
-  subgraph Data_Layer ["Data Layer"]
-    DATA[":data"]
-  end
-
-  subgraph Domain_Layer ["Domain Layer"]
+  %% =========================
+  %% Domain Layer
+  %% =========================
+  subgraph Domain_Layer["⚙️ Domain Layer"]
     DOMAIN[":domain"]
   end
 
-  subgraph Shared_Layer ["Shared Layer"]
+  %% =========================
+  %% Data Layer
+  %% =========================
+  subgraph Data_Layer["💾 Data Layer"]
+    DATA[":data"]
+  end
+
+  %% =========================
+  %% Shared Layer
+  %% =========================
+  subgraph Shared_Layer["🛠️ Shared Layer"]
     DS[":shared:designsystem"]
   end
 
   %% =========================
-  %% Dependency Flows
+  %% Dependencies
   %% =========================
-  
-  %% App to Features
-  APP --> HOME & GOAL & RECORD & REMINDER
-  APP --> DATA
-  APP --> DS
+  APP ==> HOME & GOAL & RECORD & REMINDER
+  APP ==> DATA
+  APP ==> DS
 
-  %% Features to Domain/Shared
   HOME & GOAL & RECORD & REMINDER --> DOMAIN
   HOME & GOAL & RECORD & REMINDER --> DS
 
-  %% Data to Domain
   DATA --> DOMAIN
 
   %% =========================
-  %% Styling & Aesthetics
+  %% Styling
   %% =========================
-  
-  classDef app fill:#D1D5DB,stroke:#111827,stroke-width:2px,font-weight:bold;
-  classDef feature fill:#F3F4F6,stroke:#4B5563,stroke-width:1px;
-  classDef data fill:#E5E7EB,stroke:#4B5563,stroke-width:1px;
-  classDef domain fill:#FFFFFF,stroke:#1F2937,stroke-width:2px,font-weight:bold;
-  classDef shared fill:#F9FAFB,stroke:#9CA3AF,stroke-dasharray: 5 5;
+  classDef app fill:#333,stroke:#111,stroke-width:2px,color:#fff;
+  classDef feature fill:#fff,stroke:#555,stroke-width:1.5px,color:#111;
+  classDef domain fill:#f8f9fa,stroke:#888,stroke-width:1.5px,stroke-dasharray: 3;
+  classDef data fill:#eee,stroke:#444,stroke-width:1px;
+  classDef shared fill:#e7f3ff,stroke:#3b82f6,stroke-width:1px,color:#1d4ed8;
 
   class APP app;
   class HOME,GOAL,RECORD,REMINDER feature;
-  class DATA data;
   class DOMAIN domain;
+  class DATA data;
   class DS shared;
+
+  %% 더미 링크 숨기기 (인덱스 주의: 여기서는 0,1,2번)
+  linkStyle 0,1,2 stroke-width:0px;
 ```
 
 ---
