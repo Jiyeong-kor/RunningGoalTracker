@@ -1,6 +1,7 @@
 # 🏃‍♂️ RunningGoalTracker
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-blue.svg?logo=kotlin)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.21-blue.svg?logo=kotlin)](https://kotlinlang.org)
+[![KSP](https://img.shields.io/badge/KSP-2.2.21-2.0.4-blue.svg)](https://github.com/google/ksp)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)]()
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?logo=android)]()
@@ -67,58 +68,11 @@
 
 ### 의존성 구조 다이어그램
 ```mermaid
-graph TD
-    %% 모듈 정의
-    subgraph App_Layer [App Layer]
-        APP[":app"]
-    end
-
-    subgraph Feature_Layer [Feature Layer]
-        HOME[":feature:home"]
-        GOAL[":feature:goal"]
-        RECORD[":feature:record"]
-        REMINDER[":feature:reminder"]
-    end
-
-    subgraph Data_Layer [Data Layer]
-        DATA[":data"]
-    end
-
-    subgraph Domain_Layer [Domain Layer]
-        DOMAIN[":domain"]
-    end
-
-    subgraph Shared_Layer [Shared Layer]
-        DS[":shared:designsystem"]
-    end
-
-    %% 의존성 관계 (build.gradle.kts 기반)
-    APP --> HOME
-    APP --> GOAL
-    APP --> RECORD
-    APP --> REMINDER
-    APP --> DATA
-    APP --> DS
-
-    %% 일반적인 Clean Architecture 흐름
-    HOME --> DOMAIN
-    HOME --> DS
-    GOAL --> DOMAIN
-    GOAL --> DS
-    RECORD --> DOMAIN
-    RECORD --> DS
-    REMINDER --> DOMAIN
-    REMINDER --> DS
-
-    DATA --> DOMAIN
-```
-
-```mermaid
 %%{init: {"theme":"base","themeVariables":{
   "fontFamily":"Pretendard, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
-  "lineColor":"#90A4AE",
-  "textColor":"#111827",
-  "background":"#ffffff"
+  "lineColor":"#B9D7EA",
+  "textColor":"#0F172A",
+  "background":"#FFFFFF"
 }}}%%
 graph LR
     %% App Layer
@@ -176,12 +130,13 @@ graph LR
     class DATA data
     class DesignSystem shared
 
-    %% Layer styles (recommended)
-    classDef app fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0F172A
-    classDef feature fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#0F172A
-    classDef domain fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#0F172A
-    classDef data fill:#FCE4EC,stroke:#C2185B,stroke-width:2px,color:#0F172A
-    classDef shared fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#0F172A
+    %% Blue-tone refined theme
+    classDef app fill:#D6E6F2,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
+    classDef feature fill:#F7FBFC,stroke:#B9D7EA,stroke-width:1.5px,color:#0F172A
+    classDef domain fill:#EAF3FA,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
+    classDef data fill:#B9D7EA,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
+    classDef shared fill:#DCEAF7,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
+
 ```
 
 ---
