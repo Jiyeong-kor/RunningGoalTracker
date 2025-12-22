@@ -73,83 +73,61 @@
   "themeVariables": {
     "fontFamily": "Inter, system-ui, sans-serif",
     "fontSize": "14px",
-    "clusterBkg": "#fcfcfc",
-    "clusterBorder": "#d1d1d1"
+    "lineColor": "#888888",
+    "edgeLabelBackground":"#ffffff"
   }
 }}%%
 
 flowchart TD
   %% =========================
-  %% App Layer
+  %% Layers Configuration
   %% =========================
-  subgraph App_Layer["📱 App Layer"]
+  subgraph App_Layer["App Layer"]
     APP[":app"]
   end
 
-  %% =========================
-  %% Feature Layer
-  %% =========================
-  subgraph Feature_Layer["✨ Feature Layer"]
+  subgraph Feature_Layer["Feature Layer"]
     direction LR
-    HOME[":feature:home"]
-    GOAL[":feature:goal"]
-    RECORD[":feature:record"]
-    REMINDER[":feature:reminder"]
-
-    %% 레이아웃 정렬용
-    HOME ~~~ GOAL ~~~ RECORD ~~~ REMINDER
+    FEATURES[":feature:home, goal, record, reminder"]
+    style FEATURES fill:#ffffff,stroke:#555,stroke-dasharray: 5 5
   end
 
-  %% =========================
-  %% Domain Layer
-  %% =========================
-  subgraph Domain_Layer["⚙️ Domain Layer"]
+  subgraph Core_Layers["Core & Data"]
     DOMAIN[":domain"]
-  end
-
-  %% =========================
-  %% Data Layer
-  %% =========================
-  subgraph Data_Layer["💾 Data Layer"]
     DATA[":data"]
   end
 
-  %% =========================
-  %% Shared Layer
-  %% =========================
-  subgraph Shared_Layer["🛠️ Shared Layer"]
+  subgraph Shared_Layer["Shared Layer"]
     DS[":shared:designsystem"]
   end
 
   %% =========================
-  %% Dependencies
+  %% Balanced Dependencies
   %% =========================
-  APP ==> HOME & GOAL & RECORD & REMINDER
-  APP ==> DATA
-  APP ==> DS
+  %% App에서 나가는 선을 하나로 묶어 표현 (가독성 핵심)
+  APP --> FEATURES
+  APP --> DATA
+  APP --> DS
 
-  HOME & GOAL & RECORD & REMINDER --> DOMAIN
-  HOME & GOAL & RECORD & REMINDER --> DS
+  %% Feature에서 내려가는 선
+  FEATURES --> DOMAIN
+  FEATURES --> DS
 
+  %% Data에서 Domain으로
   DATA --> DOMAIN
 
   %% =========================
-  %% Styling
+  %% Simple & Clean Styling
   %% =========================
-  classDef app fill:#333,stroke:#111,stroke-width:2px,color:#fff;
-  classDef feature fill:#fff,stroke:#555,stroke-width:1.5px,color:#111;
-  classDef domain fill:#f8f9fa,stroke:#888,stroke-width:1.5px,stroke-dasharray: 3;
-  classDef data fill:#eee,stroke:#444,stroke-width:1px;
-  classDef shared fill:#e7f3ff,stroke:#3b82f6,stroke-width:1px,color:#1d4ed8;
+  classDef app fill:#444,stroke:#222,color:#fff,stroke-width:1px;
+  classDef feature fill:#f9f9f9,stroke:#999,stroke-width:1px;
+  classDef core fill:#fff,stroke:#bbb,stroke-width:1px;
+  classDef shared fill:#f1f5f9,stroke:#cbd5e1,color:#475569;
 
   class APP app;
-  class HOME,GOAL,RECORD,REMINDER feature;
-  class DOMAIN domain;
-  class DATA data;
+  class FEATURES feature;
+  class DOMAIN,DATA core;
   class DS shared;
-
-  %% 더미 링크 숨기기 (인덱스 주의: 여기서는 0,1,2번)
-  linkStyle 0,1,2 stroke-width:0px;
 ```
 
 ---
