@@ -66,6 +66,53 @@
 - **`:app`**: 최종 애플리케이션 모듈로, 위 모듈들을 통합하여 완전한 앱을 구성합니다.
 
 ### 의존성 구조 다이어그램
+### 🏗 Module Dependency Architecture
+
+```mermaid
+graph TD
+    %% 모듈 정의
+    subgraph App_Layer [App Layer]
+        APP[":app"]
+    end
+
+    subgraph Feature_Layer [Feature Layer]
+        HOME[":feature:home"]
+        GOAL[":feature:goal"]
+        RECORD[":feature:record"]
+        REMINDER[":feature:reminder"]
+    end
+
+    subgraph Data_Layer [Data Layer]
+        DATA[":data"]
+    end
+
+    subgraph Domain_Layer [Domain Layer]
+        DOMAIN[":domain"]
+    end
+
+    subgraph Shared_Layer [Shared Layer]
+        DS[":shared:designsystem"]
+    end
+
+    %% 의존성 관계 (build.gradle.kts 기반)
+    APP --> HOME
+    APP --> GOAL
+    APP --> RECORD
+    APP --> REMINDER
+    APP --> DATA
+    APP --> DS
+
+    %% 일반적인 Clean Architecture 흐름
+    HOME --> DOMAIN
+    HOME --> DS
+    GOAL --> DOMAIN
+    GOAL --> DS
+    RECORD --> DOMAIN
+    RECORD --> DS
+    REMINDER --> DOMAIN
+    REMINDER --> DS
+
+    DATA --> DOMAIN
 
 ### 🏗 Module Dependency Architecture
 
