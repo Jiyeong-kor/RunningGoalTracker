@@ -9,10 +9,14 @@ import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
+import com.jeong.runninggoaltracker.data.util.AndroidDateFormatter
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
+import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
+import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
+import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.Binds
 import dagger.Module
@@ -52,6 +56,14 @@ object DataProvidesModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataBindsModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindDateFormatter(impl: AndroidDateFormatter): DateFormatter
+
+    @Binds
+    @Singleton
+    abstract fun bindRunningSummaryCalculator(impl: WeeklySummaryCalculator): RunningSummaryCalculator
 
     @Binds
     @Singleton

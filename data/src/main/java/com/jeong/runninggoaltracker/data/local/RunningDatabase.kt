@@ -15,7 +15,6 @@ import androidx.room.TypeConverters
 )
 
 @TypeConverters(
-    LocalDateConverter::class,
     DayOfWeekConverter::class
 )
 

@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,14 +34,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
-import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
-import java.time.Duration
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordRoute(
     onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
@@ -52,6 +48,7 @@ fun RecordRoute(
 
     RecordScreen(
         uiState = uiState,
+        dateFormatter = viewModel.dateFormatter,
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
         onPermissionDenied = viewModel::notifyPermissionDenied,
@@ -62,10 +59,10 @@ fun RecordRoute(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
+    dateFormatter: DateFormatter,
     onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
     onStopActivityRecognition: () -> Unit,
     onPermissionDenied: () -> Unit,
@@ -187,7 +184,7 @@ fun RecordScreen(
                         color = colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = uiState.distanceKm.toDistanceLabel(),
+                        text = dateFormatter.formatToDistanceLabel(uiState.distanceKm),
                         style = typography.headlineSmall
                     )
                 }
@@ -201,7 +198,7 @@ fun RecordScreen(
                         color = colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = formatElapsedTime(uiState.elapsedMillis),
+                        text = dateFormatter.formatElapsedTime(uiState.elapsedMillis),
                         style = typography.headlineSmall
                     )
                 }
@@ -303,7 +300,7 @@ fun RecordScreen(
                                             tint = colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = record.date.toKoreanDateLabel(),
+                                            text = dateFormatter.formatToKoreanDate(record.date),
                                             style = typography.bodyMedium
                                         )
                                     }
@@ -313,7 +310,7 @@ fun RecordScreen(
                                         )
                                     ) {
                                         Text(
-                                            text = record.distanceKm.toDistanceLabel(),
+                                            text = dateFormatter.formatToDistanceLabel(record.distanceKm),
                                             style = typography.bodyMedium
                                         )
                                         Row(
@@ -341,18 +338,5 @@ fun RecordScreen(
                 }
             }
         }
-    }
-}
-
-private fun formatElapsedTime(elapsedMillis: Long): String {
-    val duration = Duration.ofMillis(elapsedMillis)
-    val hours = duration.toHours()
-    val minutes = duration.toMinutes() % 60
-    val seconds = duration.seconds % 60
-
-    return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format("%02d:%02d", minutes, seconds)
     }
 }

@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.feature.reminder.presentation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
@@ -15,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import javax.inject.Inject
 
 data class ReminderUiState(
@@ -38,7 +35,6 @@ class ReminderViewModel @Inject constructor(
     private val reminderSchedulingInteractor: ReminderSchedulingInteractor
 ) : ViewModel() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     val uiState: StateFlow<ReminderListUiState> =
         getRunningRemindersUseCase()
             .map { reminders -> ReminderListUiState(reminders.map { it.toUiState() }) }
@@ -48,7 +44,6 @@ class ReminderViewModel @Inject constructor(
                 initialValue = ReminderListUiState()
             )
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun addReminder() {
         viewModelScope.launch {
             val newReminder = createDefaultReminderUseCase()
@@ -59,7 +54,6 @@ class ReminderViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun deleteReminder(id: Int) {
         val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
             ?: return
@@ -69,22 +63,18 @@ class ReminderViewModel @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun updateEnabled(id: Int, enabled: Boolean) {
         updateReminder(id) { reminder -> reminder.copy(enabled = enabled) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(id: Int, hour: Int, minute: Int) {
         updateReminder(id) { it.copy(hour = hour, minute = minute) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun toggleDay(id: Int, day: Int) {
         updateReminder(id) { current -> toggleReminderDayUseCase(current, day) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun updateReminder(
         id: Int,
         update: (RunningReminder) -> RunningReminder
@@ -111,26 +101,23 @@ class ReminderViewModel @Inject constructor(
         }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun RunningReminder.toUiState(): ReminderUiState =
     ReminderUiState(
         id = id,
         hour = hour,
         minute = minute,
         enabled = enabled,
-        days = days.map { it.value }.toSet()
+        days = days
     )
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun ReminderUiState.toDomain(): RunningReminder =
     RunningReminder(
         id = id,
         hour = hour,
         minute = minute,
         enabled = enabled,
-        days = days.map { DayOfWeek.of(it) }.toSet()
+        days = days
     )
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun ReminderUiState.toDomainOrNull(): RunningReminder? =
     runCatching { toDomain() }.getOrNull()

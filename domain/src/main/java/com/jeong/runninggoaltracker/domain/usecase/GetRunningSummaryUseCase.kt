@@ -22,7 +22,7 @@ class GetRunningSummaryUseCase @Inject constructor(
         summaryCalculator.calculate(
             goal = goal,
             records = records,
-            today = today
+            todayMillis = today
         )
     }
 }

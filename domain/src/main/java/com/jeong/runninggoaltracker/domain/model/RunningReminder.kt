@@ -1,17 +1,18 @@
 package com.jeong.runninggoaltracker.domain.model
 
-import com.jeong.runninggoaltracker.domain.model.time.AppDayOfWeek
-
-
 data class RunningReminder(
     val id: Int? = null,
     val hour: Int,
     val minute: Int,
     val enabled: Boolean,
-    val days: Set<AppDayOfWeek> = emptySet()
+    val days: Set<Int>
 ) {
-    init {
-        require(hour in 0..23)
-        require(minute in 0..59)
+    fun toggleDay(day: Int): RunningReminder {
+        val newDays = if (days.contains(day)) {
+            days - day
+        } else {
+            days + day
+        }
+        return this.copy(days = newDays)
     }
 }

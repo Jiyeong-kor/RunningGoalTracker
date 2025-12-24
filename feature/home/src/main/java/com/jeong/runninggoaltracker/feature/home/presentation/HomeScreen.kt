@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.feature.home.presentation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,23 +38,21 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.home.R
-import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
-import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
 import kotlinx.coroutines.flow.Flow
+import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
 data class ActivityRecognitionUiState(
     val label: String = "UNKNOWN"
 )
 
 data class ActivityLogUiModel(
-    val time: String,
+    val time: Long,
     val label: String
 )
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -74,18 +70,19 @@ fun HomeRoute(
         uiState = uiState,
         activityState = activityState,
         activityLogs = activityLogs,
+        dateFormatter = viewModel.dateFormatter,
         onRecordClick = onRecordClick,
         onGoalClick = onGoalClick,
         onReminderClick = onReminderClick
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
     activityState: ActivityRecognitionUiState,
     activityLogs: List<ActivityLogUiModel>,
+    dateFormatter : DateFormatter,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
@@ -178,7 +175,7 @@ fun HomeScreen(
                 Text(
                     text = stringResource(
                         R.string.home_weekly_goal_format,
-                        weeklyGoalKm.toDistanceLabel()
+                        dateFormatter.formatToDistanceLabel(weeklyGoalKm)
                     ), style = typography.bodyLarge
                 )
             } else {
@@ -191,7 +188,7 @@ fun HomeScreen(
             Text(
                 text = stringResource(
                     R.string.home_total_distance_this_week_format,
-                    totalThisWeekKm.toDistanceLabel()
+                    dateFormatter.formatToDistanceLabel(totalThisWeekKm)
                 ), style = typography.bodyMedium
             )
             Text(
@@ -285,7 +282,7 @@ fun HomeScreen(
                                     style = typography.bodyLarge
                                 )
                                 Text(
-                                    text = log.time.toKoreanDateLabel(),
+                                    text = dateFormatter.formatToKoreanDate(log.time),
                                     style = typography.labelSmall,
                                     color = colorScheme.onSurfaceVariant
                                 )

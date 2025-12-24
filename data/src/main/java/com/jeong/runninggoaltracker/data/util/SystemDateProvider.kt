@@ -4,31 +4,50 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
-import androidx.annotation.RequiresApi
-import com.jeong.runninggoaltracker.domain.model.time.AppDate
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.Calendar
 
 class SystemDateProvider(private val context: Context) : DateProvider {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun getTodayFlow(): Flow<AppDate> = callbackFlow {
+
+    override fun getToday(): Long = System.currentTimeMillis()
+
+    override fun getTodayFlow(): Flow<Long> = callbackFlow {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_DATE_CHANGED) {
-                    trySend(AppDate.now())
+                if (intent?.action == Intent.ACTION_DATE_CHANGED ||
+                    intent?.action == Intent.ACTION_TIMEZONE_CHANGED
+                ) {
+                    trySend(getToday())
                 }
             }
         }
-        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_DATE_CHANGED))
-        trySend(AppDate.now())
-        awaitClose { context.unregisterReceiver(receiver) }
+
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_DATE_CHANGED)
+            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+        }
+
+        context.registerReceiver(receiver, filter)
+
+        trySend(getToday())
+
+        awaitClose {
+            context.unregisterReceiver(receiver)
+        }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun getToday(): AppDate {
-        return AppDate.now()
+    override fun getStartOfWeek(timestamp: Long): Long {
+        return Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            firstDayOfWeek = Calendar.SUNDAY
+            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
 }

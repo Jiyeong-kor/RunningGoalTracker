@@ -10,7 +10,6 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -80,12 +79,6 @@ class ReminderAlarmScheduler @Inject constructor(
 
             val triggerAtMillis = calendar.timeInMillis
             val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
-
-            Log.d(
-                "ReminderAlarmScheduler",
-                "scheduleExact(): id=$nonNullId, dayOfWeek=$dayOfWeek, " +
-                        "time=${Date(triggerAtMillis)}, triggerAtMillis=$triggerAtMillis"
-            )
 
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,

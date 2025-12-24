@@ -12,5 +12,5 @@ data class RunningReminderEntity(
     val hour: Int,
     val minute: Int,
     val enabled: Boolean,
-    val days: String = EMPTY_DAYS
+    val days: Set<Int>
 )

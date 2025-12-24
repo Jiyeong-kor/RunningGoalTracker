@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "running_record")
 data class RunningRecordEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
-    val date: String,
+    val date: Long,
     val distanceKm: Double,
     val durationMinutes: Int
 )

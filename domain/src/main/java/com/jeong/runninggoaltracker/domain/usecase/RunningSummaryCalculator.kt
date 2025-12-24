@@ -3,28 +3,28 @@ package com.jeong.runninggoaltracker.domain.usecase
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
-import com.jeong.runninggoaltracker.domain.model.time.AppDate
-import com.jeong.runninggoaltracker.domain.model.time.AppDayOfWeek
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import javax.inject.Inject
 
 interface RunningSummaryCalculator {
     fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        today: AppDate
+        todayMillis: Long
     ): RunningSummary
 }
 
-class WeeklySummaryCalculator @Inject constructor() : RunningSummaryCalculator {
+class WeeklySummaryCalculator @Inject constructor(private val dateProvider: DateProvider) :
+    RunningSummaryCalculator {
+
     override fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        today: AppDate
+        todayMillis: Long
     ): RunningSummary {
-        val startOfWeek = today.with(AppDayOfWeek.MONDAY)
-
+        val startOfWeek = dateProvider.getStartOfWeek(todayMillis)
         val thisWeekRecords = records.filter { record ->
-            !record.date.isBefore(startOfWeek)
+            record.date >= startOfWeek
         }
 
         val totalKm = thisWeekRecords.sumOf { it.distanceKm }

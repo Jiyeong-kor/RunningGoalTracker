@@ -1,7 +1,6 @@
 package com.jeong.runninggoaltracker.feature.reminder.alarm
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,12 +16,10 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import java.time.DayOfWeek
 
 class ReminderAlarmReceiver : BroadcastReceiver() {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    @SuppressLint("ScheduleExactAlarm")
     override fun onReceive(context: Context, intent: Intent) {
         val payload = intent.toAlarmPayload()
 
@@ -32,8 +29,6 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
         }
 
         ReminderNotifier.showNow(context, payload.hour, payload.minute)
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         val reminder = intent.toRunningReminderOrNull()
         if (reminder == null) {
@@ -87,13 +82,11 @@ private fun Context.hasPostNotificationsPermission(): Boolean =
         Manifest.permission.POST_NOTIFICATIONS
     ) == PackageManager.PERMISSION_GRANTED
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun Intent.toRunningReminderOrNull(): RunningReminder? {
     val id = getIntExtra(EXTRA_ID, 0).takeIf { it != 0 } ?: return null
 
-    val dayOfWeek = runCatching {
-        DayOfWeek.of(getIntExtra(EXTRA_DAY_OF_WEEK, 0))
-    }.getOrNull() ?: return null
+    val dayOfWeekRaw = getIntExtra(EXTRA_DAY_OF_WEEK, 0)
+    if (dayOfWeekRaw !in 1..7) return null
 
     val hour = getIntExtra(EXTRA_HOUR, 0)
     val minute = getIntExtra(EXTRA_MINUTE, 0)
@@ -103,7 +96,7 @@ private fun Intent.toRunningReminderOrNull(): RunningReminder? {
         hour = hour,
         minute = minute,
         enabled = true,
-        days = setOf(dayOfWeek),
+        days = setOf(dayOfWeekRaw)
     )
 }
 

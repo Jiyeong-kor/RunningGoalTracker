@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
@@ -26,6 +27,7 @@ data class RecordUiState(
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
+    val dateFormatter: DateFormatter,
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     private val activityRecognitionController: ActivityRecognitionController,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
