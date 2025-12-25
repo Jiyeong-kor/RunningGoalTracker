@@ -1,7 +1,7 @@
 package com.jeong.runninggoaltracker.feature.record.api
 
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityState
 import kotlinx.coroutines.flow.StateFlow
 
 interface ActivityRecognitionMonitor {

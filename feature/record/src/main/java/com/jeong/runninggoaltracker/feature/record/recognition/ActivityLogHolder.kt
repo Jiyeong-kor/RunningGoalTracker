@@ -1,12 +1,8 @@
 package com.jeong.runninggoaltracker.feature.record.recognition
 
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-data class ActivityLogEntry(
-    val time: Long,
-    val label: String
-)
 
 object ActivityLogHolder {
 

@@ -8,9 +8,9 @@ import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionContro
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerState
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityState
+import com.jeong.runninggoaltracker.feature.record.api.model.RunningTrackerState
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

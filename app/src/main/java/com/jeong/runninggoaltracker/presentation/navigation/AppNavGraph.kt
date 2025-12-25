@@ -12,9 +12,9 @@ import com.jeong.runninggoaltracker.feature.goal.presentation.GoalRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitionUiState
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordRoute
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityState
 import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderRoute
 import kotlinx.coroutines.flow.map
 

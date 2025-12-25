@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.feature.record.tracking
 
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
+import com.jeong.runninggoaltracker.feature.record.api.model.RunningTrackerState
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.feature.record.tracking
+package com.jeong.runninggoaltracker.feature.record.api.model
 
 data class RunningTrackerState(
     val isTracking: Boolean = false,
