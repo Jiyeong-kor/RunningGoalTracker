@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.feature.record.recognition
+package com.jeong.runninggoaltracker.feature.record.api
 
 interface ActivityRecognitionController {
     fun startUpdates(onPermissionRequired: () -> Unit)

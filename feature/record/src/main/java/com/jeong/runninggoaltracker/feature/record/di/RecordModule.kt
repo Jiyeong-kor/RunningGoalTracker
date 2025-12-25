@@ -1,14 +1,14 @@
 package com.jeong.runninggoaltracker.feature.record.di
 
 import android.content.Context
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerManager
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerStateHolder
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerStateUpdater
 import dagger.Binds

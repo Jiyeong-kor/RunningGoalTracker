@@ -1,13 +1,9 @@
 package com.jeong.runninggoaltracker.feature.record.recognition
 
-import kotlinx.coroutines.flow.StateFlow
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import javax.inject.Inject
 import javax.inject.Singleton
-
-interface ActivityRecognitionMonitor {
-    val activityState: StateFlow<ActivityState>
-    val activityLogs: StateFlow<List<ActivityLogEntry>>
-}
+import kotlinx.coroutines.flow.StateFlow
 
 @Singleton
 class ActivityRecognitionMonitorHolder @Inject constructor(

@@ -32,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.presentation.navigation.AppNavGraph
 import com.jeong.runninggoaltracker.presentation.navigation.bottomNavItems
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme

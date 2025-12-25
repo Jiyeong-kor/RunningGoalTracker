@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiState
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

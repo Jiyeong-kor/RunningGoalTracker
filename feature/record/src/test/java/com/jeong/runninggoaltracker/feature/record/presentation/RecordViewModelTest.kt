@@ -4,12 +4,12 @@ import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateFormatter
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
+import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerState
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import kotlinx.coroutines.Dispatchers

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
