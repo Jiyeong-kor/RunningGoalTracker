@@ -5,17 +5,6 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface RunningTrackerMonitor {
-    val trackerState: StateFlow<RunningTrackerState>
-}
-
-interface RunningTrackerStateUpdater {
-    fun markTracking()
-    fun update(distanceKm: Double, elapsedMillis: Long)
-    fun stop()
-    fun markPermissionRequired()
-}
-
 @Singleton
 class RunningTrackerStateHolder @Inject constructor() :
     RunningTrackerMonitor,
