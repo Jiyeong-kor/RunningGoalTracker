@@ -19,7 +19,7 @@ fun MainContainerRoute(
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
 ) {
     val navController = rememberNavController()
-    val tabItemsByTab = remember { MainScreen.tabItemsByTab }
+    val tabItemsByTab = remember { MainTabItems.tabItemsByTab }
     val navigationState = rememberMainNavigationState(
         navController = navController,
         tabItemsByTab = tabItemsByTab
@@ -36,7 +36,7 @@ fun MainContainerRoute(
             )
         },
         bottomBar = {
-            MainBottomNavigationBar(
+            BottomAndTopBar(
                 tabItemsByTab = tabItemsByTab,
                 navController = navController
             )

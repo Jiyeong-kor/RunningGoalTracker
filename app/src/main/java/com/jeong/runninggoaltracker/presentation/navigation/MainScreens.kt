@@ -1,17 +1,9 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.shared.navigation.BottomTabIcon
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
-import com.jeong.runninggoaltracker.shared.navigation.MainTab
-import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 
 sealed interface MainScreen {
@@ -45,25 +37,9 @@ sealed interface MainScreen {
 
         val entries: List<MainScreen> = screenDescriptors
 
-        val tabItems: List<MainTabItem> = MainTab.entries.mapNotNull { tab ->
-            val screen = screenByRoute[tab.route] ?: return@mapNotNull null
-            val icon = tab.icon.asImageVector() ?: return@mapNotNull null
-            MainTabItem(
-                tab = tab,
-                titleResId = screen.titleResId,
-                icon = icon
-            )
-        }
-
-        val tabItemsByTab: Map<MainTab, MainTabItem> = tabItems.associateBy { it.tab }
+        fun fromRoute(route: MainNavigationRoute): MainScreen? = screenByRoute[route]
 
         fun fromDestination(destination: NavDestination?): MainScreen? =
             entries.firstOrNull { screen -> destination.isRouteInHierarchy(screen.route) }
     }
-}
-
-private fun BottomTabIcon.asImageVector(): ImageVector? = when (this) {
-    BottomTabIcon.HOME -> Icons.Filled.Home
-    BottomTabIcon.RECORD -> Icons.AutoMirrored.Filled.DirectionsRun
-    BottomTabIcon.REMINDER -> Icons.Filled.Notifications
 }

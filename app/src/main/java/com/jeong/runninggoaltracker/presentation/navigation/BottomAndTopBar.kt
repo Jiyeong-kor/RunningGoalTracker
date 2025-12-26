@@ -12,19 +12,18 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
-import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 
 @Composable
-fun MainBottomNavigationBar(
+fun BottomAndTopBar(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     navController: NavHostController,
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
     NavigationBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+
         MainTab.entries.forEach { tab ->
             val tabItem = tabItemsByTab[tab] ?: return@forEach
             val selected = currentDestination.isRouteInHierarchy(tabItem.tab.route)

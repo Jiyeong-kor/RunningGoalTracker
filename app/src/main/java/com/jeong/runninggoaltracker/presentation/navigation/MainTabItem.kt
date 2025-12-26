@@ -1,7 +1,8 @@
-package com.jeong.runninggoaltracker.shared.navigation
+package com.jeong.runninggoaltracker.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 data class MainTabItem(
     val tab: MainTab,

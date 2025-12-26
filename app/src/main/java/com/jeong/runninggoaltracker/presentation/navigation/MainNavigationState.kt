@@ -7,7 +7,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
-import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 
 @Composable
