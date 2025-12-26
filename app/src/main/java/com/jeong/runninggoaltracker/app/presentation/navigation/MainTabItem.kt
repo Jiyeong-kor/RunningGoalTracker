@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.navigation
+package com.jeong.runninggoaltracker.app.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector

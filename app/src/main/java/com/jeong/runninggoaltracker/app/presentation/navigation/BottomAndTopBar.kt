@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.navigation
+package com.jeong.runninggoaltracker.app.presentation.navigation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -31,9 +31,10 @@ fun BottomAndTopBar(
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    if (!tabItem.tab.route.isTabDestination) return@NavigationBarItem
+                    val route = tabItem.tab.route
+                    if (!route.isBottomTab()) return@NavigationBarItem
 
-                    navController.navigateTo(tabItem.tab.route) {
+                    navController.navigateTo(route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }

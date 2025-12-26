@@ -10,30 +10,19 @@ sealed interface FeatureNavigationRoute : NavigationRoute
 
 @Serializable
 sealed interface MainNavigationRoute : FeatureNavigationRoute {
-    val isTabDestination: Boolean
 
     @Serializable
-    data object Main : MainNavigationRoute {
-        override val isTabDestination: Boolean = false
-    }
+    data object Main : MainNavigationRoute
 
     @Serializable
-    data object Home : MainNavigationRoute {
-        override val isTabDestination: Boolean = true
-    }
+    data object Home : MainNavigationRoute
 
     @Serializable
-    data object Record : MainNavigationRoute {
-        override val isTabDestination: Boolean = true
-    }
+    data object Record : MainNavigationRoute
 
     @Serializable
-    data object Goal : MainNavigationRoute {
-        override val isTabDestination: Boolean = false
-    }
+    data object Goal : MainNavigationRoute
 
     @Serializable
-    data object Reminder : MainNavigationRoute {
-        override val isTabDestination: Boolean = true
-    }
+    data object Reminder : MainNavigationRoute
 }

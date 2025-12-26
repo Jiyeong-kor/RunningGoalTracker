@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker
+package com.jeong.runninggoaltracker.app
 
 import android.app.Application
 import android.app.NotificationChannel

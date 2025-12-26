@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.navigation
+package com.jeong.runninggoaltracker.app.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun

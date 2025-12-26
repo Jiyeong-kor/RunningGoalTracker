@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker
+package com.jeong.runninggoaltracker.app
 
 import android.Manifest
 import android.os.Build
@@ -11,8 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.jeong.runninggoaltracker.app.presentation.entrypoint.EntryPointScreen
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
-import com.jeong.runninggoaltracker.presentation.entrypoint.EntryPointScreen
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

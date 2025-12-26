@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.navigation
+package com.jeong.runninggoaltracker.app.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
