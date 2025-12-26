@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -13,7 +11,6 @@ import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonito
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainContainerRoute(
     activityRecognitionMonitor: ActivityRecognitionMonitor,

@@ -9,7 +9,6 @@ import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +47,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButto
 import java.util.Calendar
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ReminderRoute(
     viewModel: ReminderViewModel = hiltViewModel()

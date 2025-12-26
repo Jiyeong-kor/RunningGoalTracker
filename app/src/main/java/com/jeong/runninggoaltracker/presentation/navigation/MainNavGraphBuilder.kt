@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -17,7 +15,6 @@ import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderViewMo
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import kotlinx.coroutines.flow.map
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.mainNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
@@ -30,7 +27,6 @@ fun NavGraphBuilder.mainNavGraph(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 internal fun NavGraphBuilder.mainDestinations(
     navController: NavHostController,
     activityRecognitionMonitor: ActivityRecognitionMonitor,

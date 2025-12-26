@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.local.toDomain
 import com.jeong.runninggoaltracker.data.local.toEntity
@@ -15,7 +13,6 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val recordDao: RunningRecordDao
 ) : RunningRecordRepository {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun getAllRecords(): Flow<List<RunningRecord>> {
         return recordDao.getAllRecords().map { records ->
             records.map { it.toDomain() }
