@@ -114,6 +114,16 @@ fun RecordScreen(
             }
         }
 
+        val startActivityRecognitionWithPermission: () -> Unit = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                onStartActivityRecognition {
+                    permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                }
+            } else {
+                onStartActivityRecognition {}
+            }
+        }
+
         AppContentCard(
             verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
         ) {
@@ -144,15 +154,7 @@ fun RecordScreen(
                 horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
                 Button(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            onStartActivityRecognition {
-                                permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
-                            }
-                        } else {
-                            onStartActivityRecognition {}
-                        }
-                    },
+                    onClick = startActivityRecognitionWithPermission,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(R.string.button_start_detection))
@@ -222,6 +224,7 @@ fun RecordScreen(
             ) {
                 Button(
                     onClick = {
+                        startActivityRecognitionWithPermission()
                         onStartTracking {
                             onRequestTrackingPermissions { granted ->
                                 if (granted) {
@@ -238,7 +241,10 @@ fun RecordScreen(
                     Text(stringResource(R.string.button_start_tracking))
                 }
                 Button(
-                    onClick = onStopTracking,
+                    onClick = {
+                        onStopActivityRecognition()
+                        onStopTracking()
+                    },
                     modifier = Modifier.weight(1f),
                     enabled = uiState.isTracking
                 ) {
