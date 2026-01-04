@@ -111,8 +111,7 @@ fun ReminderScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal),
-                vertical = dimensionResource(SharedR.dimen.padding_screen_vertical)
+                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal)
             ),
         verticalArrangement = Arrangement.spacedBy(
             dimensionResource(SharedR.dimen.spacing_screen_elements)

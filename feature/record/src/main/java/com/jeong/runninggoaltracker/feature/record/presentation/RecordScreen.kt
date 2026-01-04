@@ -88,7 +88,6 @@ fun RecordScreen(
     val typography = MaterialTheme.typography
 
     val horizontalPadding = dimensionResource(SharedR.dimen.padding_screen_horizontal)
-    val verticalPadding = dimensionResource(SharedR.dimen.padding_screen_vertical)
     val sectionSpacing = dimensionResource(SharedR.dimen.spacing_screen_elements)
     val cardSpacingSmall = dimensionResource(SharedR.dimen.card_spacing_small)
     val cardSpacingMedium = dimensionResource(SharedR.dimen.card_spacing_medium)
@@ -101,7 +100,7 @@ fun RecordScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+            .padding(horizontal = horizontalPadding),
         verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
         val permissionLauncher = rememberLauncherForActivityResult(

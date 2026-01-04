@@ -124,8 +124,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal),
-                vertical = dimensionResource(SharedR.dimen.padding_screen_vertical)
+                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal)
             )
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(

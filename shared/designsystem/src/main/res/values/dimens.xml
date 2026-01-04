@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="padding_screen_horizontal">20dp</dimen>
-    <dimen name="padding_screen_vertical">16dp</dimen>
     <dimen name="spacing_screen_elements">16dp</dimen>
 
     <dimen name="card_elevation">1dp</dimen>
