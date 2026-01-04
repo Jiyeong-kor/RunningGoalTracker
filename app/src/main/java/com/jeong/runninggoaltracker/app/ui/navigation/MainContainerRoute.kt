@@ -19,9 +19,9 @@ fun MainContainerRoute(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
 ) {
-    val viewModel: MainNavigationViewModel = hiltViewModel()
+    val viewModel = hiltViewModel<MainNavigationViewModel>()
     val navController = rememberNavController()
-    val tabItemsByTab = remember(viewModel) { viewModel.tabItemsByTab }
+    val tabItemsByTab = viewModel.tabItemsByTab
     val navigationState = rememberMainNavigationState(
         navController = navController,
         tabItemsByTab = tabItemsByTab

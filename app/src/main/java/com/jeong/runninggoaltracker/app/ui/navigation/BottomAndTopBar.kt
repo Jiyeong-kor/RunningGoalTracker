@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.NavigationBar
@@ -20,7 +21,7 @@ fun BottomAndTopBar(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     navController: NavHostController,
 ) {
-    NavigationBar {
+    NavigationBar(windowInsets = WindowInsets(0, 0, 0, 0)) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
