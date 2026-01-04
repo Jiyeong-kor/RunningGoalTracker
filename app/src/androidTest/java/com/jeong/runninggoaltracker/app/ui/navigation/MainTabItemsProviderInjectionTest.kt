@@ -1,6 +1,7 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.jeong.runninggoaltracker.app.di.MainTabItemsModule
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -13,7 +14,7 @@ import org.junit.runner.RunWith
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-@UninstallModules(com.jeong.runninggoaltracker.app.presentation.navigation.di.MainTabItemsModule::class)
+@UninstallModules(MainTabItemsModule::class)
 class MainTabItemsProviderInjectionTest {
 
     @get:Rule

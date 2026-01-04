@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder

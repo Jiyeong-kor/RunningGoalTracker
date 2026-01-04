@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityLogUiModel
 import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitionUiState

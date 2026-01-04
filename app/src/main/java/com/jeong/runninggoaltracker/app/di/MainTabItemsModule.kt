@@ -1,7 +1,7 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation.di
+package com.jeong.runninggoaltracker.app.di
 
-import com.jeong.runninggoaltracker.app.presentation.navigation.DefaultMainTabItemsProvider
-import com.jeong.runninggoaltracker.app.presentation.navigation.MainTabItemsProvider
+import com.jeong.runninggoaltracker.app.ui.navigation.DefaultMainTabItemsProvider
+import com.jeong.runninggoaltracker.app.ui.navigation.MainTabItemsProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

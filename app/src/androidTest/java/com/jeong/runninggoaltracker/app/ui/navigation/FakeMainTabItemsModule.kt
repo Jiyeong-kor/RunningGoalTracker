@@ -1,6 +1,6 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
-import com.jeong.runninggoaltracker.app.presentation.navigation.di.MainTabItemsModule
+import com.jeong.runninggoaltracker.app.di.MainTabItemsModule
 import com.jeong.runninggoaltracker.shared.navigation.BottomTabIcon
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainTab

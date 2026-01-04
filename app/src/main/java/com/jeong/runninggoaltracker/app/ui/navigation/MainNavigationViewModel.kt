@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import com.jeong.runninggoaltracker.shared.navigation.MainTab

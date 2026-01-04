@@ -1,9 +1,9 @@
-package com.jeong.runninggoaltracker.app.presentation.entrypoint
+package com.jeong.runninggoaltracker.app.ui.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.jeong.runninggoaltracker.app.presentation.navigation.AppNavGraph
+import com.jeong.runninggoaltracker.app.ui.navigation.AppNavGraph
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 
 @Composable

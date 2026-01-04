@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.app.presentation.navigation
+package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

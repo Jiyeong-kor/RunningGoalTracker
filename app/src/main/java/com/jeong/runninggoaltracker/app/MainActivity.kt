@@ -11,7 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.jeong.runninggoaltracker.app.presentation.entrypoint.EntryPointScreen
+import com.jeong.runninggoaltracker.app.ui.screen.EntryPointScreen
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
