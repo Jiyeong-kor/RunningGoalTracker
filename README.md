@@ -5,7 +5,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)]()
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?logo=android)]()
-[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20MVVM-orange)]()
+[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20MVVM%20%7C%20Multi_Module-orange)]()
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-blue?logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![Hilt](https://img.shields.io/badge/DI-Hilt-blue?logo=dagger)](https://dagger.dev/hilt/)
 
@@ -16,7 +16,9 @@
 ## 📝 프로젝트 개요
 
 - **앱 이름**: `RunningGoalTracker`
-- **목적**: 사용자가 꾸준히 러닝 습관을 형성하고 목표를 달성할 수 있도록 돕는 동기부여 앱입니다. 실시간 활동 인식을 통해 정확한 운동 상태를 추적하고, 개인화된 목표 설정과 스마트 리마인더 기능을 제공합니다.
+- **목적**: 사용자가 꾸준히 러닝 습관을 형성하고 목표를 달성할 수 있도록 돕는 동기부여 앱입니다. 실시간 활동 인식을 통해 정확한 운동 상태를 추적하고, 개인화된 목표 설정과 스마트 리마인더 기능이 있습니다.
+- **개발 기간**: 2025.12.-
+- **개발 인원**: 1인 개발
 
 ---
 
@@ -26,7 +28,7 @@
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) (BOM 기반 최신 버전)
 - **Dependency Injection**: [Hilt (Dagger Hilt)](https://dagger.dev/hilt/)
 - **Database**: [Room](https://developer.android.com/training/data-storage/room)
-- **Architecture**: Clean Architecture 기반의 멀티 모듈 구조
+- **Architecture**: MVVM, Clean Architecture, Multi Module, Hybrid (Layered + Feature-based) Architecture
 - **Asynchronous**: [Coroutines & Flow](https://kotlinlang.org/docs/coroutines-guide.html)
 - **Libraries**:
   - [Play Services Location & Activity Recognition](https://developer.android.com/training/location)
