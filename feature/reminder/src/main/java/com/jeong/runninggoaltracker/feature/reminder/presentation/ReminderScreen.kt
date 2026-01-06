@@ -1,13 +1,5 @@
 package com.jeong.runninggoaltracker.feature.reminder.presentation
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,52 +40,63 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
-import java.util.Calendar
 
 @Composable
 fun ReminderRoute(
     viewModel: ReminderViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
+    val userMessageHandler = rememberUserMessageHandler()
+    val notificationPermissionRequester = rememberNotificationPermissionRequester {
+        userMessageHandler.showMessage(
+            UiMessage(messageResId = R.string.reminder_error_notification_permission_denied)
+        )
+    }
+    val timeFormatter = rememberReminderTimeFormatter()
+    val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
 
     ReminderScreen(
         state = state,
-        context = context,
         onAddReminder = viewModel::addReminder,
         onDeleteReminder = viewModel::deleteReminder,
         onToggleReminder = viewModel::updateEnabled,
         onUpdateTime = viewModel::updateTime,
-        onToggleDay = viewModel::toggleDay
+        onToggleDay = viewModel::toggleDay,
+        messageHandler = userMessageHandler,
+        timeFormatter = timeFormatter,
+        daysOfWeekLabelProvider = daysOfWeekLabelProvider,
+        notificationPermissionRequester = notificationPermissionRequester
     )
 }
 
 @Composable
-@SuppressLint("ScheduleExactAlarm")
 fun ReminderScreen(
     state: ReminderListUiState,
-    context: Context,
     onAddReminder: () -> Unit,
     onDeleteReminder: (Int) -> Unit,
     onToggleReminder: (Int, Boolean) -> Unit,
     onUpdateTime: (Int, Int, Int) -> Unit,
-    onToggleDay: (Int, Int) -> Unit
+    onToggleDay: (Int, Int) -> Unit,
+    messageHandler: UserMessageHandler,
+    timeFormatter: ReminderTimeFormatter,
+    daysOfWeekLabelProvider: DaysOfWeekLabelProvider,
+    notificationPermissionRequester: NotificationPermissionRequester
 ) {
     val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
 
-    ReminderNotificationPermissionRequest(context = context)
+    LaunchedEffect(Unit) {
+        notificationPermissionRequester.requestPermissionIfNeeded()
+    }
 
     Scaffold(
         topBar = {
@@ -128,7 +131,9 @@ fun ReminderScreen(
                     onUpdateTime = onUpdateTime,
                     onToggleDay = onToggleDay,
                     onDeleteReminder = onDeleteReminder,
-                    context = context
+                    messageHandler = messageHandler,
+                    timeFormatter = timeFormatter,
+                    daysOfWeekLabelProvider = daysOfWeekLabelProvider
                 )
             }
         }
@@ -143,11 +148,13 @@ private fun ReminderCard(
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit,
     onDeleteReminder: (Int) -> Unit,
-    context: Context
+    messageHandler: UserMessageHandler,
+    timeFormatter: ReminderTimeFormatter,
+    daysOfWeekLabelProvider: DaysOfWeekLabelProvider
 ) {
     val showTimePicker = remember { mutableStateOf(false) }
     val id = reminder.id ?: return
-    val daysOfWeek = rememberDaysOfWeek()
+    val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
 
     AppContentCard {
@@ -172,10 +179,10 @@ private fun ReminderCard(
                             else MaterialTheme.colorScheme.outline
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        ReminderPeriodText(hour = reminder.hour)
+                        ReminderPeriodText(hour = reminder.hour, timeFormatter = timeFormatter)
                     }
                     Text(
-                        text = formatTime(reminder.hour, reminder.minute),
+                        text = timeFormatter.formatTime(reminder.hour, reminder.minute),
                         style = MaterialTheme.typography.displaySmall.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = (-1).sp
@@ -189,11 +196,9 @@ private fun ReminderCard(
                     checked = reminder.enabled,
                     onCheckedChange = { enabled ->
                         if (enabled && reminder.days.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                R.string.reminder_error_select_at_least_one_day,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            messageHandler.showMessage(
+                                UiMessage(messageResId = R.string.reminder_error_select_at_least_one_day)
+                            )
                             return@Switch
                         }
                         onToggleReminder(id, enabled)
@@ -271,25 +276,6 @@ private fun ReminderCard(
 }
 
 @Composable
-private fun rememberDaysOfWeek(): Map<Int, String> {
-    return mapOf(
-        Calendar.SUNDAY to stringResource(R.string.day_sun),
-        Calendar.MONDAY to stringResource(R.string.day_mon),
-        Calendar.TUESDAY to stringResource(R.string.day_tue),
-        Calendar.WEDNESDAY to stringResource(R.string.day_wed),
-        Calendar.THURSDAY to stringResource(R.string.day_thu),
-        Calendar.FRIDAY to stringResource(R.string.day_fri),
-        Calendar.SATURDAY to stringResource(R.string.day_sat)
-    )
-}
-
-@SuppressLint("DefaultLocale")
-private fun formatTime(hour: Int, minute: Int): String {
-    val displayHour = if (hour % 12 == 0) 12 else hour % 12
-    return String.format("%02d:%02d", displayHour, minute)
-}
-
-@Composable
 private fun ReminderTopBar(reminderCount: Int) {
     Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
         Text(
@@ -301,39 +287,10 @@ private fun ReminderTopBar(reminderCount: Int) {
 }
 
 @Composable
-private fun ReminderPeriodText(hour: Int) {
+private fun ReminderPeriodText(hour: Int, timeFormatter: ReminderTimeFormatter) {
     Text(
-        text = stringResource(
-            if (hour < 12) R.string.reminder_time_period_am else R.string.reminder_time_period_pm
-        ),
+        text = timeFormatter.periodLabel(hour),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.outline
     )
-}
-
-@Composable
-private fun ReminderNotificationPermissionRequest(context: Context) {
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
-            Toast.makeText(
-                context,
-                R.string.reminder_error_notification_permission_denied,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!hasPermission) notificationPermissionLauncher.launch(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        }
-    }
 }
