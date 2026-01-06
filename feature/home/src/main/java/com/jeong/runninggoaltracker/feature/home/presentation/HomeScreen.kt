@@ -41,6 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import kotlinx.coroutines.flow.Flow
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
@@ -82,7 +83,7 @@ fun HomeScreen(
     uiState: HomeUiState,
     activityState: ActivityRecognitionUiState,
     activityLogs: List<ActivityLogUiModel>,
-    dateFormatter : DateFormatter,
+    dateFormatter: DateFormatter,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
@@ -131,6 +132,10 @@ fun HomeScreen(
             dimensionResource(SharedR.dimen.spacing_screen_elements)
         )
     ) {
+        val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
+        val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
+        val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
+
         AppContentCard(
             verticalArrangement = Arrangement.spacedBy(
                 dimensionResource(SharedR.dimen.card_spacing_medium)
@@ -222,21 +227,21 @@ fun HomeScreen(
 
         AppContentCard {
             Button(
-                onClick = onRecordClick,
+                onClick = onRecordClickThrottled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_add_view_record))
             }
 
             Button(
-                onClick = onGoalClick,
+                onClick = onGoalClickThrottled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_set_weekly_goal))
             }
 
             Button(
-                onClick = onReminderClick,
+                onClick = onReminderClickThrottled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_set_reminder))

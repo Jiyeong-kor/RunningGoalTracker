@@ -7,4 +7,5 @@
 
     <string name="error_enter_number">숫자를 입력해주세요.</string>
     <string name="error_enter_positive_value">0보다 큰 값을 입력해주세요.</string>
+    <string name="goal_input">goal_input</string>
 </resources>

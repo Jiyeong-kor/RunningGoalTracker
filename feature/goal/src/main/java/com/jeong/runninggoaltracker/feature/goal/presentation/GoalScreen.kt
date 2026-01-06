@@ -22,6 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.goal.R
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 
 @Composable
 fun GoalRoute(
@@ -62,6 +63,8 @@ fun GoalScreen(
             dimensionResource(SharedR.dimen.spacing_screen_elements)
         )
     ) {
+        val onSaveThrottled = rememberThrottleClick(onClick = onSave)
+
         AppContentCard {
             if (state.currentGoalKm != null) {
                 Text(
@@ -84,7 +87,7 @@ fun GoalScreen(
                 label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("goal_input"),
+                    .testTag(stringResource(R.string.goal_input)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 
@@ -97,7 +100,7 @@ fun GoalScreen(
             }
 
             Button(
-                onClick = onSave,
+                onClick = onSaveThrottled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.button_save))

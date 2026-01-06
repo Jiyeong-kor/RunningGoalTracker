@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 
 @Composable
 fun BottomAndTopBar(
@@ -29,20 +30,22 @@ fun BottomAndTopBar(
             val tabItem = tabItemsByTab[tab] ?: return@forEach
             val selected = currentDestination.isRouteInHierarchy(tabItem.tab.route)
 
+            val onTabClick = rememberThrottleClick {
+                val route = tabItem.tab.route
+                if (!route.isBottomTab()) return@rememberThrottleClick
+
+                navController.navigateTo(route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+
             NavigationBarItem(
                 selected = selected,
-                onClick = {
-                    val route = tabItem.tab.route
-                    if (!route.isBottomTab()) return@NavigationBarItem
-
-                    navController.navigateTo(route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClick = onTabClick,
                 icon = {
                     Icon(
                         imageVector = tabItem.icon,

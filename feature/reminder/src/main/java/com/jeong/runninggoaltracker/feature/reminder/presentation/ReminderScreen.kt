@@ -8,10 +8,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -51,8 +48,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +57,9 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import java.util.Calendar
 
 @Composable
@@ -105,6 +103,8 @@ fun ReminderScreen(
         }
     }
 
+    val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val hasPermission = ContextCompat.checkSelfPermission(
@@ -129,7 +129,7 @@ fun ReminderScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddReminder,
+                onClick = onAddReminderThrottled,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(20.dp)
@@ -176,6 +176,7 @@ private fun ReminderCard(
     val showTimePicker = remember { mutableStateOf(false) }
     val id = reminder.id ?: return
     val daysOfWeek = rememberDaysOfWeek()
+    val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
 
     AppContentCard {
         Column(
@@ -188,7 +189,7 @@ private fun ReminderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.clickable { showTimePicker.value = true }) {
+                Column(modifier = Modifier.throttleClick { showTimePicker.value = true }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = if (reminder.enabled) Icons.Rounded.Notifications
@@ -240,30 +241,14 @@ private fun ReminderCard(
             ) {
                 daysOfWeek.forEach { (dayInt, dayName) ->
                     val isSelected = reminder.days.contains(dayInt)
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (isSelected && reminder.enabled)
-                                    MaterialTheme.colorScheme.primaryContainer
-                                else if (isSelected) MaterialTheme.colorScheme.surfaceVariant
-                                else Color.Transparent
-                            )
-                            .clickable { onToggleDay(id, dayInt) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = dayName,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Medium
-                            ),
-                            color = if (isSelected && reminder.enabled)
-                                MaterialTheme.colorScheme.primary
-                            else if (isSelected) MaterialTheme.colorScheme.outline
-                            else MaterialTheme.colorScheme.outlineVariant
-                        )
-                    }
+                    DaySelectionButton(
+                        dayName = dayName,
+                        isSelected = isSelected,
+                        modifier = Modifier.size(40.dp),
+                        onClick = { onToggleDay(id, dayInt) },
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        intervalMillis = 500L
+                    )
                 }
             }
 
@@ -278,7 +263,7 @@ private fun ReminderCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = { onDeleteReminder(id) },
+                    onClick = onDeleteReminderThrottled,
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
@@ -296,18 +281,20 @@ private fun ReminderCard(
     if (showTimePicker.value) {
         val timeState =
             rememberTimePickerState(initialHour = reminder.hour, initialMinute = reminder.minute)
+        val onConfirmClick = rememberThrottleClick {
+            onUpdateTime(id, timeState.hour, timeState.minute)
+            showTimePicker.value = false
+        }
+        val onDismissClick = rememberThrottleClick {
+            showTimePicker.value = false
+        }
         AlertDialog(
-            onDismissRequest = { showTimePicker.value = false },
+            onDismissRequest = onDismissClick,
             confirmButton = {
-                TextButton(onClick = {
-                    onUpdateTime(id, timeState.hour, timeState.minute)
-                    showTimePicker.value = false
-                }) { Text(stringResource(R.string.button_confirm)) }
+                TextButton(onClick = onConfirmClick) { Text(stringResource(R.string.button_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showTimePicker.value = false
-                }) { Text(stringResource(R.string.button_cancel)) }
+                TextButton(onClick = onDismissClick) { Text(stringResource(R.string.button_cancel)) }
             },
             title = { R.string.reminder_add_button_label },
             text = { TimeInput(state = timeState) }

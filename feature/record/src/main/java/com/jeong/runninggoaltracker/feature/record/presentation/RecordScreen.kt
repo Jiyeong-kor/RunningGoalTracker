@@ -33,6 +33,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
 @Composable
@@ -194,29 +195,33 @@ fun RecordScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
-                Button(
-                    onClick = {
-                        startActivityRecognitionWithPermission()
-                        onStartTracking {
-                            onRequestTrackingPermissions { granted ->
-                                if (granted) {
-                                    onStartTracking {}
-                                } else {
-                                    onTrackingPermissionDenied()
-                                }
+                val onStartClick = rememberThrottleClick(onClick = {
+                    startActivityRecognitionWithPermission()
+                    onStartTracking {
+                        onRequestTrackingPermissions { granted ->
+                            if (granted) {
+                                onStartTracking {}
+                            } else {
+                                onTrackingPermissionDenied()
                             }
                         }
-                    },
+                    }
+                })
+
+                val onStopClick = rememberThrottleClick(onClick = {
+                    onStopActivityRecognition()
+                    onStopTracking()
+                })
+
+                Button(
+                    onClick = onStartClick,
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isTracking
                 ) {
                     Text(stringResource(R.string.button_start_tracking))
                 }
                 Button(
-                    onClick = {
-                        onStopActivityRecognition()
-                        onStopTracking()
-                    },
+                    onClick = onStopClick,
                     modifier = Modifier.weight(1f),
                     enabled = uiState.isTracking
                 ) {
