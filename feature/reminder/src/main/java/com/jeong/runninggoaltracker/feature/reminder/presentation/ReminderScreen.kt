@@ -5,27 +5,42 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.NotificationsOff
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -36,16 +51,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
 import java.util.Calendar
-import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
 @Composable
 fun ReminderRoute(
@@ -65,8 +82,8 @@ fun ReminderRoute(
     )
 }
 
-@SuppressLint("ScheduleExactAlarm")
 @Composable
+@SuppressLint("ScheduleExactAlarm")
 fun ReminderScreen(
     state: ReminderListUiState,
     context: Context,
@@ -76,16 +93,13 @@ fun ReminderScreen(
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit
 ) {
-    val reminderErrorNotificationPermissionDenied =
-        stringResource(R.string.reminder_error_notification_permission_denied)
-
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (!granted) {
             Toast.makeText(
                 context,
-                reminderErrorNotificationPermissionDenied,
+                R.string.reminder_error_notification_permission_denied,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -97,170 +111,205 @@ fun ReminderScreen(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
-
-            if (!hasPermission) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+            if (!hasPermission) notificationPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
         }
     }
 
-    val colorScheme = MaterialTheme.colorScheme
-    val typography = MaterialTheme.typography
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                horizontal = dimensionResource(SharedR.dimen.padding_screen_horizontal)
-            ),
-        verticalArrangement = Arrangement.spacedBy(
-            dimensionResource(SharedR.dimen.spacing_screen_elements)
-        )
-    ) {
-
-        val list = state.reminders.filter { it.id != null }
-
-        items(
-            count = list.size,
-            key = { index -> list[index].id!! }
-        ) { index ->
-            ReminderCard(
-                reminder = list[index],
-                onToggleReminder = onToggleReminder,
-                onUpdateTime = onUpdateTime,
-                onToggleDay = onToggleDay,
-                onDeleteReminder = onDeleteReminder,
-                context = context,
-                colorScheme = colorScheme,
-                typography = typography
-            )
-        }
-
-        item {
-            Button(
-                onClick = { onAddReminder() },
-                modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        topBar = {
+            Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                Text(
+                    text = "총 ${state.reminders.size}개의 알람이 등록되어 있습니다",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddReminder,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(20.dp)
             ) {
-                Text(stringResource(R.string.reminder_add_button_label))
+                Icon(
+                    Icons.Filled.Add, contentDescription = null,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val list = state.reminders.filter { it.id != null }
+            items(count = list.size, key = { index -> list[index].id!! }) { index ->
+                ReminderCard(
+                    reminder = list[index],
+                    onToggleReminder = onToggleReminder,
+                    onUpdateTime = onUpdateTime,
+                    onToggleDay = onToggleDay,
+                    onDeleteReminder = onDeleteReminder,
+                    context = context
+                )
             }
         }
     }
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ReminderCard(
     reminder: ReminderUiState,
     onToggleReminder: (Int, Boolean) -> Unit,
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit,
     onDeleteReminder: (Int) -> Unit,
-    context: Context,
-    colorScheme: ColorScheme,
-    typography: androidx.compose.material3.Typography
+    context: Context
 ) {
     val showTimePicker = remember { mutableStateOf(false) }
     val id = reminder.id ?: return
-
     val daysOfWeek = rememberDaysOfWeek()
 
     AppContentCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
         ) {
-            Text(
-                text = stringResource(
-                    R.string.reminder_select_time_format,
-                    formatTime(reminder.hour, reminder.minute)
-                ),
-                style = typography.titleMedium,
-                modifier = Modifier.clickable { showTimePicker.value = true }
-            )
-            Switch(
-                checked = reminder.enabled,
-                onCheckedChange = { enabled ->
-                    if (enabled && reminder.days.isEmpty()) {
-                        Toast.makeText(
-                            context,
-                            R.string.reminder_error_select_at_least_one_day,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@Switch
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.clickable { showTimePicker.value = true }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (reminder.enabled) Icons.Rounded.Notifications
+                            else Icons.Rounded.NotificationsOff,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = if (reminder.enabled) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.outline
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (reminder.hour < 12) "오전" else "오후",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     }
-
-                    onToggleReminder(id, enabled)
-                }
-            )
-        }
-
-        Text(
-            text = stringResource(R.string.reminder_select_days_label),
-            style = typography.bodyMedium
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(
-                dimensionResource(SharedR.dimen.card_spacing_extra_small)
-            )
-        ) {
-            daysOfWeek.forEach { (dayInt, dayName) ->
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DaySelectionButton(
-                        dayName = dayName,
-                        isSelected = reminder.days.contains(dayInt),
-                        onClick = {
-                            onToggleDay(id, dayInt)
-                        }
+                    Text(
+                        text = formatTime(reminder.hour, reminder.minute),
+                        style = MaterialTheme.typography.displaySmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = (-1).sp
+                        ),
+                        color = if (reminder.enabled) MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.outline
                     )
                 }
-            }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            OutlinedButton(
-                onClick = {
-                    onDeleteReminder(id)
-                },
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
+                Switch(
+                    checked = reminder.enabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled && reminder.days.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                R.string.reminder_error_select_at_least_one_day,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Switch
+                        }
+                        onToggleReminder(id, enabled)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(R.string.reminder_delete_button_label))
+                daysOfWeek.forEach { (dayInt, dayName) ->
+                    val isSelected = reminder.days.contains(dayInt)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                if (isSelected && reminder.enabled)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else if (isSelected) MaterialTheme.colorScheme.surfaceVariant
+                                else Color.Transparent
+                            )
+                            .clickable { onToggleDay(id, dayInt) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = dayName,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            ),
+                            color = if (isSelected && reminder.enabled)
+                                MaterialTheme.colorScheme.primary
+                            else if (isSelected) MaterialTheme.colorScheme.outline
+                            else MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(
+                    onClick = { onDeleteReminder(id) },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = "삭제",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
 
     if (showTimePicker.value) {
-        val timeState = rememberTimePickerState(
-            initialHour = reminder.hour,
-            initialMinute = reminder.minute
-        )
+        val timeState =
+            rememberTimePickerState(initialHour = reminder.hour, initialMinute = reminder.minute)
         AlertDialog(
             onDismissRequest = { showTimePicker.value = false },
             confirmButton = {
-                Button(onClick = {
-                    val h = timeState.hour
-                    val m = timeState.minute
-
-                    onUpdateTime(id, h, m)
-
+                TextButton(onClick = {
+                    onUpdateTime(id, timeState.hour, timeState.minute)
                     showTimePicker.value = false
-                }) {
-                    Text(stringResource(R.string.button_confirm))
-                }
+                }) { Text(stringResource(R.string.button_confirm)) }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showTimePicker.value = false }) {
-                    Text(stringResource(R.string.button_cancel))
-                }
+                TextButton(onClick = {
+                    showTimePicker.value = false
+                }) { Text(stringResource(R.string.button_cancel)) }
             },
-            title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) },
+            title = { R.string.reminder_add_button_label },
             text = { TimeInput(state = timeState) }
         )
     }
@@ -269,20 +318,18 @@ private fun ReminderCard(
 @Composable
 private fun rememberDaysOfWeek(): Map<Int, String> {
     return mapOf(
-        Calendar.SUNDAY to stringResource(R.string.day_sun),
-        Calendar.MONDAY to stringResource(R.string.day_mon),
-        Calendar.TUESDAY to stringResource(R.string.day_tue),
-        Calendar.WEDNESDAY to stringResource(R.string.day_wed),
-        Calendar.THURSDAY to stringResource(R.string.day_thu),
-        Calendar.FRIDAY to stringResource(R.string.day_fri),
-        Calendar.SATURDAY to stringResource(R.string.day_sat)
+        Calendar.SUNDAY to "일",
+        Calendar.MONDAY to "월",
+        Calendar.TUESDAY to "화",
+        Calendar.WEDNESDAY to "수",
+        Calendar.THURSDAY to "목",
+        Calendar.FRIDAY to "금",
+        Calendar.SATURDAY to "토"
     )
 }
 
+@SuppressLint("DefaultLocale")
 private fun formatTime(hour: Int, minute: Int): String {
-    val calendar = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, hour)
-        set(Calendar.MINUTE, minute)
-    }
-    return DateFormat.format("HH:mm", calendar).toString()
+    val displayHour = if (hour % 12 == 0) 12 else hour % 12
+    return String.format("%02d:%02d", displayHour, minute)
 }
