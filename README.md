@@ -74,6 +74,7 @@
  ├── :domain
  └── :shared
      └── :designsystem
+     └── :navigation
 ```
 
 - **`:domain`**: 순수 Kotlin 모듈로, 앱의 핵심 비즈니스 로직(UseCase, Entity)을 포함합니다. 다른 모듈에 대한 의존성이 없습니다.
@@ -85,98 +86,101 @@
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
 %%{init: {
-  "theme": "base",
-  "themeVariables": {
-    "background": "#ffffff",
-    "primaryColor": "#f2f2f2",
-    "primaryTextColor": "#111111",
-    "primaryBorderColor": "#444444",
-    "lineColor": "#444444",
-    "fontSize": "14px"
-  }
+  "theme": "base",
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#f2f2f2",
+    "primaryTextColor": "#111111",
+    "primaryBorderColor": "#444444",
+    "lineColor": "#444444",
+    "fontSize": "14px"
+  }
 }}%%
 
 flowchart TD
-  %% =========================
-  %% App Layer
-  %% =========================
-  subgraph App_Layer["App Layer"]
-    APP[":app"]
-  end
+  %% =========================
+  %% App Layer
+  %% =========================
+  subgraph App_Layer["App Layer"]
+    APP[":app"]
+  end
 
-  %% =========================
-  %% Feature Layer
-  %% =========================
-  subgraph Feature_Layer["Feature Layer"]
-    HOME[":feature:home"]
-    GOAL[":feature:goal"]
-    RECORD[":feature:record"]
-    REMINDER[":feature:reminder"]
+  %% =========================
+  %% Feature Layer
+  %% =========================
+  subgraph Feature_Layer["Feature Layer"]
+    HOME[":feature:home"]
+    GOAL[":feature:goal"]
+    RECORD[":feature:record"]
+    REMINDER[":feature:reminder"]
 
-    %% layout only (no semantic meaning)
-    HOME ~~~ GOAL
-    GOAL ~~~ RECORD
-    RECORD ~~~ REMINDER
-  end
+    %% layout only (no semantic meaning)
+    HOME ~~~ GOAL
+    GOAL ~~~ RECORD
+    RECORD ~~~ REMINDER
+  end
 
-  %% =========================
-  %% Domain Layer
-  %% =========================
-  subgraph Domain_Layer["Domain Layer"]
-    DOMAIN[":domain"]
-  end
+  %% =========================
+  %% Domain Layer
+  %% =========================
+  subgraph Domain_Layer["Domain Layer"]
+    DOMAIN[":domain"]
+  end
 
-  %% =========================
-  %% Data Layer
-  %% =========================
-  subgraph Data_Layer["Data Layer"]
-    DATA[":data"]
-  end
+  %% =========================
+  %% Data Layer
+  %% =========================
+  subgraph Data_Layer["Data Layer"]
+    DATA[":data"]
+  end
 
-  %% =========================
-  %% Shared Layer
-  %% =========================
-  subgraph Shared_Layer["Shared Layer"]
-    DS[":shared:designsystem"]
-  end
+  %% =========================
+  %% Shared Layer
+  %% =========================
+  subgraph Shared_Layer["Shared Layer"]
+    DS[":shared:designsystem"]
+    NAV[":shared:navigation"]
+    
+    DS ~~~ NAV
+  end
 
-  %% =========================
-  %% Dependencies (semantic)
-  %% =========================
-  APP --> HOME
-  APP --> GOAL
-  APP --> RECORD
-  APP --> REMINDER
-  APP --> DATA
-  APP --> DS
+  %% =========================
+  %% Dependencies (semantic)
+  %% =========================
+  APP --> HOME
+  APP --> GOAL
+  APP --> RECORD
+  APP --> REMINDER
+  APP --> DATA
+  APP --> DS
+  APP --> NAV
 
-  HOME --> DOMAIN
-  GOAL --> DOMAIN
-  RECORD --> DOMAIN
-  REMINDER --> DOMAIN
+  HOME --> DOMAIN
+  GOAL --> DOMAIN
+  RECORD --> DOMAIN
+  REMINDER --> DOMAIN
 
-  HOME --> DS
-  GOAL --> DS
-  RECORD --> DS
-  REMINDER --> DS
+  HOME --> DS
+  GOAL --> DS
+  RECORD --> DS
+  REMINDER --> DS
 
-  DATA --> DOMAIN
+  DATA --> DOMAIN
 
-  %% =========================
-  %% Monotone Styling (lightness only)
-  %% =========================
-  classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
-  classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  %% =========================
+  %% Monotone Styling (lightness only)
+  %% =========================
+  classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
+  classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
 
-  class APP app;
-  class HOME,GOAL,RECORD,REMINDER feature;
-  class DOMAIN domain;
-  class DATA data;
-  class DS shared;
-
+  class APP app;
+  class HOME,GOAL,RECORD,REMINDER feature;
+  class DOMAIN domain;
+  class DATA data;
+  class DS,NAV shared;
   %% =========================
   %% Hide layout-only links
   %% (HOME~GOAL, GOAL~RECORD, RECORD~REMINDER)
