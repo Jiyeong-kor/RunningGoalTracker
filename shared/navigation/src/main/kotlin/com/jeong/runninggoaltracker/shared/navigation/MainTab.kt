@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 enum class BottomTabIcon {
     HOME,
     RECORD,
-    REMINDER
+    REMINDER,
+    MYPAGE
 }
 
 @Serializable
@@ -16,5 +17,6 @@ enum class MainTab(
 ) {
     HOME(MainNavigationRoute.Home, BottomTabIcon.HOME),
     RECORD(MainNavigationRoute.Record, BottomTabIcon.RECORD),
-    REMINDER(MainNavigationRoute.Reminder, BottomTabIcon.REMINDER);
+    REMINDER(MainNavigationRoute.Reminder, BottomTabIcon.REMINDER),
+    MYPAGE(MainNavigationRoute.MyPage, BottomTabIcon.MYPAGE);
 }

@@ -7,6 +7,7 @@ import com.jeong.runninggoaltracker.feature.goal.presentation.GoalRoute
 import com.jeong.runninggoaltracker.feature.goal.presentation.GoalViewModel
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeViewModel
+import com.jeong.runninggoaltracker.feature.mypage.presentation.MyPageViewModel
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordRoute
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
@@ -73,5 +74,10 @@ internal fun NavGraphBuilder.mainDestinations(
     composable<MainNavigationRoute.Reminder> { backStackEntry ->
         val viewModel: ReminderViewModel = hiltViewModel(backStackEntry)
         ReminderRoute(viewModel = viewModel)
+    }
+
+    composable<MainNavigationRoute.MyPage> { backStackEntry ->
+        val viewModel: MyPageViewModel = hiltViewModel(backStackEntry)
+        MyPageRoute(viewModel = viewModel)
     }
 }

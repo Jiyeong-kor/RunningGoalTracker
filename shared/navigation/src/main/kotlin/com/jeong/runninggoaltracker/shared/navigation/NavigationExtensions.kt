@@ -34,4 +34,5 @@ fun NavDestination?.isRouteInHierarchy(route: MainNavigationRoute): Boolean = wh
     MainNavigationRoute.Record -> isRouteInHierarchy<MainNavigationRoute.Record>()
     MainNavigationRoute.Goal -> isRouteInHierarchy<MainNavigationRoute.Goal>()
     MainNavigationRoute.Reminder -> isRouteInHierarchy<MainNavigationRoute.Reminder>()
+    MainNavigationRoute.MyPage -> isRouteInHierarchy<MainNavigationRoute.MyPage>()
 }

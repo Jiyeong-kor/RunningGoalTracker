@@ -1,4 +1,217 @@
 package com.jeong.runninggoaltracker.feature.mypage.presentation
 
-class MyPageScreen {
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+
+@Composable
+fun MyPageScreen(
+    viewModel: MyPageViewModel,
+    onNavigateToGoal: () -> Unit,
+    onNavigateToReminder: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    Scaffold(
+        topBar = {  }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            ProfileSection(uiState.userNickname, uiState.userLevel)
+
+            SummaryStats(uiState)
+
+            GoalProgressCard(uiState, onNavigateToGoal)
+
+            SettingsList(
+                uiState = uiState,
+                onNavigateToReminder = onNavigateToReminder,
+                onNavigateToGoal = onNavigateToGoal,
+                onActivityToggle = viewModel::toggleActivityRecognition
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileSection(name: String, level: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            modifier = Modifier.size(80.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier.padding(16.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = name,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Surface(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = MaterialTheme.shapes.small
+        ) {
+            Text(
+                text = level,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun SummaryStats(uiState: MyPageUiState) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        StatItem(
+            modifier = Modifier.weight(1f),
+            label = "총 거리",
+            value = "${String.format("%.1f", uiState.summary?.totalDistance ?: 0.0)}km"
+        )
+        StatItem(
+            modifier = Modifier.weight(1f),
+            label = "횟수",
+            value = "${uiState.summary?.totalCount ?: 0}회"
+        )
+        StatItem(
+            modifier = Modifier.weight(1f),
+            label = "평균 페이스",
+            value = uiState.summary?.averagePace ?: "0'00\""
+        )
+    }
+}
+
+@Composable
+private fun StatItem(modifier: Modifier, label: String, value: String) {
+    AppContentCard(modifier = modifier) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
+    AppContentCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "주간 목표 달성률", fontWeight = FontWeight.Bold)
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onClick) { Text("상세보기") }
+            }
+            LinearProgressIndicator(
+                progress = { 0.65f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsList(
+    uiState: MyPageUiState,
+    onNavigateToReminder: () -> Unit,
+    onNavigateToGoal: () -> Unit,
+    onActivityToggle: (Boolean) -> Unit
+) {
+    AppContentCard(modifier = Modifier.fillMaxWidth()) {
+        Column {
+            SettingItem(Icons.Default.Notifications, "알림 설정", "요일 및 시간 관리", onNavigateToReminder)
+            Divider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+            SettingItem(Icons.Default.Edit, "러닝 목표 수정", "거리 및 횟수 변경", onNavigateToGoal)
+            Divider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.primary)
+                Column(modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f)) {
+                    Text("활동 자동 인식", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "자동으로 러닝을 감지합니다",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                Switch(
+                    checked = uiState.isActivityRecognitionEnabled,
+                    onCheckedChange = onActivityToggle
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
+    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(title, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    subTitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                null,
+                tint = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
 }

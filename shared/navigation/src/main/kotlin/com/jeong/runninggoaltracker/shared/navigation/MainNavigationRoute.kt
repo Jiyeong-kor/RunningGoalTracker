@@ -25,4 +25,7 @@ sealed interface MainNavigationRoute : FeatureNavigationRoute {
 
     @Serializable
     data object Reminder : MainNavigationRoute
+
+    @Serializable
+    data object MyPage : MainNavigationRoute
 }

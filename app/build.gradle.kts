@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":feature:goal"))
     implementation(project(":feature:record"))
     implementation(project(":feature:reminder"))
+    implementation(project(":feature:mypage"))
 
     // core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.core.ktx)
