@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +28,7 @@ fun MyPageScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        topBar = {  }
+        topBar = { }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -94,17 +95,17 @@ private fun SummaryStats(uiState: MyPageUiState) {
         StatItem(
             modifier = Modifier.weight(1f),
             label = "총 거리",
-            value = "${String.format("%.1f", uiState.summary?.totalDistance ?: 0.0)}km"
+            value = "${String.format("%.1f", uiState.summary?.totalThisWeekKm ?: 0.0)}km"
         )
         StatItem(
             modifier = Modifier.weight(1f),
             label = "횟수",
-            value = "${uiState.summary?.totalCount ?: 0}회"
+            value = "${uiState.summary?.recordCountThisWeek ?: 0}회"
         )
         StatItem(
             modifier = Modifier.weight(1f),
-            label = "평균 페이스",
-            value = uiState.summary?.averagePace ?: "0'00\""
+            label = "달성률",
+            value = "${String.format("%.0f", (uiState.summary?.progress ?: 0f) * 100)}%"
         )
     }
 }
@@ -140,7 +141,7 @@ private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
                 TextButton(onClick = onClick) { Text("상세보기") }
             }
             LinearProgressIndicator(
-                progress = { 0.65f },
+                progress = { uiState.summary?.progress ?: 0f },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),
@@ -160,12 +161,12 @@ private fun SettingsList(
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column {
             SettingItem(Icons.Default.Notifications, "알림 설정", "요일 및 시간 관리", onNavigateToReminder)
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(Icons.Default.Edit, "러닝 목표 수정", "거리 및 횟수 변경", onNavigateToGoal)
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -174,9 +175,11 @@ private fun SettingsList(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.primary)
-                Column(modifier = Modifier
-                    .padding(start = 16.dp)
-                    .weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .weight(1f)
+                ) {
                     Text("활동 자동 인식", style = MaterialTheme.typography.bodyLarge)
                     Text(
                         "자동으로 러닝을 감지합니다",
