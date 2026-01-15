@@ -19,6 +19,7 @@ fun MainContainerRoute(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
+    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit,
 ) {
     val viewModel = hiltViewModel<MainNavigationViewModel>()
     val navController = rememberNavController()
@@ -45,17 +46,18 @@ fun MainContainerRoute(
             )
         }
     ) { innerPadding ->
-            NavHost(
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            mainDestinations(
                 navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                mainDestinations(
-                    navController = navController,
-                    activityRecognitionMonitor = activityRecognitionMonitor,
-                    requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-                    requestTrackingPermissions = requestTrackingPermissions
-                )
-            }
+                activityRecognitionMonitor = activityRecognitionMonitor,
+                requestActivityRecognitionPermission = requestActivityRecognitionPermission,
+                requestTrackingPermissions = requestTrackingPermissions,
+                requestCameraPermission = requestCameraPermission
+            )
         }
     }
+}

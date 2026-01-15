@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.jeong.runninggoaltracker.app.ui.permission.rememberActivityRecognitionPermissionRequester
+import com.jeong.runninggoaltracker.app.ui.permission.rememberCameraPermissionRequester
 import com.jeong.runninggoaltracker.app.ui.screen.EntryPointScreen
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val requestActivityRecognitionPermission =
                 rememberActivityRecognitionPermissionRequester()
+            val requestCameraPermission = rememberCameraPermissionRequester()
             var onTrackingPermissionResult by remember {
                 mutableStateOf<(Boolean) -> Unit>({ _ -> })
             }
@@ -55,7 +57,8 @@ class MainActivity : ComponentActivity() {
                     activityRecognitionMonitor = activityRecognitionMonitor,
                     requestActivityRecognitionPermission =
                     requestActivityRecognitionPermission,
-                    requestTrackingPermissions = requestTrackingPermissions
+                    requestTrackingPermissions = requestTrackingPermissions,
+                    requestCameraPermission = requestCameraPermission
                 )
             }
         }

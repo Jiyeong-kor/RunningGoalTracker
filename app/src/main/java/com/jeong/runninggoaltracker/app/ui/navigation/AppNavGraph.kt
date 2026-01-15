@@ -13,7 +13,8 @@ fun AppNavGraph(
     modifier: Modifier = Modifier,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
+    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
+    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -23,7 +24,8 @@ fun AppNavGraph(
         mainNavGraph(
             activityRecognitionMonitor = activityRecognitionMonitor,
             requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-            requestTrackingPermissions = requestTrackingPermissions
+            requestTrackingPermissions = requestTrackingPermissions,
+            requestCameraPermission = requestCameraPermission
         )
     }
 }
