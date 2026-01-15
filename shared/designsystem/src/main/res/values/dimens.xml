@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="padding_screen_horizontal">20dp</dimen>
-    <dimen name="spacing_screen_elements">16dp</dimen>
 
     <dimen name="card_elevation">1dp</dimen>
     <dimen name="card_corner_radius">16dp</dimen>
     <dimen name="card_padding_large">16dp</dimen>
-    <dimen name="card_spacing_medium">12dp</dimen>
     <dimen name="card_spacing_small">8dp</dimen>
-    <dimen name="card_spacing_extra_small">4dp</dimen>
 
-    <dimen name="log_card_corner_radius">12dp</dimen>
-    <dimen name="log_card_padding">12dp</dimen>
-
-    <dimen name="list_spacing_small">6dp</dimen>
-    <dimen name="list_max_height_medium">200dp</dimen>
-    <dimen name="list_max_height_large">300dp</dimen>
 </resources>

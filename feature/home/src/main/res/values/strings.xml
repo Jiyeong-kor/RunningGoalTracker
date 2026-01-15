@@ -1,18 +1,7 @@
 <resources>
-    <string name="home_title_today_status">오늘 상태</string>
-    <string name="home_weekly_goal_format">주간 목표: %s</string>
-    <string name="home_weekly_goal_not_set">주간 목표: 설정되지 않음</string>
-    <string name="home_total_distance_this_week_format">이번 주 누적 거리: %s</string>
-    <string name="home_running_count_this_week_format">이번 주 러닝 횟수: %d 회</string>
-    <string name="home_progress_format">%d%% 달성</string>
-    <string name="home_title_recent_activity_logs">최근 활동 로그</string>
     <string name="activity_permission_needed">활동 권한이 필요합니다</string>
     <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
     <string name="activity_unknown">활동 알 수 없음</string>
-    <string name="content_description_current_activity">현재 활동</string>
-    <string name="button_add_view_record">기록 추가 / 보기</string>
-    <string name="button_set_weekly_goal">주간 목표 설정</string>
-    <string name="button_set_reminder">리마인더 설정</string>
     <string name="home_section_weekly_manage">이번 주 관리</string>
     <string name="home_action_reminder_settings">알림 설정</string>
     <string name="home_section_recent_activity">최근 활동</string>

@@ -2,9 +2,6 @@
     <string name="app_name">RunningGoalTracker</string>
     <string name="app_name_full">Running Goal Tracker</string>
 
-    <string name="nav_home">홈</string>
-    <string name="nav_record">기록</string>
-    <string name="nav_reminder">알림</string>
     <string name="title_home">홈</string>
     <string name="title_record">러닝 기록</string>
     <string name="title_goal">주간 목표</string>

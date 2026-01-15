@@ -1,7 +1,4 @@
 <resources>
-    <string name="reminder_select_time_format">알림 시간 선택: %s</string>
-    <string name="reminder_dialog_title_select_time">알림 시간 선택</string>
-    <string name="reminder_select_days_label">요일 반복 설정</string>
     <string name="reminder_add_button_label">알림 추가</string>
     <string name="reminder_delete_button_label">삭제</string>
     <string name="reminder_error_select_at_least_one_day">알림을 켜기 전에 요일을 하나 이상 선택해 주세요.</string>

@@ -1,18 +1,9 @@
 <resources>
-    <string name="record_title_activity_recognition">활동 인식</string>
-    <string name="record_current_activity_format">현재 활동: %s</string>
-    <string name="record_title_tracking">러닝 자동 측정</string>
-    <string name="record_distance_dashboard_label">누적 거리</string>
-    <string name="record_elapsed_time_dashboard_label">경과 시간</string>
-    <string name="record_title_saved_records">저장된 러닝 기록</string>
-    <string name="record_no_saved_records">저장된 기록이 없습니다.</string>
-    <string name="record_duration_minutes_format">%d 분</string>
 
     <string name="activity_permission_needed">활동 권한이 필요합니다</string>
     <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
     <string name="activity_unknown">활동 알 수 없음</string>
 
-    <string name="button_start_tracking">자동 측정 시작</string>
     <string name="button_stop_tracking">측정 종료</string>
     <string name="record_tracking_permission_required">위치/활동 권한이 필요합니다</string>
     <string name="record_unit_kilometers">kilometers</string>
