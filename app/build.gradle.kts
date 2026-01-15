@@ -2,10 +2,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.com.google.gms.google.services)
+    alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -60,29 +61,33 @@ dependencies {
     implementation(project(":feature:mypage"))
 
     // core / lifecycle / activity / viewmodel-compose
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
 
     // Hilt
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
 
     // Compose UI
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
+    implementation(platform(libs.androidx.compose.bom))
+
+    // Firebase
+    implementation(libs.firebase.analytics)
+    implementation(platform(libs.firebase.bom))
 
     // unit test
     testImplementation(libs.junit)
 
     // androidTest
-    androidTestImplementation(libs.bundles.androidx.test)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.bundles.androidx.compose.test)
+    androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     kspAndroidTest(libs.dagger.hilt.compiler)
 
     // debug
