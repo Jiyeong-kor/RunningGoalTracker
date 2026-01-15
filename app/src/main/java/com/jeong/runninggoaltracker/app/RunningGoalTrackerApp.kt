@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import com.google.firebase.FirebaseApp
 import com.jeong.runninggoaltracker.feature.reminder.R as ReminderR
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
 import dagger.hilt.android.HiltAndroidApp
@@ -13,6 +14,7 @@ class RunningGoalTrackerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this)
         createNotificationChannel()
     }
 

@@ -1,10 +1,13 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingScreen
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
@@ -22,10 +25,14 @@ fun AppNavGraph(
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
     requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit
 ) {
-    val startDestination = if (Firebase.auth.currentUser == null) {
-        AuthRoute.Onboarding
-    } else {
+    val context = LocalContext.current
+    val isFirebaseInitialized = remember {
+        FirebaseApp.getApps(context).isNotEmpty()
+    }
+    val startDestination = if (isFirebaseInitialized && Firebase.auth.currentUser != null) {
         MainNavigationRoute.Main
+    } else {
+        AuthRoute.Onboarding
     }
 
     NavHost(
