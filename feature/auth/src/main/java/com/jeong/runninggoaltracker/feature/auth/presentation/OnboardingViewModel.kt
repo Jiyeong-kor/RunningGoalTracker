@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.SignInAnonymouslyUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpdateNicknameUseCase
+import com.jeong.runninggoaltracker.feature.auth.domain.CheckInternetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,21 +19,23 @@ enum class OnboardingStep {
     Success
 }
 
-data class AuthUiState(
+data class OnboardingUiState(
     val step: OnboardingStep = OnboardingStep.Permissions,
     val nickname: String = "",
     val isLoading: Boolean = false,
     val errorMessageResId: Int? = null,
     val permissionErrorResId: Int? = null,
-    val nicknameErrorResId: Int? = null
+    val nicknameErrorResId: Int? = null,
+    val showNoInternetDialog: Boolean = false
 )
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
-    private val updateNicknameUseCase: UpdateNicknameUseCase
+    private val updateNicknameUseCase: UpdateNicknameUseCase,
+    private val checkInternetUseCase: CheckInternetUseCase
 ) : ViewModel() {
-    var uiState by mutableStateOf(AuthUiState())
+    var uiState by mutableStateOf(OnboardingUiState())
         private set
 
     fun onPermissionsResult(granted: Boolean) {
@@ -56,11 +59,16 @@ class OnboardingViewModel @Inject constructor(
             uiState = uiState.copy(nicknameErrorResId = R.string.nickname_required_error)
             return
         }
+        if (!checkInternetUseCase()) {
+            uiState = uiState.copy(showNoInternetDialog = true)
+            return
+        }
         viewModelScope.launch {
             uiState = uiState.copy(
                 isLoading = true,
                 errorMessageResId = null,
-                nicknameErrorResId = null
+                nicknameErrorResId = null,
+                showNoInternetDialog = false
             )
             val signInResult = signInAnonymouslyUseCase()
             if (signInResult.isFailure) {
@@ -80,6 +88,19 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun onRetryInternet() {
+        if (!checkInternetUseCase()) {
+            uiState = uiState.copy(showNoInternetDialog = true)
+            return
+        }
+        uiState = uiState.copy(showNoInternetDialog = false)
+        onContinueWithNickname()
+    }
+
+    fun onDismissNoInternetDialog() {
+        uiState = uiState.copy(showNoInternetDialog = false)
     }
 
     companion object {

@@ -23,6 +23,9 @@
     <string name="nickname_required_error">닉네임을 입력해 주세요.</string>
     <string name="nickname_save_error">닉네임 저장에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="anonymous_sign_in_error">익명 로그인에 실패했습니다. 다시 시도해 주세요.</string>
+    <string name="no_internet_title">네트워크 연결 확인</string>
+    <string name="no_internet_message">인터넷이 연결되어 있지 않습니다. 연결 상태를 확인하고 다시 시도해주세요.</string>
+    <string name="no_internet_retry">다시 시도</string>
 
     <string name="success_title">준비 완료!</string>
     <string name="success_subtitle">이제 달리기를 시작할 수 있어요.</string>

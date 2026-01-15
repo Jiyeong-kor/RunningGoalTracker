@@ -31,7 +31,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTracker
 
 @Composable
 fun NicknameScreen(
-    uiState: AuthUiState,
+    uiState: OnboardingUiState,
     modifier: Modifier = Modifier,
     onNicknameChanged: (String) -> Unit,
     onContinue: () -> Unit
@@ -133,7 +133,7 @@ fun NicknameScreen(
 private fun NicknameScreenPreview() {
     RunningGoalTrackerTheme {
         NicknameScreen(
-            uiState = AuthUiState(nickname = "러너"),
+            uiState = OnboardingUiState(nickname = "러너"),
             onNicknameChanged = {},
             onContinue = {}
         )
