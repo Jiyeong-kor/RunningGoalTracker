@@ -10,4 +10,5 @@ interface AuthRepository {
     suspend fun deleteAccountAndReleaseNickname(): AuthResult<Unit>
     suspend fun upgradeAnonymousWithCustomToken(customToken: String): AuthResult<Unit>
     fun observeIsAnonymous(): Flow<Boolean>
+    fun observeUserNickname(): Flow<String?>
 }

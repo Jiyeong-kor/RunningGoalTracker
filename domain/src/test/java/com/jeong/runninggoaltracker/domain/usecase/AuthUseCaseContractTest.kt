@@ -56,4 +56,6 @@ private class FakeAuthRepository(
         upgradeResult
 
     override fun observeIsAnonymous(): Flow<Boolean> = flowOf(false)
+
+    override fun observeUserNickname(): Flow<String?> = flowOf(null)
 }

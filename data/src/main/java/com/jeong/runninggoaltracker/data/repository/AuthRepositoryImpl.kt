@@ -46,7 +46,8 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val userDocRef = firestore.collection(FirestorePaths.COLLECTION_USERS).document(uid)
             val usernameDocRef =
-                firestore.collection(FirestorePaths.COLLECTION_USERNAMES).document(normalizedNickname)
+                firestore.collection(FirestorePaths.COLLECTION_USERNAMES)
+                    .document(normalizedNickname)
             firestore.runTransaction { transaction ->
                 val usernameSnapshot = transaction.get(usernameDocRef)
                 if (usernameSnapshot.exists()) {
@@ -106,7 +107,11 @@ class AuthRepositoryImpl @Inject constructor(
             normalizedNickname?.let { nickname ->
                 val usernameDocRef =
                     firestore.collection(FirestorePaths.COLLECTION_USERNAMES).document(nickname)
-                batch.delete(usernameDocRef)
+                val usernameSnapshot = usernameDocRef.get().awaitResult()
+                val usernameOwner = usernameSnapshot.getString(FirestoreFields.UID)
+                if (usernameSnapshot.exists() && usernameOwner == uid) {
+                    batch.delete(usernameDocRef)
+                }
             }
             batch.delete(userDocRef)
             batch.commit().awaitResult()
@@ -145,6 +150,17 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeUserNickname(): Flow<String?> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.displayName)
+        }
+        firebaseAuth.addAuthStateListener(listener)
+        trySend(firebaseAuth.currentUser?.displayName)
+        awaitClose {
+            firebaseAuth.removeAuthStateListener(listener)
+        }
+    }
+
     private fun Exception.toAuthError(): AuthError = when (this) {
         is NicknameTakenException -> AuthError.NicknameTaken
         is FirebaseNetworkException -> AuthError.NetworkError
@@ -153,6 +169,7 @@ class AuthRepositoryImpl @Inject constructor(
             FirebaseFirestoreException.Code.UNAVAILABLE -> AuthError.NetworkError
             else -> AuthError.Unknown
         }
+
         is FirebaseAuthException -> AuthError.PermissionDenied
         else -> AuthError.Unknown
     }

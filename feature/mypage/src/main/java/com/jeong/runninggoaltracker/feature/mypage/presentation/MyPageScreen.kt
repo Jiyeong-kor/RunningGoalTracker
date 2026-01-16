@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -26,6 +27,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -34,6 +36,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -60,12 +66,16 @@ fun MyPageScreen(
     onNavigateToReminder: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val deleteAccountState by viewModel.deleteAccountState.collectAsState()
 
     MyPageContent(
         uiState = uiState,
         onNavigateToGoal = onNavigateToGoal,
         onNavigateToReminder = onNavigateToReminder,
-        onActivityToggle = viewModel::toggleActivityRecognition
+        onActivityToggle = viewModel::toggleActivityRecognition,
+        onDeleteAccount = viewModel::deleteAccount,
+        deleteAccountState = deleteAccountState,
+        onDeleteAccountStateConsumed = viewModel::resetDeleteAccountState
     )
 }
 
@@ -74,8 +84,86 @@ private fun MyPageContent(
     uiState: MyPageUiState,
     onNavigateToGoal: () -> Unit,
     onNavigateToReminder: () -> Unit,
-    onActivityToggle: (Boolean) -> Unit
+    onActivityToggle: (Boolean) -> Unit,
+    onDeleteAccount: () -> Unit,
+    deleteAccountState: DeleteAccountUiState,
+    onDeleteAccountStateConsumed: () -> Unit
 ) {
+    var isDeleteDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val openDeleteDialog = rememberThrottleClick(onClick = { isDeleteDialogVisible = true })
+    val closeDeleteDialog = rememberThrottleClick(onClick = { isDeleteDialogVisible = false })
+    val confirmDeleteDialog = rememberThrottleClick(
+        onClick = {
+            isDeleteDialogVisible = false
+            onDeleteAccount()
+        }
+    )
+
+    if (isDeleteDialogVisible) {
+        AlertDialog(
+            onDismissRequest = closeDeleteDialog,
+            title = { Text(text = stringResource(id = R.string.mypage_delete_account_confirm_title)) },
+            text = { Text(text = stringResource(id = R.string.mypage_delete_account_confirm_desc)) },
+            confirmButton = {
+                TextButton(onClick = confirmDeleteDialog) {
+                    Text(text = stringResource(id = R.string.mypage_delete_account_confirm_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = closeDeleteDialog) {
+                    Text(text = stringResource(id = R.string.mypage_delete_account_cancel_button))
+                }
+            }
+        )
+    }
+
+    when (deleteAccountState) {
+        DeleteAccountUiState.Success -> {
+            val closeSuccessDialog = rememberThrottleClick(
+                onClick = {
+                    onDeleteAccountStateConsumed()
+                }
+            )
+            AlertDialog(
+                onDismissRequest = closeSuccessDialog,
+                title = { Text(text = stringResource(id = R.string.mypage_delete_account_success_title)) },
+                text = { Text(text = stringResource(id = R.string.mypage_delete_account_success_desc)) },
+                confirmButton = {
+                    TextButton(onClick = closeSuccessDialog) {
+                        Text(text = stringResource(id = R.string.mypage_delete_account_confirm_button))
+                    }
+                }
+            )
+        }
+
+        is DeleteAccountUiState.Failure -> {
+            val closeErrorDialog = rememberThrottleClick(
+                onClick = {
+                    onDeleteAccountStateConsumed()
+                }
+            )
+            AlertDialog(
+                onDismissRequest = closeErrorDialog,
+                title = { Text(text = stringResource(id = R.string.mypage_delete_account_error_title)) },
+                text = {
+                    Text(
+                        text = stringResource(
+                            id = deleteAccountErrorMessageRes(deleteAccountState.error)
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = closeErrorDialog) {
+                        Text(text = stringResource(id = R.string.mypage_delete_account_confirm_button))
+                    }
+                }
+            )
+        }
+
+        DeleteAccountUiState.Idle,
+        DeleteAccountUiState.Loading -> Unit
+    }
+
     Scaffold(
         topBar = { }
     ) { padding ->
@@ -119,7 +207,8 @@ private fun MyPageContent(
                 uiState = uiState,
                 onNavigateToReminder = onNavigateToReminder,
                 onNavigateToGoal = onNavigateToGoal,
-                onActivityToggle = onActivityToggle
+                onActivityToggle = onActivityToggle,
+                onDeleteAccount = openDeleteDialog
             )
         }
     }
@@ -192,7 +281,8 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        val distanceText = DistanceFormatter.formatDistanceKm(uiState.summary?.totalThisWeekKm ?: 0.0)
+        val distanceText =
+            DistanceFormatter.formatDistanceKm(uiState.summary?.totalThisWeekKm ?: 0.0)
         val progressText = PercentageFormatter.formatProgress(uiState.summary?.progress ?: 0f)
         StatItem(
             modifier = Modifier.weight(1f),
@@ -267,7 +357,8 @@ private fun SettingsList(
     uiState: MyPageUiState,
     onNavigateToReminder: () -> Unit,
     onNavigateToGoal: () -> Unit,
-    onActivityToggle: (Boolean) -> Unit
+    onActivityToggle: (Boolean) -> Unit,
+    onDeleteAccount: () -> Unit
 ) {
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column {
@@ -316,13 +407,25 @@ private fun SettingsList(
                     onCheckedChange = onActivityToggle
                 )
             }
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = appSpacingLg()),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+            SettingItem(
+                icon = Icons.Default.Delete,
+                title = stringResource(id = R.string.mypage_setting_delete_account_title),
+                subTitle = stringResource(id = R.string.mypage_setting_delete_account_desc),
+                onClick = onDeleteAccount
+            )
         }
     }
 }
 
 @Composable
 private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
-    Surface(modifier = Modifier.fillMaxWidth().throttleClick(onClick = onClick)) {
+    Surface(modifier = Modifier
+        .fillMaxWidth()
+        .throttleClick(onClick = onClick)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -351,7 +454,26 @@ private fun MyPageScreenPreview() {
             uiState = MyPageUiState.preview(),
             onNavigateToGoal = {},
             onNavigateToReminder = {},
-            onActivityToggle = {}
+            onActivityToggle = {},
+            onDeleteAccount = {},
+            deleteAccountState = DeleteAccountUiState.Idle,
+            onDeleteAccountStateConsumed = {}
         )
+    }
+}
+
+private fun deleteAccountErrorMessageRes(error: AuthError): Int {
+    return when (error) {
+        AuthError.NetworkError ->
+            R.string.mypage_delete_account_error_desc_network
+
+        AuthError.PermissionDenied ->
+            R.string.mypage_delete_account_error_desc_permission
+
+        AuthError.Unknown ->
+            R.string.mypage_delete_account_error_desc_unknown
+
+        AuthError.NicknameTaken ->
+            R.string.mypage_delete_account_error_desc_unknown
     }
 }
