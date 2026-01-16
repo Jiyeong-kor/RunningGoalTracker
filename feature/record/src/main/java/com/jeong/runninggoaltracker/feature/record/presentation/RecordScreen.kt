@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
@@ -83,14 +84,7 @@ fun RecordScreen(
     onRequestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
-    val displayLabel = when (uiState.activityLabel) {
-        "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
-        "REQUEST_FAILED", "SECURITY_EXCEPTION" ->
-            stringResource(R.string.activity_recognition_failed)
-
-        "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
-        else -> uiState.activityLabel
-    }
+    val displayLabel = uiState.activityStatus.toRecordLabel()
 
     val startActivityRecognitionWithPermission: () -> Unit = {
         onStartActivityRecognition {
@@ -292,6 +286,33 @@ private fun RecordControlButton(
     }
 }
 
+@Composable
+private fun ActivityRecognitionStatus.toRecordLabel(): String {
+    return when (this) {
+        ActivityRecognitionStatus.NoPermission ->
+            stringResource(R.string.activity_permission_needed)
+        ActivityRecognitionStatus.RequestFailed,
+        ActivityRecognitionStatus.SecurityException ->
+            stringResource(R.string.activity_recognition_failed)
+        ActivityRecognitionStatus.Stopped ->
+            stringResource(R.string.activity_stopped)
+        ActivityRecognitionStatus.NoResult,
+        ActivityRecognitionStatus.NoActivity,
+        ActivityRecognitionStatus.Unknown ->
+            stringResource(R.string.activity_unknown)
+        ActivityRecognitionStatus.Running ->
+            stringResource(R.string.activity_running)
+        ActivityRecognitionStatus.Walking ->
+            stringResource(R.string.activity_walking)
+        ActivityRecognitionStatus.OnBicycle ->
+            stringResource(R.string.activity_on_bicycle)
+        ActivityRecognitionStatus.InVehicle ->
+            stringResource(R.string.activity_in_vehicle)
+        ActivityRecognitionStatus.Still ->
+            stringResource(R.string.activity_still)
+    }
+}
+
 private fun formatPace(
     distanceKm: Double,
     elapsedMillis: Long,
@@ -311,7 +332,7 @@ private fun formatPace(
 @Composable
 private fun RecordScreenPreview() {
     val uiState = RecordUiState(
-        activityLabel = "RUNNING",
+        activityStatus = ActivityRecognitionStatus.Running,
         isTracking = true,
         distanceKm = 3.45,
         elapsedMillis = 1_245_000,

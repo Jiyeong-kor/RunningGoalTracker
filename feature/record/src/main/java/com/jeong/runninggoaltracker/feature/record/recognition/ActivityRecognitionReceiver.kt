@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 
@@ -14,61 +15,61 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         if (!ActivityRecognitionResult.hasResult(intent)) {
-            getStateUpdater(context).update("NO_RESULT")
+            getStateUpdater(context).update(ActivityRecognitionStatus.NoResult)
             return
         }
 
         val result = ActivityRecognitionResult.extractResult(intent) ?: run {
-            getStateUpdater(context).update("NO_RESULT")
+            getStateUpdater(context).update(ActivityRecognitionStatus.NoResult)
             return
         }
 
         val activities: List<DetectedActivity> = result.probableActivities
         if (activities.isEmpty()) {
-            getStateUpdater(context).update("NO_ACTIVITY")
+            getStateUpdater(context).update(ActivityRecognitionStatus.NoActivity)
             return
         }
 
-        val rawLabel = getReadableActivity(activities)
+        val rawStatus = getReadableActivity(activities)
 
-        val labelForSmoothing =
-            if (rawLabel == "UNKNOWN") {
-                getStateHolder(context).state.value.label
+        val statusForSmoothing =
+            if (rawStatus == ActivityRecognitionStatus.Unknown) {
+                getStateHolder(context).state.value.status
             } else {
-                rawLabel
+                rawStatus
             }
 
-        val smoothLabel = ActivitySmoother.push(labelForSmoothing)
+        val smoothStatus = ActivitySmoother.push(statusForSmoothing)
 
         Log.d(
             "ActivityRecognition",
-            "raw=$rawLabel, smooth=$smoothLabel, all=$activities"
+            "raw=$rawStatus, smooth=$smoothStatus, all=$activities"
         )
 
         getStateUpdater(context).update(
-            label = smoothLabel
+            status = smoothStatus
         )
 
         ActivityLogHolder.add(
-            label = smoothLabel
+            status = smoothStatus
         )
     }
 
     private fun getReadableActivity(
         activities: List<DetectedActivity>
-    ): String {
+    ): ActivityRecognitionStatus {
 
         val types: Set<Int> = activities.map { it.type }.toSet()
 
         return when {
-            DetectedActivity.RUNNING in types -> "RUNNING"
+            DetectedActivity.RUNNING in types -> ActivityRecognitionStatus.Running
             DetectedActivity.WALKING in types ||
-                    DetectedActivity.ON_FOOT in types -> "WALKING"
+                    DetectedActivity.ON_FOOT in types -> ActivityRecognitionStatus.Walking
 
-            DetectedActivity.ON_BICYCLE in types -> "ON_BICYCLE"
-            DetectedActivity.IN_VEHICLE in types -> "IN_VEHICLE"
-            DetectedActivity.STILL in types -> "STILL"
-            else -> "UNKNOWN"
+            DetectedActivity.ON_BICYCLE in types -> ActivityRecognitionStatus.OnBicycle
+            DetectedActivity.IN_VEHICLE in types -> ActivityRecognitionStatus.InVehicle
+            DetectedActivity.STILL in types -> ActivityRecognitionStatus.Still
+            else -> ActivityRecognitionStatus.Unknown
         }
     }
 
@@ -92,15 +93,15 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 private object ActivitySmoother {
 
     private const val WINDOW_SIZE = 3
-    private val buffer: ArrayDeque<String> = ArrayDeque()
+    private val buffer: ArrayDeque<ActivityRecognitionStatus> = ArrayDeque()
 
-    fun push(label: String): String {
-        buffer.addLast(label)
+    fun push(status: ActivityRecognitionStatus): ActivityRecognitionStatus {
+        buffer.addLast(status)
         if (buffer.size > WINDOW_SIZE) {
             buffer.removeFirst()
         }
 
         val counted = buffer.groupingBy { it }.eachCount()
-        return counted.maxByOrNull { it.value }?.key ?: label
+        return counted.maxByOrNull { it.value }?.key ?: status
     }
 }

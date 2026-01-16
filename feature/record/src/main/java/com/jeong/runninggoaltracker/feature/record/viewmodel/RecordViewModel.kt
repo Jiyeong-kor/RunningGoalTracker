@@ -33,7 +33,7 @@ class RecordViewModel @Inject constructor(
     ) { records, activity, tracker ->
         RecordUiState(
             records = records,
-            activityLabel = activity.label,
+            activityStatus = activity.status,
             isTracking = tracker.isTracking,
             distanceKm = tracker.distanceKm,
             elapsedMillis = tracker.elapsedMillis,
@@ -68,11 +68,6 @@ class RecordViewModel @Inject constructor(
     fun notifyTrackingPermissionDenied() {
         runningTrackerController.notifyPermissionDenied()
     }
-
-    fun formatToKoreanDate(timestamp: Long): String = dateFormatter.formatToKoreanDate(timestamp)
-
-    fun formatToDistanceLabel(distanceKm: Double): String =
-        dateFormatter.formatToDistanceLabel(distanceKm)
 
     fun formatElapsedTime(elapsedMillis: Long): String =
         dateFormatter.formatElapsedTime(elapsedMillis)

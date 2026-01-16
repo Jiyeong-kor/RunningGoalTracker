@@ -51,6 +51,7 @@ kotlin {
 }
 
 dependencies {
+    // Project modules
     implementation(project(":data"))
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
@@ -62,7 +63,7 @@ dependencies {
     implementation(project(":feature:ai-coach"))
     implementation(project(":feature:auth"))
 
-    // core / lifecycle / activity / viewmodel-compose
+    // Core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -83,16 +84,16 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(platform(libs.firebase.bom))
 
-    // unit test
+    // Unit test
     testImplementation(libs.junit)
 
-    // androidTest
+    // Android test
     androidTestImplementation(libs.bundles.androidx.compose.test)
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     kspAndroidTest(libs.dagger.hilt.compiler)
 
-    // debug
+    // Debug
     debugImplementation(libs.bundles.androidx.compose.debug)
 }

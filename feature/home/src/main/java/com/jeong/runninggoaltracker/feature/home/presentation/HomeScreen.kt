@@ -55,16 +55,17 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import kotlinx.coroutines.flow.Flow
+import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.home.R
 
 data class ActivityRecognitionUiState(
-    val label: String = "UNKNOWN"
+    @get:StringRes val labelResId: Int = R.string.activity_unknown
 )
 
 data class ActivityLogUiModel(
     val time: Long,
-    val label: String
+    @get:StringRes val labelResId: Int
 )
 
 @Composable
@@ -110,10 +111,11 @@ fun HomeScreen(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
 
+    var isAnonymousBannerVisible by rememberSaveable { mutableStateOf(true) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
     val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
     val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
-    var isAnonymousBannerVisible by rememberSaveable { mutableStateOf(true) }
+    val onDismissBanner = rememberThrottleClick(onClick = { isAnonymousBannerVisible = false })
 
     val recentActivities = activityLogs
         .takeLast(3)
@@ -123,7 +125,7 @@ fun HomeScreen(
                 date = dateFormatter.formatToKoreanDate(log.time),
                 dist = stringResource(R.string.home_activity_distance_placeholder),
                 time = stringResource(R.string.home_activity_time_placeholder),
-                type = log.label
+                type = stringResource(log.labelResId)
             )
         }
 
@@ -163,7 +165,7 @@ fun HomeScreen(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
-                        IconButton(onClick = { isAnonymousBannerVisible = false }) {
+                        IconButton(onClick = onDismissBanner) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = null,
@@ -220,7 +222,7 @@ fun HomeScreen(
                 Text(
                     stringResource(
                         R.string.home_empty_recent_activity_format,
-                        activityState.label
+                        stringResource(activityState.labelResId)
                     ),
                     color = textMuted,
                     fontSize = 14.sp,
@@ -421,11 +423,11 @@ private fun HomeScreenPreview() {
         recordCountThisWeek = 3,
         progress = 0.62f
     )
-    val activityState = ActivityRecognitionUiState(label = "RUNNING")
+    val activityState = ActivityRecognitionUiState(labelResId = R.string.activity_running)
     val activityLogs = listOf(
-        ActivityLogUiModel(time = 1_728_000_000_000, label = "RUNNING"),
-        ActivityLogUiModel(time = 1_727_900_000_000, label = "WALKING"),
-        ActivityLogUiModel(time = 1_727_800_000_000, label = "RUNNING")
+        ActivityLogUiModel(time = 1_728_000_000_000, labelResId = R.string.activity_running),
+        ActivityLogUiModel(time = 1_727_900_000_000, labelResId = R.string.activity_walking),
+        ActivityLogUiModel(time = 1_727_800_000_000, labelResId = R.string.activity_running)
     )
 
     RunningGoalTrackerTheme {

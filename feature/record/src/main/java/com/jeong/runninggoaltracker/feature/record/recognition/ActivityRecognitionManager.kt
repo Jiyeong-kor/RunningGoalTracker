@@ -12,6 +12,7 @@ import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionContro
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
 import javax.inject.Inject
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 
 class ActivityRecognitionManager @Inject constructor(
     private val context: Context,
@@ -44,7 +45,7 @@ class ActivityRecognitionManager @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun startUpdates(onPermissionRequired: () -> Unit) {
         if (!hasPermission()) {
-            activityStateUpdater.update("NO_PERMISSION")
+            activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
             onPermissionRequired()
             return
         }
@@ -55,10 +56,10 @@ class ActivityRecognitionManager @Inject constructor(
                 createPendingIntent()
             ).addOnSuccessListener {
             }.addOnFailureListener {
-                activityStateUpdater.update("REQUEST_FAILED")
+                activityStateUpdater.update(ActivityRecognitionStatus.RequestFailed)
             }
         } catch (_: SecurityException) {
-            activityStateUpdater.update("SECURITY_EXCEPTION")
+            activityStateUpdater.update(ActivityRecognitionStatus.SecurityException)
         }
     }
 
@@ -68,11 +69,11 @@ class ActivityRecognitionManager @Inject constructor(
             client.removeActivityUpdates(createPendingIntent())
         } catch (_: SecurityException) {
         }
-        activityStateUpdater.update("STOPPED")
+        activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
     }
 
     override fun notifyPermissionDenied() {
-        activityStateUpdater.update("NO_PERMISSION")
+        activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
     }
 
     companion object {

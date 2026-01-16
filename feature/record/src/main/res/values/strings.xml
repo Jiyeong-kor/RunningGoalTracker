@@ -3,6 +3,12 @@
     <string name="activity_permission_needed">활동 권한이 필요합니다</string>
     <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
     <string name="activity_unknown">활동 알 수 없음</string>
+    <string name="activity_stopped">활동 인식 중지</string>
+    <string name="activity_running">달리기</string>
+    <string name="activity_walking">걷기</string>
+    <string name="activity_on_bicycle">자전거</string>
+    <string name="activity_in_vehicle">차량 이동</string>
+    <string name="activity_still">정지</string>
 
     <string name="button_stop_tracking">측정 종료</string>
     <string name="record_tracking_permission_required">위치/활동 권한이 필요합니다</string>

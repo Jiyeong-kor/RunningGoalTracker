@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.feature.record.recognition
 
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
+import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -11,13 +12,13 @@ object ActivityLogHolder {
     private val _logs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
 
-    fun add(label: String) {
+    fun add(status: ActivityRecognitionStatus) {
         val timestamp = System.currentTimeMillis()
 
         val current = _logs.value
-        if (current.firstOrNull()?.label == label) return
+        if (current.firstOrNull()?.status == status) return
 
-        val newEntry = ActivityLogEntry(time = timestamp, label = label)
+        val newEntry = ActivityLogEntry(time = timestamp, status = status)
         _logs.value = (listOf(newEntry) + current).take(MAX_SIZE)
     }
 }
