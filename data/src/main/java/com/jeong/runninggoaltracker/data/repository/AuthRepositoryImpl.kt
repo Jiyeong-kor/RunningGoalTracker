@@ -25,7 +25,8 @@ import kotlin.coroutines.resumeWithException
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> =
         suspendCancellableCoroutine { continuation ->
@@ -109,6 +110,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
             batch.delete(userDocRef)
             batch.commit().awaitResult()
+            runningDatabase.clearAllTables()
             user.delete().awaitResult()
             AuthResult.Success(Unit)
         } catch (error: Exception) {
