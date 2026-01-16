@@ -2,7 +2,6 @@ package com.jeong.runninggoaltracker.feature.record.tracking
 
 import android.Manifest
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.IBinder
@@ -18,7 +17,7 @@ import com.google.android.gms.location.Priority
 import android.content.pm.PackageManager
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.feature.record.BuildConfig
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -64,11 +63,9 @@ class RunningTrackerService : Service() {
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val actionStart = actionStart(this)
-        val actionStop = actionStop(this)
         when (intent?.action) {
-            actionStart -> startTracking()
-            actionStop -> stopTracking()
+            ACTION_START -> startTracking()
+            ACTION_STOP -> stopTracking()
         }
         return START_STICKY
     }
@@ -196,17 +193,12 @@ class RunningTrackerService : Service() {
     }
 
     companion object {
-        fun actionStart(context: Context): String {
-            return context.getString(R.string.record_service_action_start)
-        }
+        const val ACTION_START = BuildConfig.RECORD_ACTION_START
+        const val ACTION_STOP = BuildConfig.RECORD_ACTION_STOP
 
-        fun actionStop(context: Context): String {
-            return context.getString(R.string.record_service_action_stop)
-        }
-
-        fun createStopIntent(context: Context): Intent {
+        fun createStopIntent(context: android.content.Context): Intent {
             return Intent(context, RunningTrackerService::class.java).apply {
-                action = actionStop(context)
+                action = ACTION_STOP
             }
         }
     }

@@ -22,16 +22,16 @@ class RunningTrackerManager @Inject constructor(
         }
         stateUpdater.markTracking()
         val intent = Intent(context, RunningTrackerService::class.java).apply {
-            action = RunningTrackerService.actionStart(context)
+            action = RunningTrackerService.ACTION_START
         }
         ContextCompat.startForegroundService(context, intent)
     }
 
     override fun stopTracking() {
         val intent = Intent(context, RunningTrackerService::class.java).apply {
-            action = RunningTrackerService.actionStop(context)
+            action = RunningTrackerService.ACTION_STOP
         }
-        ContextCompat.startForegroundService(context, intent)
+        context.startService(intent)
     }
 
     override fun notifyPermissionDenied() {
