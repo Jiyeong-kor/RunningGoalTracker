@@ -1,19 +1,13 @@
 package com.jeong.runninggoaltracker.feature.reminder.notification
 
-import android.Manifest
 import android.content.Context
-import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.jeong.runninggoaltracker.feature.reminder.R
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 
 object ReminderNotifier {
 
-    const val CHANNEL_ID = "running_reminder"
-
-    private const val NOTIFICATION_ID = 1001
-
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun showNow(context: Context, hour: Int, minute: Int) {
         val text = context.getString(
             R.string.reminder_notification_text_format,
@@ -21,7 +15,7 @@ object ReminderNotifier {
             minute
         )
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, channelId(context))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.reminder_notification_title))
             .setContentText(text)
@@ -29,6 +23,18 @@ object ReminderNotifier {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        NotificationPermissionGate.notifyIfAllowed(
+            context,
+            notificationId(context),
+            notification
+        )
+    }
+
+    private fun channelId(context: Context): String {
+        return context.getString(R.string.reminder_notification_channel_id)
+    }
+
+    private fun notificationId(context: Context): Int {
+        return NumericResourceProvider.reminderNotificationId(context)
     }
 }

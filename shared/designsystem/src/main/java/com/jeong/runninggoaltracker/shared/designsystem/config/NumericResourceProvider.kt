@@ -35,4 +35,24 @@ object NumericResourceProvider {
     fun minDistanceMeters(context: Context): Float {
         return context.resources.getInteger(R.integer.record_min_distance_meters).toFloat()
     }
+
+    fun recordNotificationId(context: Context): Int {
+        return context.resources.getInteger(R.integer.record_notification_id)
+    }
+
+    fun recordStopRequestCode(context: Context): Int {
+        return context.resources.getInteger(R.integer.record_stop_request_code)
+    }
+
+    fun activityRecognitionRequestCode(context: Context): Int {
+        return context.resources.getInteger(R.integer.record_activity_recognition_request_code)
+    }
+
+    fun activityRecognitionIntervalMillis(context: Context): Long {
+        return context.resources.getInteger(R.integer.record_activity_recognition_interval_millis).toLong()
+    }
+
+    fun reminderNotificationId(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_notification_id)
+    }
 }

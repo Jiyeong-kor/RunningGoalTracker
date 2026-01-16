@@ -1,22 +1,17 @@
 package com.jeong.runninggoaltracker.feature.record.tracking
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.NumberFormat
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,10 +24,7 @@ class RunningNotificationDispatcher @Inject constructor(
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
         val channelId = context.getString(R.string.record_notification_channel_id)
-        val distanceFormatted = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
-            minimumFractionDigits = 2
-            maximumFractionDigits = 2
-        }.format(distanceKm)
+        val distanceFormatted = DistanceFormatter.formatDistanceKm(distanceKm)
         val content = context.getString(
             R.string.record_notification_content,
             distanceFormatted,
@@ -53,12 +45,12 @@ class RunningNotificationDispatcher @Inject constructor(
             .build()
     }
 
-    @SuppressLint("MissingPermission")
     fun notifyProgress(distanceKm: Double, elapsedMillis: Long) {
-        if (canPostNotifications()) {
-            NotificationManagerCompat.from(context)
-                .notify(NOTIFICATION_ID, createNotification(distanceKm, elapsedMillis))
-        }
+        NotificationPermissionGate.notifyIfAllowed(
+            context,
+            notificationId(),
+            createNotification(distanceKm, elapsedMillis)
+        )
     }
 
     fun ensureChannel() {
@@ -76,29 +68,21 @@ class RunningNotificationDispatcher @Inject constructor(
         }
     }
 
-    private fun canPostNotifications(): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-    }
-
     private fun createStopPendingIntent(): PendingIntent {
         val stopIntent = RunningTrackerService.createStopIntent(context)
         return PendingIntent.getService(
             context,
-            REQUEST_CODE_STOP,
+            stopRequestCode(),
             stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
 
-    @VisibleForTesting
-    internal fun canNotifyForTest(): Boolean = canPostNotifications()
+    private fun notificationId(): Int {
+        return NumericResourceProvider.recordNotificationId(context)
+    }
 
-    companion object {
-        const val NOTIFICATION_ID = 4001
-        private const val REQUEST_CODE_STOP = 4002
+    private fun stopRequestCode(): Int {
+        return NumericResourceProvider.recordStopRequestCode(context)
     }
 }

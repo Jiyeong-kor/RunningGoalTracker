@@ -81,7 +81,7 @@ class RunningTrackerService : Service() {
         stateUpdater.markTracking()
 
         startForeground(
-            RunningNotificationDispatcher.NOTIFICATION_ID,
+            NumericResourceProvider.recordNotificationId(this),
             notificationDispatcher.createNotification(
                 NumericResourceProvider.zeroDouble(this),
                 NumericResourceProvider.zeroLong(this)

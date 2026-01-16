@@ -4,4 +4,9 @@
     <integer name="record_update_interval_millis">2000</integer>
     <integer name="record_elapsed_update_interval_millis">1000</integer>
     <integer name="record_min_distance_meters">5</integer>
+    <integer name="record_notification_id">4001</integer>
+    <integer name="record_stop_request_code">4002</integer>
+    <integer name="record_activity_recognition_request_code">2001</integer>
+    <integer name="record_activity_recognition_interval_millis">1000</integer>
+    <integer name="reminder_notification_id">1001</integer>
 </resources>

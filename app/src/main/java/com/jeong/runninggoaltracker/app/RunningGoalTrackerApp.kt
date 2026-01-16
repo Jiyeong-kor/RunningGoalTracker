@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.os.Build
 import com.google.firebase.FirebaseApp
 import com.jeong.runninggoaltracker.feature.reminder.R as ReminderR
-import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -20,7 +19,7 @@ class RunningGoalTrackerApp : Application() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = ReminderNotifier.CHANNEL_ID
+            val channelId = getString(ReminderR.string.reminder_notification_channel_id)
             val channelName = getString(ReminderR.string.reminder_channel_name)
             val channelDescription = getString(ReminderR.string.reminder_channel_description)
 

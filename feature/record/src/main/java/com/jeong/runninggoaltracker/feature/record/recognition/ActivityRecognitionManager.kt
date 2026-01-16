@@ -1,18 +1,19 @@
 package com.jeong.runninggoaltracker.feature.record.recognition
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
 import javax.inject.Inject
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 
 class ActivityRecognitionManager @Inject constructor(
     private val context: Context,
@@ -36,13 +37,13 @@ class ActivityRecognitionManager @Inject constructor(
         )
         return PendingIntent.getBroadcast(
             context.applicationContext,
-            REQUEST_CODE,
+            requestCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     override fun startUpdates(onPermissionRequired: () -> Unit) {
         if (!hasPermission()) {
             activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
@@ -50,9 +51,24 @@ class ActivityRecognitionManager @Inject constructor(
             return
         }
 
+        requestUpdatesWithPermission()
+    }
+
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    override fun stopUpdates() {
+        if (!hasPermission()) {
+            activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
+            activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
+            return
+        }
+        removeUpdatesWithPermission()
+    }
+
+    @RequiresPermission(anyOf = [Manifest.permission.ACTIVITY_RECOGNITION, "com.google.android.gms.permission.ACTIVITY_RECOGNITION"])
+    private fun requestUpdatesWithPermission() {
         try {
             client.requestActivityUpdates(
-                INTERVAL_MILLIS,
+                intervalMillis(),
                 createPendingIntent()
             ).addOnSuccessListener {
             }.addOnFailureListener {
@@ -63,8 +79,8 @@ class ActivityRecognitionManager @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
-    override fun stopUpdates() {
+    @RequiresPermission(anyOf = [Manifest.permission.ACTIVITY_RECOGNITION, "com.google.android.gms.permission.ACTIVITY_RECOGNITION"])
+    private fun removeUpdatesWithPermission() {
         try {
             client.removeActivityUpdates(createPendingIntent())
         } catch (_: SecurityException) {
@@ -76,8 +92,11 @@ class ActivityRecognitionManager @Inject constructor(
         activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
     }
 
-    companion object {
-        private const val REQUEST_CODE = 2001
-        private const val INTERVAL_MILLIS = 1_000L
+    private fun requestCode(): Int {
+        return NumericResourceProvider.activityRecognitionRequestCode(context)
+    }
+
+    private fun intervalMillis(): Long {
+        return NumericResourceProvider.activityRecognitionIntervalMillis(context)
     }
 }
