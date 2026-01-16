@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="permission_title">필수 권한 안내</string>
-    <string name="permission_subtitle">원활한 달리기 기록을 위해 아래 권한이 필요합니다.</string>
+    <string name="permission_subtitle">원활한 앱 사용을 위해 아래 권한이 필요합니다.</string>
     <string name="permission_agree">동의하고 계속</string>
     <string name="permission_essential">필수</string>
     <string name="permission_required_error">필수 권한이 필요합니다. 권한을 허용해 주세요.</string>
@@ -11,16 +11,17 @@
     <string name="permission_location_title">위치</string>
     <string name="permission_location_description">이동 경로와 거리, 페이스를 측정해 운동 기록을 제공하기 위해 필요합니다.</string>
     <string name="permission_camera_title">카메라</string>
-    <string name="permission_camera_description">목표 설정 또는 인증샷 저장 등 러닝 기록을 확장하기 위해 필요합니다.</string>
+    <string name="permission_camera_description">자세 교정이나 인증샷 저장 등 운동 코칭 기능과 기록을 위해 필요합니다.</string>
     <string name="permission_notification_title">알림</string>
-    <string name="permission_notification_description">운동 리마인더와 목표 달성 알림을 제공하기 위해 필요합니다.</string>
+    <string name="permission_notification_description">운동 알림과 목표 달성 알림을 위해 필요합니다.</string>
 
     <string name="nickname_title">닉네임 설정</string>
     <string name="nickname_subtitle">러닝 기록에 표시될 닉네임을 입력해 주세요.</string>
     <string name="nickname_label">닉네임</string>
-    <string name="nickname_hint">최대 10자까지 입력할 수 있어요.</string>
-    <string name="nickname_continue">시작하기</string>
+    <string name="nickname_hint">2~10자의 한글/영문/숫자만 사용할 수 있어요.</string>
+    <string name="nickname_continue">완료</string>
     <string name="nickname_required_error">닉네임을 입력해 주세요.</string>
+    <string name="nickname_invalid_error">2~10자의 한글/영문/숫자만 입력할 수 있어요.</string>
     <string name="nickname_save_error">닉네임 저장에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="anonymous_sign_in_error">익명 로그인에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="no_internet_title">네트워크 연결 확인</string>

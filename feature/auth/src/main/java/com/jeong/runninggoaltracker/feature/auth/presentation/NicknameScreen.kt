@@ -75,6 +75,8 @@ fun NicknameScreen(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.nickname,
                     onValueChange = onNicknameChanged,
+                    enabled = !uiState.isLoading,
+                    isError = uiState.nicknameValidationMessage != null,
                     leadingIcon = {
                         Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
                     },
@@ -89,9 +91,9 @@ fun NicknameScreen(
                 )
             }
         }
-        if (uiState.nicknameErrorResId != null) {
+        if (uiState.nicknameValidationMessage != null) {
             Text(
-                text = stringResource(id = uiState.nicknameErrorResId),
+                text = stringResource(id = uiState.nicknameValidationMessage),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error
             )
@@ -107,7 +109,7 @@ fun NicknameScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onContinue,
-            enabled = !uiState.isLoading,
+            enabled = uiState.isNicknameValid && !uiState.isLoading,
             contentPadding = PaddingValues(vertical = spacingLg)
         ) {
             if (uiState.isLoading) {

@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.SignInAnonymouslyUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpdateNicknameUseCase
+import com.jeong.runninggoaltracker.domain.usecase.NicknameValidationResult
+import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
 import com.jeong.runninggoaltracker.feature.auth.domain.CheckInternetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -23,9 +25,10 @@ data class OnboardingUiState(
     val step: OnboardingStep = OnboardingStep.Permissions,
     val nickname: String = "",
     val isLoading: Boolean = false,
+    val isNicknameValid: Boolean = false,
+    val nicknameValidationMessage: Int? = null,
     val errorMessageResId: Int? = null,
     val permissionErrorResId: Int? = null,
-    val nicknameErrorResId: Int? = null,
     val showNoInternetDialog: Boolean = false
 )
 
@@ -33,6 +36,7 @@ data class OnboardingUiState(
 class OnboardingViewModel @Inject constructor(
     private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
     private val updateNicknameUseCase: UpdateNicknameUseCase,
+    private val validateNicknameUseCase: ValidateNicknameUseCase,
     private val checkInternetUseCase: CheckInternetUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(OnboardingUiState())
@@ -50,13 +54,25 @@ class OnboardingViewModel @Inject constructor(
 
     fun onNicknameChanged(value: String) {
         val trimmed = value.take(MAX_NICKNAME_LENGTH)
-        uiState = uiState.copy(nickname = trimmed, errorMessageResId = null, nicknameErrorResId = null)
+        val validationResult = validateNicknameUseCase(trimmed)
+        val validationUi = validationResult.toUiState()
+        uiState = uiState.copy(
+            nickname = trimmed,
+            isNicknameValid = validationUi.isValid,
+            nicknameValidationMessage = validationUi.messageResId,
+            errorMessageResId = null
+        )
     }
 
     fun onContinueWithNickname() {
-        val nickname = uiState.nickname.trim()
-        if (nickname.isBlank()) {
-            uiState = uiState.copy(nicknameErrorResId = R.string.nickname_required_error)
+        val nickname = uiState.nickname
+        val validationResult = validateNicknameUseCase(nickname)
+        val validationUi = validationResult.toUiState()
+        if (!validationUi.isValid) {
+            uiState = uiState.copy(
+                isNicknameValid = false,
+                nicknameValidationMessage = validationUi.messageResId
+            )
             return
         }
         if (!checkInternetUseCase()) {
@@ -67,7 +83,7 @@ class OnboardingViewModel @Inject constructor(
             uiState = uiState.copy(
                 isLoading = true,
                 errorMessageResId = null,
-                nicknameErrorResId = null,
+                nicknameValidationMessage = null,
                 showNoInternetDialog = false
             )
             val signInResult = signInAnonymouslyUseCase()
@@ -106,4 +122,27 @@ class OnboardingViewModel @Inject constructor(
     companion object {
         private const val MAX_NICKNAME_LENGTH = 10
     }
+
+    private fun NicknameValidationResult.toUiState(): NicknameValidationUiState =
+        when (this) {
+            is NicknameValidationResult.Valid -> NicknameValidationUiState(
+                isValid = true,
+                messageResId = null
+            )
+
+            NicknameValidationResult.Error.EMPTY -> NicknameValidationUiState(
+                isValid = false,
+                messageResId = R.string.nickname_required_error
+            )
+
+            NicknameValidationResult.Error.INVALID_FORMAT -> NicknameValidationUiState(
+                isValid = false,
+                messageResId = R.string.nickname_invalid_error
+            )
+        }
 }
+
+private data class NicknameValidationUiState(
+    val isValid: Boolean,
+    val messageResId: Int?
+)
