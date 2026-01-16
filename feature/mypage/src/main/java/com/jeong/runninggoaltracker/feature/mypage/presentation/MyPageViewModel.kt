@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
+import com.jeong.runninggoaltracker.domain.usecase.ObserveIsAnonymousUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val getRunningSummaryUseCase: GetRunningSummaryUseCase,
-    private val getRunningGoalUseCase: GetRunningGoalUseCase
+    private val getRunningGoalUseCase: GetRunningGoalUseCase,
+    private val observeIsAnonymousUseCase: ObserveIsAnonymousUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MyPageUiState())
@@ -30,13 +32,15 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 getRunningSummaryUseCase(),
-                getRunningGoalUseCase()
-            ) { summary, goal ->
+                getRunningGoalUseCase(),
+                observeIsAnonymousUseCase()
+            ) { summary, goal, isAnonymous ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         summary = summary,
-                        goal = goal
+                        goal = goal,
+                        isAnonymous = isAnonymous
                     )
                 }
             }.collect {}

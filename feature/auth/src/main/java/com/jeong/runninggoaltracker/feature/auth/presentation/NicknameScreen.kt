@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.auth.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 
 @Composable
 fun NicknameScreen(
@@ -84,6 +86,13 @@ fun NicknameScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(cornerRadius)
                 )
+                Row(modifier = Modifier.padding(top = appSpacingSm())) {
+                    Text(
+                        text = stringResource(id = R.string.anonymous_nickname_caption),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = stringResource(id = R.string.nickname_hint),
                     style = MaterialTheme.typography.bodyMedium,

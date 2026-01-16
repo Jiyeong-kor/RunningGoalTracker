@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.mypage.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -22,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -34,11 +37,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
+import com.jeong.runninggoaltracker.feature.mypage.R
+import java.util.Locale
 
 @Composable
 fun MyPageScreen(
@@ -76,7 +86,26 @@ private fun MyPageContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            ProfileSection(uiState.userNickname, uiState.userLevel)
+            ProfileSection(uiState.userNickname, uiState.userLevel, uiState.isAnonymous)
+
+            if (uiState.isAnonymous) {
+                AppSurfaceCard(contentPadding = PaddingValues(appSpacingLg())) {
+                    Column(verticalArrangement = Arrangement.spacedBy(appSpacingMd())) {
+                        Text(
+                            text = stringResource(id = R.string.mypage_anonymous_info_title),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = stringResource(id = R.string.mypage_anonymous_info_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        OutlinedButton(onClick = {}) {
+                            Text(text = stringResource(id = R.string.mypage_btn_upgrade_account))
+                        }
+                    }
+                }
+            }
 
             SummaryStats(uiState)
 
@@ -93,7 +122,7 @@ private fun MyPageContent(
 }
 
 @Composable
-private fun ProfileSection(name: String, level: String) {
+private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
             modifier = Modifier.size(80.dp),
@@ -107,11 +136,32 @@ private fun ProfileSection(name: String, level: String) {
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-        Text(
-            text = name,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
+        ) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            if (isAnonymous) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = CircleShape
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.mypage_guest_mode_status),
+                        modifier = Modifier.padding(
+                            horizontal = appSpacingSm(),
+                            vertical = appSpacingSm()
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
         Surface(
             color = MaterialTheme.colorScheme.secondaryContainer,
             shape = MaterialTheme.shapes.small
@@ -131,7 +181,13 @@ private fun SummaryStats(uiState: MyPageUiState) {
         StatItem(
             modifier = Modifier.weight(1f),
             label = "총 거리",
-            value = "${String.format("%.1f", uiState.summary?.totalThisWeekKm ?: 0.0)}km"
+            value = "${
+                String.format(
+                    Locale.getDefault(),
+                    "%.1f",
+                    uiState.summary?.totalThisWeekKm ?: 0.0
+                )
+            }km"
         )
         StatItem(
             modifier = Modifier.weight(1f),
@@ -141,7 +197,13 @@ private fun SummaryStats(uiState: MyPageUiState) {
         StatItem(
             modifier = Modifier.weight(1f),
             label = "달성률",
-            value = "${String.format("%.0f", (uiState.summary?.progress ?: 0f) * 100)}%"
+            value = "${
+                String.format(
+                    Locale.getDefault(),
+                    "%.0f",
+                    (uiState.summary?.progress ?: 0f) * 100
+                )
+            }%"
         )
     }
 }
@@ -268,7 +330,8 @@ private fun MyPageScreenPreview() {
         ),
         userNickname = "러너",
         userLevel = "Active Runner",
-        isActivityRecognitionEnabled = true
+        isActivityRecognitionEnabled = true,
+        isAnonymous = true
     )
 
     RunningGoalTrackerTheme {

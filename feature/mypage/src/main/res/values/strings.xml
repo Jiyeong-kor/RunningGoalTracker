@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mypage_guest_mode_status">게스트 모드</string>
+    <string name="mypage_anonymous_info_title">계정 상태 안내</string>
+    <string name="mypage_anonymous_info_desc">로그인 없이 간편하게 이용 중입니다. 기기 변경이나 앱 삭제 시 데이터 복구가 어려우니 소중한 기록을 위해 계정을 연결해보세요.</string>
+    <string name="mypage_btn_upgrade_account">카카오로 데이터 연결하기</string>
+</resources>

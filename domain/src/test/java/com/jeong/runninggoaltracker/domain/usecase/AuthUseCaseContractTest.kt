@@ -3,6 +3,8 @@ package com.jeong.runninggoaltracker.domain.usecase
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -52,4 +54,6 @@ private class FakeAuthRepository(
 
     override suspend fun upgradeAnonymousWithCustomToken(customToken: String): AuthResult<Unit> =
         upgradeResult
+
+    override fun observeIsAnonymous(): Flow<Boolean> = flowOf(false)
 }

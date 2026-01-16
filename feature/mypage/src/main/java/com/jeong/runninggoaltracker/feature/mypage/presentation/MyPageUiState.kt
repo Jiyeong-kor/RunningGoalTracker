@@ -9,6 +9,7 @@ data class MyPageUiState(
     val summary: RunningSummary? = null,
     val goal: RunningGoal? = null,
     val isActivityRecognitionEnabled: Boolean = true,
+    val isAnonymous: Boolean = false,
     val userNickname: String = "닉네임",
     val userLevel: String = "Active Professional"
 )

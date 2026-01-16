@@ -15,6 +15,9 @@ import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.util.NicknameNormalizer
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -126,6 +129,17 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (error: Exception) {
             AuthResult.Failure(error.toAuthError())
+        }
+    }
+
+    override fun observeIsAnonymous(): Flow<Boolean> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.isAnonymous == true)
+        }
+        firebaseAuth.addAuthStateListener(listener)
+        trySend(firebaseAuth.currentUser?.isAnonymous == true)
+        awaitClose {
+            firebaseAuth.removeAuthStateListener(listener)
         }
     }
 
