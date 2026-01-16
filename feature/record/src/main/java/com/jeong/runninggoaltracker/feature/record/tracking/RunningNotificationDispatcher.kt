@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.feature.record.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -28,9 +29,13 @@ class RunningNotificationDispatcher @Inject constructor(
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
         val channelId = context.getString(R.string.record_notification_channel_id)
+        val distanceFormatted = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+            minimumFractionDigits = 2
+            maximumFractionDigits = 2
+        }.format(distanceKm)
         val content = context.getString(
             R.string.record_notification_content,
-            String.format(Locale.getDefault(), "%.2f", distanceKm),
+            distanceFormatted,
             elapsedMinutes
         )
 
@@ -65,17 +70,18 @@ class RunningNotificationDispatcher @Inject constructor(
             ).apply {
                 description = context.getString(R.string.record_notification_channel_description)
             }
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
 
     private fun canPostNotifications(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun createStopPendingIntent(): PendingIntent {
