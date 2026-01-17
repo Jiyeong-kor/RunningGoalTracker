@@ -404,18 +404,17 @@ private fun NoInternetDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun PermissionsScreenPreview() {
+private fun PermissionsScreenPreview() =
     RunningGoalTrackerTheme {
         PermissionsScreen(
             permissionErrorResId = null,
             onAgree = {}
         )
     }
-}
 
 @Preview(showBackground = true)
 @Composable
-private fun PermissionRowPreview() {
+private fun PermissionRowPreview() =
     RunningGoalTrackerTheme {
         PermissionRow(
             item = PermissionItem(
@@ -426,31 +425,27 @@ private fun PermissionRowPreview() {
             )
         )
     }
-}
 
 @Preview(showBackground = true)
 @Composable
-private fun SuccessScreenPreview() {
+private fun SuccessScreenPreview() =
     RunningGoalTrackerTheme {
         SuccessScreen(onContinue = {})
     }
-}
 
 @Preview(showBackground = true)
 @Composable
-private fun HeaderIconPreview() {
+private fun HeaderIconPreview() =
     RunningGoalTrackerTheme {
         HeaderIcon()
     }
-}
 
 @Preview(showBackground = true)
 @Composable
-private fun NoInternetDialogPreview() {
+private fun NoInternetDialogPreview() =
     RunningGoalTrackerTheme {
         NoInternetDialog(
             onRetry = {},
             onDismiss = {}
         )
     }
-}

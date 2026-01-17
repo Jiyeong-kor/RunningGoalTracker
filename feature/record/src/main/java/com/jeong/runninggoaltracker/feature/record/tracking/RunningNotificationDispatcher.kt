@@ -46,13 +46,12 @@ class RunningNotificationDispatcher @Inject constructor(
             .build()
     }
 
-    fun notifyProgress(distanceKm: Double, elapsedMillis: Long) {
+    fun notifyProgress(distanceKm: Double, elapsedMillis: Long) =
         NotificationPermissionGate.notifyIfAllowed(
             context,
             notificationId(),
             createNotification(distanceKm, elapsedMillis)
         )
-    }
 
     fun ensureChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
