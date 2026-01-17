@@ -11,7 +11,6 @@ fun EntryPointScreen(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
-    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -21,7 +20,6 @@ fun EntryPointScreen(
         modifier = modifier,
         activityRecognitionMonitor = activityRecognitionMonitor,
         requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-        requestTrackingPermissions = requestTrackingPermissions,
-        requestCameraPermission = requestCameraPermission
+        requestTrackingPermissions = requestTrackingPermissions
     )
 }

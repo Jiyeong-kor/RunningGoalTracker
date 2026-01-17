@@ -138,13 +138,13 @@ private fun PermissionsScreen(
             icon = Icons.Outlined.PhotoCamera,
             title = stringResource(id = R.string.permission_camera_title),
             description = stringResource(id = R.string.permission_camera_description),
-            isEssential = false
+            isEssential = true
         ),
         PermissionItem(
             icon = Icons.Outlined.Notifications,
             title = stringResource(id = R.string.permission_notification_title),
             description = stringResource(id = R.string.permission_notification_description),
-            isEssential = false
+            isEssential = true
         )
     )
 

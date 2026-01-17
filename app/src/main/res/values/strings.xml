@@ -9,11 +9,4 @@
     <string name="title_reminder">알림 설정</string>
     <string name="title_mypage">마이페이지</string>
     <string name="error_enter_number">숫자를 입력해주세요.</string>
-
-    <string name="camera_permission_title">카메라 권한이 필요합니다</string>
-    <string name="camera_permission_message">AI 자세 코치를 사용하려면 카메라 접근을 허용해주세요.</string>
-    <string name="camera_permission_settings_message">설정에서 카메라 권한을 허용해야 AI 자세 코치를 사용할 수 있습니다.</string>
-    <string name="camera_permission_allow">허용</string>
-    <string name="camera_permission_settings">설정으로 이동</string>
-    <string name="camera_permission_cancel">취소</string>
 </resources>

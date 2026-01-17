@@ -22,7 +22,6 @@ fun AppNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
-    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -54,8 +53,7 @@ fun AppNavGraph(
         mainNavGraph(
             activityRecognitionMonitor = activityRecognitionMonitor,
             requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-            requestTrackingPermissions = requestTrackingPermissions,
-            requestCameraPermission = requestCameraPermission
+            requestTrackingPermissions = requestTrackingPermissions
         )
     }
 }
