@@ -89,7 +89,7 @@ private val darkScheme = darkColorScheme(
 @Composable
 fun RunningGoalTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
