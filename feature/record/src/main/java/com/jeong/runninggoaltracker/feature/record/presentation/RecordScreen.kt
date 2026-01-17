@@ -31,11 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
@@ -91,6 +92,12 @@ fun RecordScreen(
     val zeroLong = NumericResourceProvider.zeroLong(context)
     val zeroDouble = NumericResourceProvider.zeroDouble(context)
     val secondsPerMinute = integerResource(R.integer.record_seconds_per_minute)
+    val alphaDenominator = integerResource(R.integer.record_alpha_denominator)
+    val fullWeight = integerResource(R.integer.record_weight_full).toFloat()
+    val accentAlphaWeak = integerResource(R.integer.record_accent_alpha_weak).toFloat() /
+            alphaDenominator.toFloat()
+    val accentAlphaStrong = integerResource(R.integer.record_accent_alpha_strong).toFloat() /
+            alphaDenominator.toFloat()
 
     val startActivityRecognitionWithPermission: () -> Unit = {
         onStartActivityRecognition {
@@ -152,20 +159,20 @@ fun RecordScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(24.dp),
+            .padding(dimensionResource(R.dimen.record_screen_padding)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.record_top_spacer_height)))
 
         Box(contentAlignment = Alignment.Center) {
             Surface(
-                modifier = Modifier.size(220.dp),
+                modifier = Modifier.size(dimensionResource(R.dimen.record_circle_size)),
                 shape = CircleShape,
-                color = accentColor.copy(alpha = 0.05f),
+                color = accentColor.copy(alpha = accentAlphaWeak),
                 border = androidx.compose.foundation.BorderStroke(
-                    2.dp,
-                    accentColor.copy(alpha = 0.3f)
+                    dimensionResource(R.dimen.record_circle_border),
+                    accentColor.copy(alpha = accentAlphaStrong)
                 )
             ) {}
 
@@ -173,43 +180,48 @@ fun RecordScreen(
                 Text(
                     displayLabel.uppercase(Locale.getDefault()),
                     color = accentColor,
-                    fontSize = 14.sp,
+                    fontSize = dimensionResource(R.dimen.record_label_font_size).value.sp,
                     fontWeight = FontWeight.Black,
-                    letterSpacing = 2.sp
+                    letterSpacing = dimensionResource(R.dimen.record_label_letter_spacing).value.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(
+                        dimensionResource(R.dimen.record_label_spacer_height)
+                    )
+                )
                 Text(
                     distanceValue,
                     color = textPrimary,
-                    fontSize = 64.sp,
+                    fontSize = dimensionResource(R.dimen.record_distance_font_size).value.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     stringResource(R.string.record_unit_kilometers),
                     color = textMuted,
-                    fontSize = 14.sp
+                    fontSize = dimensionResource(R.dimen.record_unit_font_size).value.sp
                 )
             }
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement =
+                Arrangement.spacedBy(dimensionResource(R.dimen.record_metric_spacing))
         ) {
             MetricItem(
                 label = stringResource(R.string.record_metric_time),
                 value = formatElapsedTimeLabel(uiState.elapsedMillis, zeroLong),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(fullWeight)
             )
             MetricItem(
                 label = stringResource(R.string.record_metric_pace),
                 value = paceLabel,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(fullWeight)
             )
             MetricItem(
                 label = stringResource(R.string.record_metric_calories),
                 value = stringResource(R.string.record_calories_zero),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(fullWeight)
             )
         }
 
@@ -217,15 +229,16 @@ fun RecordScreen(
             Text(
                 text = stringResource(R.string.record_tracking_permission_required),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = 12.sp
+                fontSize = dimensionResource(R.dimen.record_permission_font_size).value.sp
             )
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(bottom = dimensionResource(R.dimen.record_control_row_bottom_padding)),
+            horizontalArrangement =
+                Arrangement.spacedBy(dimensionResource(R.dimen.record_metric_spacing))
         ) {
             RecordControlButton(
                 label = if (uiState.isTracking) {
@@ -236,15 +249,15 @@ fun RecordScreen(
                 icon = Icons.Default.Pause,
                 containerColor = if (uiState.isTracking) surfaceColor else accentColor,
                 contentColor = if (uiState.isTracking) textPrimary else onAccent,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(fullWeight),
                 onClick = onPauseClick
             )
             RecordControlButton(
                 label = stringResource(R.string.record_action_stop),
                 icon = Icons.Default.Stop,
-                containerColor = Color(0xFFE53935),
+                containerColor = colorResource(R.color.record_stop_button_color),
                 contentColor = onAccent,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(fullWeight),
                 onClick = onStopClick
             )
         }
@@ -253,18 +266,34 @@ fun RecordScreen(
 
 @Composable
 private fun MetricItem(label: String, value: String, modifier: Modifier = Modifier) {
+    val alphaDenominator = integerResource(R.integer.record_alpha_denominator)
+    val metricBackgroundAlpha =
+        integerResource(R.integer.record_metric_background_alpha).toFloat() /
+                alphaDenominator.toFloat()
     Column(
         modifier = modifier
-            .background(Color.White.copy(alpha = 0.03f), RoundedCornerShape(20.dp))
-            .padding(16.dp),
+            .background(
+                Color.White.copy(alpha = metricBackgroundAlpha),
+                RoundedCornerShape(dimensionResource(R.dimen.record_metric_item_shape))
+            )
+            .padding(dimensionResource(R.dimen.record_metric_item_padding)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(label, color = appTextMutedColor(), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            label,
+            color = appTextMutedColor(),
+            fontSize = dimensionResource(R.dimen.record_metric_label_text_size).value.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(
+            modifier = Modifier.height(
+                dimensionResource(R.dimen.record_metric_label_spacing)
+            )
+        )
         Text(
             value,
             color = appTextPrimaryColor(),
-            fontSize = 18.sp,
+            fontSize = dimensionResource(R.dimen.record_metric_value_text_size).value.sp,
             fontWeight = FontWeight.ExtraBold
         )
     }
@@ -281,46 +310,65 @@ private fun RecordControlButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(64.dp),
+        modifier = modifier.height(dimensionResource(R.dimen.record_control_button_height)),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
         ),
-        shape = RoundedCornerShape(20.dp),
-        contentPadding = PaddingValues(0.dp)
+        shape = RoundedCornerShape(dimensionResource(R.dimen.record_control_button_shape)),
+        contentPadding = PaddingValues(dimensionResource(R.dimen.record_control_button_padding))
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(label, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Icon(
+            icon,
+            contentDescription = null,
+            modifier = Modifier.size(dimensionResource(R.dimen.record_control_button_icon_size))
+        )
+        Spacer(
+            modifier = Modifier.width(
+                dimensionResource(R.dimen.record_control_button_icon_spacing)
+            )
+        )
+        Text(
+            label,
+            fontSize = dimensionResource(R.dimen.record_control_button_text_size).value.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
-private fun ActivityRecognitionStatus.toRecordLabel(): String {
-    return when (this) {
+private fun ActivityRecognitionStatus.toRecordLabel(): String =
+    when (this) {
         ActivityRecognitionStatus.NoPermission ->
             stringResource(R.string.activity_permission_needed)
+
         ActivityRecognitionStatus.RequestFailed,
         ActivityRecognitionStatus.SecurityException ->
             stringResource(R.string.activity_recognition_failed)
+
         ActivityRecognitionStatus.Stopped ->
             stringResource(R.string.activity_stopped)
+
         ActivityRecognitionStatus.NoResult,
         ActivityRecognitionStatus.NoActivity,
         ActivityRecognitionStatus.Unknown ->
             stringResource(R.string.activity_unknown)
+
         ActivityRecognitionStatus.Running ->
             stringResource(R.string.activity_running)
+
         ActivityRecognitionStatus.Walking ->
             stringResource(R.string.activity_walking)
+
         ActivityRecognitionStatus.OnBicycle ->
             stringResource(R.string.activity_on_bicycle)
+
         ActivityRecognitionStatus.InVehicle ->
             stringResource(R.string.activity_in_vehicle)
+
         ActivityRecognitionStatus.Still ->
             stringResource(R.string.activity_still)
     }
-}
 
 private fun formatPace(
     distanceKm: Double,
@@ -346,7 +394,8 @@ private fun formatElapsedTimeLabel(elapsedMillis: Long, zeroLong: Long): String 
     val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
     val hours = TimeUnit.SECONDS.toHours(totalSeconds)
     val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) - TimeUnit.HOURS.toMinutes(hours)
-    val seconds = totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
+    val seconds =
+        totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
     return if (hours > zeroLong) {
         stringResource(R.string.record_elapsed_time_hms_format, hours, minutes, seconds)
     } else {
@@ -376,6 +425,31 @@ private fun RecordScreenPreview() {
             onTrackingPermissionDenied = {},
             onRequestActivityRecognitionPermission = {},
             onRequestTrackingPermissions = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MetricItemPreview() {
+    RunningGoalTrackerTheme {
+        MetricItem(
+            label = "시간",
+            value = "00:45:12"
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RecordControlButtonPreview() {
+    RunningGoalTrackerTheme {
+        RecordControlButton(
+            label = "일시정지",
+            icon = Icons.Default.Pause,
+            containerColor = appAccentColor(),
+            contentColor = appOnAccentColor(),
+            onClick = {}
         )
     }
 }
