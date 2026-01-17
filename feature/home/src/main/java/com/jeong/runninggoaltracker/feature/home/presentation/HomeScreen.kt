@@ -1,7 +1,6 @@
 package com.jeong.runninggoaltracker.feature.home.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +43,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -255,7 +255,7 @@ private fun WeeklyProgressCard(
     AppSurfaceCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .throttleClick(onClick = onClick),
         shape = RoundedCornerShape(28.dp),
         containerColor = surfaceColor,
         contentPadding = PaddingValues(24.dp)
