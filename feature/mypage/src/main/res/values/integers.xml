@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="mypage_numeric_zero">0</integer>
+    <integer name="mypage_weight_one">1</integer>
+</resources>

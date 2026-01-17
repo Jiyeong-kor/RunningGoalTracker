@@ -43,10 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -174,9 +175,11 @@ private fun MyPageContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(dimensionResource(id = R.dimen.mypage_screen_padding)),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(
+                dimensionResource(id = R.dimen.mypage_section_spacing)
+            )
         ) {
             ProfileSection(uiState.userNickname, uiState.userLevel, uiState.isAnonymous)
 
@@ -229,14 +232,14 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
             level
         }
         Surface(
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(dimensionResource(id = R.dimen.mypage_profile_size)),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_profile_icon_padding)),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -272,7 +275,10 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
         ) {
             Text(
                 text = displayLevel,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(id = R.dimen.mypage_level_badge_horizontal_padding),
+                    vertical = dimensionResource(id = R.dimen.mypage_level_badge_vertical_padding)
+                ),
                 style = MaterialTheme.typography.labelSmall
             )
         }
@@ -281,27 +287,39 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
 
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val zeroInt = integerResource(id = R.integer.mypage_numeric_zero)
+    val zeroDouble = zeroInt.toDouble()
+    val zeroFloat = zeroInt.toFloat()
+    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(
+            dimensionResource(id = R.dimen.mypage_summary_spacing)
+        )
+    ) {
         val context = LocalContext.current
         val distanceText =
-            DistanceFormatter.formatDistanceKm(context, uiState.summary?.totalThisWeekKm ?: 0.0)
+            DistanceFormatter.formatDistanceKm(
+                context,
+                uiState.summary?.totalThisWeekKm ?: zeroDouble
+            )
         val progressText =
-            PercentageFormatter.formatProgress(context, uiState.summary?.progress ?: 0f)
+            PercentageFormatter.formatProgress(context, uiState.summary?.progress ?: zeroFloat)
         StatItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weightOne),
             label = stringResource(id = R.string.mypage_summary_distance_label),
             value = stringResource(id = R.string.mypage_summary_distance_value, distanceText)
         )
         StatItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weightOne),
             label = stringResource(id = R.string.mypage_summary_count_label),
             value = stringResource(
                 id = R.string.mypage_summary_count_value,
-                uiState.summary?.recordCountThisWeek ?: 0
+                uiState.summary?.recordCountThisWeek ?: zeroInt
             )
         )
         StatItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weightOne),
             label = stringResource(id = R.string.mypage_summary_progress_label),
             value = stringResource(id = R.string.mypage_summary_progress_value, progressText)
         )
@@ -313,7 +331,7 @@ private fun StatItem(modifier: Modifier, label: String, value: String) {
     AppContentCard(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_stat_item_padding))
         ) {
             Text(
                 text = label,
@@ -332,23 +350,25 @@ private fun StatItem(modifier: Modifier, label: String, value: String) {
 @Composable
 private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
     val throttledOnClick = rememberThrottleClick(onClick = onClick)
+    val zeroFloat = integerResource(id = R.integer.mypage_numeric_zero).toFloat()
+    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_goal_card_padding))) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.mypage_goal_progress_title),
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.weight(weightOne))
                 TextButton(onClick = throttledOnClick) {
                     Text(text = stringResource(id = R.string.mypage_goal_progress_detail))
                 }
             }
             LinearProgressIndicator(
-                progress = { uiState.summary?.progress ?: 0f },
+                progress = { uiState.summary?.progress ?: zeroFloat },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(8.dp),
+                    .height(dimensionResource(id = R.dimen.mypage_progress_height)),
                 strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
             )
         }
@@ -372,7 +392,9 @@ private fun SettingsList(
                 onClick = onNavigateToReminder
             )
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                ),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(
@@ -382,18 +404,20 @@ private fun SettingsList(
                 onClick = onNavigateToGoal
             )
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                ),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_setting_row_padding)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.primary)
                 Column(
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
+                        .padding(start = dimensionResource(id = R.dimen.mypage_setting_title_spacing))
+                        .weight(integerResource(id = R.integer.mypage_weight_one).toFloat())
                 ) {
                     Text(
                         text = stringResource(id = R.string.mypage_setting_activity_title),
@@ -426,14 +450,18 @@ private fun SettingsList(
 
 @Composable
 private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
+    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .throttleClick(onClick = onClick)
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_setting_row_padding)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Column(modifier = Modifier.padding(start = 16.dp)) {
+            Column(modifier = Modifier.padding(start = dimensionResource(id = R.dimen.mypage_setting_title_spacing))) {
                 Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     subTitle,
@@ -441,7 +469,7 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
                     color = MaterialTheme.colorScheme.outline
                 )
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(weightOne))
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 null,
@@ -453,7 +481,7 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
 
 @Preview(showBackground = true)
 @Composable
-private fun MyPageScreenPreview() {
+private fun MyPageScreenPreview() =
     RunningGoalTrackerTheme {
         MyPageContent(
             uiState = MyPageUiState.preview(),
@@ -465,7 +493,6 @@ private fun MyPageScreenPreview() {
             onDeleteAccountStateConsumed = {}
         )
     }
-}
 
 private fun deleteAccountErrorMessageRes(error: AuthError): Int =
     when (error) {
