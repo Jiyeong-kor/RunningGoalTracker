@@ -9,8 +9,8 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
-import com.jeong.runninggoaltracker.data.firebase.FirestoreFields
-import com.jeong.runninggoaltracker.data.firebase.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.FirestoreFields
+import com.jeong.runninggoaltracker.data.contract.FirestorePaths
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository

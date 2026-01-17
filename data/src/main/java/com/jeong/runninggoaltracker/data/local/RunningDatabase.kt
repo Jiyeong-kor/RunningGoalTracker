@@ -4,11 +4,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.jeong.runninggoaltracker.data.local.DatabaseConfig.DATABASE_VERSION
-
-object DatabaseConfig {
-    const val DATABASE_VERSION = 2
-}
+import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
 
 @Database(
     entities = [
@@ -16,9 +12,9 @@ object DatabaseConfig {
         RunningGoalEntity::class,
         RunningReminderEntity::class
     ],
-    version = DATABASE_VERSION,
+    version = RunningDatabaseContract.DATABASE_VERSION,
     autoMigrations = [
-        AutoMigration(from = 1, to = DATABASE_VERSION)
+        AutoMigration(from = 1, to = RunningDatabaseContract.DATABASE_VERSION)
     ],
     exportSchema = true
 )
@@ -32,7 +28,4 @@ abstract class RunningDatabase : RoomDatabase() {
     abstract fun runningGoalDao(): RunningGoalDao
     abstract fun runningReminderDao(): RunningReminderDao
 
-    companion object {
-        const val NAME = "running_goal_tracker.db"
-    }
 }

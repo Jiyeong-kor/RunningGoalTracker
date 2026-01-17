@@ -2,11 +2,9 @@ package com.jeong.runninggoaltracker.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
 
-const val EMPTY_DAYS = ""
-const val TABLE_RUNNING_REMINDER = "running_reminder"
-
-@Entity(tableName = TABLE_RUNNING_REMINDER)
+@Entity(tableName = RunningDatabaseContract.TABLE_RUNNING_REMINDER)
 data class RunningReminderEntity(
     @PrimaryKey val id: Int? = null,
     val hour: Int,

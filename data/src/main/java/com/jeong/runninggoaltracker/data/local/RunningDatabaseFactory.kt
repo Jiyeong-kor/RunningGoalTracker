@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.data.local
 
 import android.content.Context
 import androidx.room.Room
+import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
 import javax.inject.Inject
 
 class RunningDatabaseFactory @Inject constructor() {
@@ -10,7 +11,7 @@ class RunningDatabaseFactory @Inject constructor() {
         Room.databaseBuilder(
             context,
             RunningDatabase::class.java,
-            RunningDatabase.NAME
+            RunningDatabaseContract.DATABASE_NAME
         ).fallbackToDestructiveMigration(false)
             .build()
 }
