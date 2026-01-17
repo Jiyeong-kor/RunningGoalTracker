@@ -6,9 +6,9 @@
     <string name="reminder_total_count">총 %1$d개의 알람이 등록되어 있습니다</string>
     <string name="reminder_time_period_am">오전</string>
     <string name="reminder_time_period_pm">오후</string>
+    <string name="reminder_time_format">%1$02d:%2$02d</string>
     <string name="reminder_notification_title">러닝 리마인더</string>
     <string name="reminder_notification_text_format">%1$02d:%2$02d 러닝할 시간이에요!</string>
-    <string name="reminder_notification_channel_id">running_reminder</string>
     <string name="reminder_channel_name">러닝 리마인더</string>
     <string name="reminder_channel_description">러닝 알림을 위한 채널</string>
     <string name="reminder_title_settings">운동 알림 설정</string>

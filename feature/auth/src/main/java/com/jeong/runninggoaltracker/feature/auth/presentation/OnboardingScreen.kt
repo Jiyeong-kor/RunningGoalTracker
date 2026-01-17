@@ -45,6 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 
 @Composable
@@ -117,6 +118,7 @@ private fun PermissionsScreen(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
     val spacing2xl =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
+    val onAgreeThrottled = rememberThrottleClick(onClick = onAgree)
 
     val permissions = listOf(
         PermissionItem(
@@ -188,7 +190,7 @@ private fun PermissionsScreen(
         Spacer(modifier = Modifier.height(spacingLg))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = onAgree,
+            onClick = onAgreeThrottled,
             contentPadding = PaddingValues(vertical = spacingLg)
         ) {
             Text(
@@ -275,6 +277,7 @@ private fun SuccessScreen(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
     val iconSize =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_icon_size)
+    val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
 
     Column(
         modifier = modifier
@@ -306,7 +309,7 @@ private fun SuccessScreen(
         Spacer(modifier = Modifier.weight(1f))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = onContinue,
+            onClick = onContinueThrottled,
             contentPadding = PaddingValues(vertical = spacingLg)
         ) {
             Text(
@@ -365,6 +368,7 @@ private fun NoInternetDialog(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)
     val spacingXl =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
+    val onRetryThrottled = rememberThrottleClick(onClick = onRetry)
 
     Dialog(onDismissRequest = onDismiss) {
         AppSurfaceCard(
@@ -384,7 +388,7 @@ private fun NoInternetDialog(
                 Spacer(modifier = Modifier.height(spacingSm))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onRetry,
+                    onClick = onRetryThrottled,
                     contentPadding = PaddingValues(vertical = spacingLg)
                 ) {
                     Text(

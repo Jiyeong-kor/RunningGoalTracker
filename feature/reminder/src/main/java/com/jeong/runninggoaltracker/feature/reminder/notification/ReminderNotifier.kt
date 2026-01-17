@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.reminder.notification
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.jeong.runninggoaltracker.feature.reminder.R
+import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderNotificationContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 
@@ -15,7 +16,10 @@ object ReminderNotifier {
             minute
         )
 
-        val notification = NotificationCompat.Builder(context, channelId(context))
+        val notification = NotificationCompat.Builder(
+            context,
+            ReminderNotificationContract.NOTIFICATION_CHANNEL_ID
+        )
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.reminder_notification_title))
             .setContentText(text)
@@ -28,10 +32,6 @@ object ReminderNotifier {
             notificationId(context),
             notification
         )
-    }
-
-    private fun channelId(context: Context): String {
-        return context.getString(R.string.reminder_notification_channel_id)
     }
 
     private fun notificationId(context: Context): Int {

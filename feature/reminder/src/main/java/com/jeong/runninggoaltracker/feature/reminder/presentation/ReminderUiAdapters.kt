@@ -67,11 +67,12 @@ fun rememberNotificationPermissionRequester(
 
 private class ResourceReminderTimeFormatter(
     private val amLabel: String,
-    private val pmLabel: String
+    private val pmLabel: String,
+    private val timeFormat: String
 ) : ReminderTimeFormatter {
     override fun formatTime(hour: Int, minute: Int): String {
         val displayHour = if (hour % 12 == 0) 12 else hour % 12
-        return String.format("%02d:%02d", displayHour, minute)
+        return String.format(timeFormat, displayHour, minute)
     }
 
     override fun periodLabel(hour: Int): String {
@@ -83,7 +84,10 @@ private class ResourceReminderTimeFormatter(
 fun rememberReminderTimeFormatter(): ReminderTimeFormatter {
     val amLabel = stringResource(R.string.reminder_time_period_am)
     val pmLabel = stringResource(R.string.reminder_time_period_pm)
-    return remember(amLabel, pmLabel) { ResourceReminderTimeFormatter(amLabel, pmLabel) }
+    val timeFormat = stringResource(R.string.reminder_time_format)
+    return remember(amLabel, pmLabel, timeFormat) {
+        ResourceReminderTimeFormatter(amLabel, pmLabel, timeFormat)
+    }
 }
 
 private class ResourceDaysOfWeekLabelProvider(
