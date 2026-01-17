@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -112,14 +113,14 @@ fun SmartWorkoutScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         CameraPreview(
-            modifier = Modifier.fillMaxSize(),
-            imageAnalyzer = imageAnalyzer
+            imageAnalyzer = imageAnalyzer,
+            modifier = Modifier.fillMaxSize()
         )
 
         SkeletonOverlay(
-            modifier = Modifier.fillMaxSize(),
             poseFrame = uiState.poseFrame,
-            strokeColor = accentColor
+            strokeColor = accentColor,
+            modifier = Modifier.fillMaxSize()
         )
 
         Row(
@@ -233,8 +234,8 @@ private fun ExerciseTypeChip(
 
 @Composable
 private fun CameraPreview(
-    modifier: Modifier = Modifier,
-    imageAnalyzer: ImageAnalysis.Analyzer
+    imageAnalyzer: ImageAnalysis.Analyzer,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -270,9 +271,9 @@ private fun CameraPreview(
 
 @Composable
 private fun SkeletonOverlay(
-    modifier: Modifier = Modifier,
     poseFrame: PoseFrame?,
-    strokeColor: androidx.compose.ui.graphics.Color
+    strokeColor: Color,
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     val skeletonStrokeWidthPx = with(density) {

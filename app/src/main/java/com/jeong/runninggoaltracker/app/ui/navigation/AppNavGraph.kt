@@ -19,11 +19,11 @@ import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
-    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit
+    requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val isFirebaseInitialized = remember {

@@ -72,12 +72,11 @@ fun CameraPermissionHandler(
         }
     }
 
-    fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
+    fun isPermissionGranted(): Boolean =
+        ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
-    }
 
     LaunchedEffect(requestKey) {
         if (isPermissionGranted()) {
