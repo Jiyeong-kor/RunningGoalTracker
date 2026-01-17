@@ -6,6 +6,6 @@ import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 data class MainTabItem(
     val tab: MainTab,
-    @param:StringRes val titleResId: Int,
+    @field:StringRes val titleResId: Int,
     val icon: ImageVector,
 )
