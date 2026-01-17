@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.feature.record.tracking
 
 import android.Manifest
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.IBinder
@@ -61,7 +62,10 @@ class RunningTrackerService : Service() {
         notificationDispatcher.ensureChannel()
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(
+        allOf = [Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION]
+    )
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> startTracking()
@@ -70,7 +74,10 @@ class RunningTrackerService : Service() {
         return START_STICKY
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(
+        allOf = [Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION]
+    )
     private fun startTracking() {
         if (tracking) return
 
@@ -120,7 +127,10 @@ class RunningTrackerService : Service() {
         }
     }
 
-    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(
+        anyOf = [Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION]
+    )
     private fun startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -143,11 +153,18 @@ class RunningTrackerService : Service() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
                 updateDistance(location)
-                val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this@RunningTrackerService)
+                val startMillis =
+                    startTimeMillis ?: NumericResourceProvider.zeroLong(
+                        this@RunningTrackerService
+                    )
                 val elapsed = System.currentTimeMillis() - startMillis
-                val currentDistance = distanceMeters ?: NumericResourceProvider.zeroDouble(this@RunningTrackerService)
+                val currentDistance =
+                    distanceMeters ?: NumericResourceProvider.zeroDouble(
+                        this@RunningTrackerService
+                    )
                 stateUpdater.update(currentDistance / metersInKm(), elapsed)
-                notificationDispatcher.notifyProgress(currentDistance / metersInKm(), elapsed)
+                notificationDispatcher
+                    .notifyProgress(currentDistance / metersInKm(), elapsed)
             }
         }
 
@@ -167,11 +184,16 @@ class RunningTrackerService : Service() {
         elapsedUpdateJob?.cancel()
         elapsedUpdateJob = serviceScope.launch {
             while (tracking) {
-                val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this@RunningTrackerService)
+                val startMillis =
+                    startTimeMillis ?: NumericResourceProvider
+                        .zeroLong(this@RunningTrackerService)
                 val elapsed = System.currentTimeMillis() - startMillis
-                val currentDistance = distanceMeters ?: NumericResourceProvider.zeroDouble(this@RunningTrackerService)
+                val currentDistance =
+                    distanceMeters ?: NumericResourceProvider
+                        .zeroDouble(this@RunningTrackerService)
                 stateUpdater.update(currentDistance / metersInKm(), elapsed)
-                notificationDispatcher.notifyProgress(currentDistance / metersInKm(), elapsed)
+                notificationDispatcher
+                    .notifyProgress(currentDistance / metersInKm(), elapsed)
                 delay(elapsedUpdateIntervalMillis())
             }
         }
@@ -196,26 +218,20 @@ class RunningTrackerService : Service() {
         const val ACTION_START = BuildConfig.RECORD_ACTION_START
         const val ACTION_STOP = BuildConfig.RECORD_ACTION_STOP
 
-        fun createStopIntent(context: android.content.Context): Intent {
-            return Intent(context, RunningTrackerService::class.java).apply {
+        fun createStopIntent(context: Context): Intent =
+            Intent(context, RunningTrackerService::class.java).apply {
                 action = ACTION_STOP
             }
-        }
     }
 
-    private fun metersInKm(): Double {
-        return NumericResourceProvider.metersInKm(this)
-    }
+    private fun metersInKm(): Double = NumericResourceProvider.metersInKm(this)
 
-    private fun updateIntervalMillis(): Long {
-        return NumericResourceProvider.updateIntervalMillis(this)
-    }
+    private fun updateIntervalMillis(): Long = NumericResourceProvider
+        .updateIntervalMillis(this)
 
-    private fun elapsedUpdateIntervalMillis(): Long {
-        return NumericResourceProvider.elapsedUpdateIntervalMillis(this)
-    }
+    private fun elapsedUpdateIntervalMillis(): Long =
+        NumericResourceProvider.elapsedUpdateIntervalMillis(this)
 
-    private fun minDistanceMeters(): Float {
-        return NumericResourceProvider.minDistanceMeters(this)
-    }
+    private fun minDistanceMeters(): Float = NumericResourceProvider
+        .minDistanceMeters(this)
 }
