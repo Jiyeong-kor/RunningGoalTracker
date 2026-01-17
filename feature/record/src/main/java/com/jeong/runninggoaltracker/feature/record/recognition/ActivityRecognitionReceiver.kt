@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.record.recognition
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
@@ -40,11 +39,6 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             }
 
         val smoothStatus = ActivitySmoother.push(statusForSmoothing)
-
-        Log.d(
-            "ActivityRecognition",
-            "raw=$rawStatus, smooth=$smoothStatus, all=$activities"
-        )
 
         getStateUpdater(context).update(
             status = smoothStatus

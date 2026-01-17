@@ -13,6 +13,7 @@ import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
 import javax.inject.Inject
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
+import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 
 class ActivityRecognitionManager @Inject constructor(
@@ -25,10 +26,10 @@ class ActivityRecognitionManager @Inject constructor(
 
     private fun hasPermission(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) == PackageManager.PERMISSION_GRANTED
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun createPendingIntent(): PendingIntent {
@@ -64,7 +65,12 @@ class ActivityRecognitionManager @Inject constructor(
         removeUpdatesWithPermission()
     }
 
-    @RequiresPermission(anyOf = [Manifest.permission.ACTIVITY_RECOGNITION, "com.google.android.gms.permission.ACTIVITY_RECOGNITION"])
+    @RequiresPermission(
+        anyOf = [
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            ActivityRecognitionContract.LEGACY_ACTIVITY_RECOGNITION_PERMISSION
+        ]
+    )
     private fun requestUpdatesWithPermission() {
         try {
             client.requestActivityUpdates(
@@ -79,7 +85,12 @@ class ActivityRecognitionManager @Inject constructor(
         }
     }
 
-    @RequiresPermission(anyOf = [Manifest.permission.ACTIVITY_RECOGNITION, "com.google.android.gms.permission.ACTIVITY_RECOGNITION"])
+    @RequiresPermission(
+        anyOf = [
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            ActivityRecognitionContract.LEGACY_ACTIVITY_RECOGNITION_PERMISSION
+        ]
+    )
     private fun removeUpdatesWithPermission() {
         try {
             client.removeActivityUpdates(createPendingIntent())
