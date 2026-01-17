@@ -10,10 +10,6 @@ data class UiMessage(
     @field:StringRes val messageResId: Int? = null
 )
 
-interface NotificationPermissionRequester {
-    fun requestPermissionIfNeeded()
-}
-
 interface ReminderTimeFormatter {
     fun formatTime(hour: Int, minute: Int): String
     fun periodLabel(hour: Int): String

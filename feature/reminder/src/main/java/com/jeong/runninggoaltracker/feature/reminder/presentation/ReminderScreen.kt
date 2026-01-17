@@ -29,7 +29,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,11 +62,6 @@ fun ReminderRoute(
 ) {
     val state by viewModel.uiState.collectAsState()
     val userMessageHandler = rememberUserMessageHandler()
-    val notificationPermissionRequester = rememberNotificationPermissionRequester {
-        userMessageHandler.showMessage(
-            UiMessage(messageResId = R.string.reminder_error_notification_permission_denied)
-        )
-    }
     val timeFormatter = rememberReminderTimeFormatter()
     val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
 
@@ -80,8 +74,7 @@ fun ReminderRoute(
         onToggleDay = viewModel::toggleDay,
         messageHandler = userMessageHandler,
         timeFormatter = timeFormatter,
-        daysOfWeekLabelProvider = daysOfWeekLabelProvider,
-        notificationPermissionRequester = notificationPermissionRequester
+        daysOfWeekLabelProvider = daysOfWeekLabelProvider
     )
 }
 
@@ -95,8 +88,7 @@ fun ReminderScreen(
     onToggleDay: (Int, Int) -> Unit,
     messageHandler: UserMessageHandler,
     timeFormatter: ReminderTimeFormatter,
-    daysOfWeekLabelProvider: DaysOfWeekLabelProvider,
-    notificationPermissionRequester: NotificationPermissionRequester
+    daysOfWeekLabelProvider: DaysOfWeekLabelProvider
 ) {
     val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
     val accentColor = appAccentColor()
@@ -109,10 +101,6 @@ fun ReminderScreen(
     val iconButtonCornerRadius = dimensionResource(id = R.dimen.reminder_icon_button_corner_radius)
     val iconSize = dimensionResource(id = R.dimen.reminder_icon_size)
     val titleTextSize = dimensionResource(id = R.dimen.reminder_text_title_size).value.sp
-
-    LaunchedEffect(Unit) {
-        notificationPermissionRequester.requestPermissionIfNeeded()
-    }
 
     Column(
         modifier = Modifier
@@ -227,14 +215,16 @@ private fun ReminderCard(
                 }
                 Switch(
                     checked = reminder.enabled,
-                    onCheckedChange = { enabled ->
+                    onCheckedChange = null,
+                    modifier = Modifier.throttleClick {
+                        val enabled = !reminder.enabled
                         if (enabled && reminder.days.isEmpty()) {
                             messageHandler.showMessage(
                                 UiMessage(messageResId = R.string.reminder_error_select_at_least_one_day)
                             )
-                            return@Switch
+                        } else {
+                            onToggleReminder(id, enabled)
                         }
-                        onToggleReminder(id, enabled)
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
@@ -356,11 +346,6 @@ private fun ReminderScreenPreview() {
             override fun showMessage(message: UiMessage) = Unit
         }
     }
-    val notificationRequester = remember {
-        object : NotificationPermissionRequester {
-            override fun requestPermissionIfNeeded() = Unit
-        }
-    }
     val timeFormatter = rememberReminderTimeFormatter()
     val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
 
@@ -374,8 +359,7 @@ private fun ReminderScreenPreview() {
             onToggleDay = { _, _ -> },
             messageHandler = messageHandler,
             timeFormatter = timeFormatter,
-            daysOfWeekLabelProvider = daysOfWeekLabelProvider,
-            notificationPermissionRequester = notificationRequester
+            daysOfWeekLabelProvider = daysOfWeekLabelProvider
         )
     }
 }

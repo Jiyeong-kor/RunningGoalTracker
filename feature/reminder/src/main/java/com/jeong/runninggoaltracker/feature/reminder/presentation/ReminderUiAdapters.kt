@@ -1,18 +1,11 @@
 package com.jeong.runninggoaltracker.feature.reminder.presentation
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.feature.reminder.R
 
 private class ToastUserMessageHandler(
@@ -28,41 +21,6 @@ private class ToastUserMessageHandler(
 fun rememberUserMessageHandler(): UserMessageHandler {
     val context = LocalContext.current
     return remember(context) { ToastUserMessageHandler(context) }
-}
-
-private class AndroidNotificationPermissionRequester(
-    private val context: Context,
-    private val permissionLauncher: ActivityResultLauncher<String>
-) : NotificationPermissionRequester {
-    override fun requestPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-
-        val hasPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!hasPermission) {
-            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-}
-
-@Composable
-fun rememberNotificationPermissionRequester(
-    onPermissionDenied: () -> Unit
-): NotificationPermissionRequester {
-    val context = LocalContext.current
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
-            onPermissionDenied()
-        }
-    }
-
-    return remember(context, permissionLauncher) {
-        AndroidNotificationPermissionRequester(context, permissionLauncher)
-    }
 }
 
 private class ResourceReminderTimeFormatter(

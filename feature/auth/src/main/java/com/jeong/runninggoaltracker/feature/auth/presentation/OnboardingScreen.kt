@@ -61,18 +61,7 @@ fun OnboardingScreen(
         viewModel.onPermissionsResult(results.values.all { it })
     }
 
-    val permissionList = remember {
-        buildList {
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
-            add(Manifest.permission.CAMERA)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                add(Manifest.permission.ACTIVITY_RECOGNITION)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }.toTypedArray()
-    }
+    val permissionList = remember { buildOnboardingPermissions() }
 
     when (uiState.step) {
         OnboardingStep.Permissions -> PermissionsScreen(
@@ -101,6 +90,18 @@ fun OnboardingScreen(
         )
     }
 }
+
+private fun buildOnboardingPermissions(): Array<String> =
+    buildList {
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+        add(Manifest.permission.CAMERA)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            add(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
 
 @Composable
 private fun PermissionsScreen(
