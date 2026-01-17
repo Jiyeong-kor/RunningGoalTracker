@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.AuthError
+import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -483,8 +484,22 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
 @Composable
 private fun MyPageScreenPreview() =
     RunningGoalTrackerTheme {
+        val previewNickname = stringResource(id = R.string.mypage_default_nickname)
+        val previewLevel = stringResource(id = R.string.mypage_default_level)
         MyPageContent(
-            uiState = MyPageUiState.preview(),
+            uiState = MyPageUiState(
+                isLoading = false,
+                summary = RunningSummary(
+                    weeklyGoalKm = 15.0,
+                    totalThisWeekKm = 9.5,
+                    recordCountThisWeek = 3,
+                    progress = 0.63f
+                ),
+                userNickname = previewNickname,
+                userLevel = previewLevel,
+                isActivityRecognitionEnabled = true,
+                isAnonymous = true
+            ),
             onNavigateToGoal = {},
             onNavigateToReminder = {},
             onActivityToggle = {},

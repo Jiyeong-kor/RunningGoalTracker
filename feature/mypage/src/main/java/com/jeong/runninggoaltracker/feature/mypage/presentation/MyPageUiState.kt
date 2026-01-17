@@ -12,20 +12,4 @@ data class MyPageUiState(
     val isAnonymous: Boolean = false,
     val userNickname: String? = null,
     val userLevel: String? = null
-) {
-    companion object {
-        fun preview(): MyPageUiState = MyPageUiState(
-            isLoading = false,
-            summary = RunningSummary(
-                weeklyGoalKm = 15.0,
-                totalThisWeekKm = 9.5,
-                recordCountThisWeek = 3,
-                progress = 0.63f
-            ),
-            userNickname = "러너",
-            userLevel = "Active Runner",
-            isActivityRecognitionEnabled = true,
-            isAnonymous = true
-        )
-    }
-}
+)
