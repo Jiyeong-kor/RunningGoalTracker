@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="goal_screen_padding">24dp</dimen>
+    <dimen name="goal_title_top_spacing">40dp</dimen>
+    <dimen name="goal_title_bottom_spacing">16dp</dimen>
+    <dimen name="goal_adjust_button_spacing">24dp</dimen>
+    <dimen name="goal_error_spacing">12dp</dimen>
+    <dimen name="goal_preset_section_top_spacing">60dp</dimen>
+    <dimen name="goal_preset_section_bottom_spacing">16dp</dimen>
+    <dimen name="goal_preset_item_spacing">12dp</dimen>
+    <dimen name="goal_save_button_height">60dp</dimen>
+    <dimen name="goal_save_button_corner_radius">20dp</dimen>
+    <dimen name="goal_adjust_button_size">48dp</dimen>
+    <dimen name="goal_adjust_button_border_width">1dp</dimen>
+    <dimen name="goal_preset_card_corner_radius">16dp</dimen>
+    <dimen name="goal_preset_card_border_width">1dp</dimen>
+    <dimen name="goal_preset_card_padding">16dp</dimen>
+    <dimen name="goal_text_size_title">16sp</dimen>
+    <dimen name="goal_text_size_value">64sp</dimen>
+    <dimen name="goal_text_size_unit">18sp</dimen>
+    <dimen name="goal_text_size_error">12sp</dimen>
+    <dimen name="goal_text_size_section">14sp</dimen>
+    <dimen name="goal_text_size_button">18sp</dimen>
+</resources>

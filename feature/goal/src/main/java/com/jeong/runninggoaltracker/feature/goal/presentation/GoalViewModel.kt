@@ -7,6 +7,7 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ValidateWeeklyGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.WeeklyGoalValidationResult
+import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_STATE_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,7 +63,7 @@ class GoalViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(GOAL_STATE_TIMEOUT_MS),
         initialValue = GoalUiState()
     )
 

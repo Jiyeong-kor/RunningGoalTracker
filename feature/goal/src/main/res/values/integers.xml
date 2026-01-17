@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="goal_alpha_base_percent">100</integer>
+    <integer name="goal_alpha_border_percent">10</integer>
+    <integer name="goal_alpha_selected_background_percent">10</integer>
+    <integer name="goal_alpha_unselected_background_percent">3</integer>
+    <integer name="goal_weight_full">1</integer>
+</resources>
