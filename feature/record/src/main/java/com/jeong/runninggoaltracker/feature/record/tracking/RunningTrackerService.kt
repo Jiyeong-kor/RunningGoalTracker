@@ -18,7 +18,7 @@ import com.google.android.gms.location.Priority
 import android.content.pm.PackageManager
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.feature.record.BuildConfig
+import com.jeong.runninggoaltracker.feature.record.contract.RunningTrackerServiceContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -68,8 +68,8 @@ class RunningTrackerService : Service() {
     )
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START -> startTracking()
-            ACTION_STOP -> stopTracking()
+            RunningTrackerServiceContract.ACTION_START -> startTracking()
+            RunningTrackerServiceContract.ACTION_STOP -> stopTracking()
         }
         return START_STICKY
     }
@@ -215,12 +215,9 @@ class RunningTrackerService : Service() {
     }
 
     companion object {
-        const val ACTION_START = BuildConfig.RECORD_ACTION_START
-        const val ACTION_STOP = BuildConfig.RECORD_ACTION_STOP
-
         fun createStopIntent(context: Context): Intent =
             Intent(context, RunningTrackerService::class.java).apply {
-                action = ACTION_STOP
+                action = RunningTrackerServiceContract.ACTION_STOP
             }
     }
 

@@ -15,10 +15,6 @@ android {
     defaultConfig {
         minSdk = 24
 
-        // BuildConfig
-        buildConfigField("String", "RECORD_ACTION_START", "\"com.jeong.runninggoaltracker.action.START_TRACKING\"")
-        buildConfigField("String", "RECORD_ACTION_STOP", "\"com.jeong.runninggoaltracker.action.STOP_TRACKING\"")
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
