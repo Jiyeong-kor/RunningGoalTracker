@@ -1,5 +1,6 @@
 <resources>
     <integer name="numeric_zero">0</integer>
+    <integer name="numeric_one">1</integer>
     <integer name="record_meters_in_km">1000</integer>
     <integer name="record_update_interval_millis">2000</integer>
     <integer name="record_elapsed_update_interval_millis">1000</integer>
@@ -9,4 +10,10 @@
     <integer name="record_activity_recognition_request_code">2001</integer>
     <integer name="record_activity_recognition_interval_millis">1000</integer>
     <integer name="reminder_notification_id">1001</integer>
+    <integer name="reminder_request_code_base">1000</integer>
+    <integer name="reminder_request_code_id_multiplier">10000</integer>
+    <integer name="reminder_request_code_hour_multiplier">100</integer>
+    <integer name="reminder_request_code_minute_multiplier">10</integer>
+    <integer name="reminder_day_of_week_min">1</integer>
+    <integer name="reminder_day_of_week_max">7</integer>
 </resources>

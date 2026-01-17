@@ -8,6 +8,10 @@ object NumericResourceProvider {
         return context.resources.getInteger(R.integer.numeric_zero)
     }
 
+    fun oneInt(context: Context): Int {
+        return context.resources.getInteger(R.integer.numeric_one)
+    }
+
     fun zeroLong(context: Context): Long {
         return zeroInt(context).toLong()
     }
@@ -54,5 +58,29 @@ object NumericResourceProvider {
 
     fun reminderNotificationId(context: Context): Int {
         return context.resources.getInteger(R.integer.reminder_notification_id)
+    }
+
+    fun reminderRequestCodeBase(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_request_code_base)
+    }
+
+    fun reminderRequestCodeIdMultiplier(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_request_code_id_multiplier)
+    }
+
+    fun reminderRequestCodeHourMultiplier(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_request_code_hour_multiplier)
+    }
+
+    fun reminderRequestCodeMinuteMultiplier(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_request_code_minute_multiplier)
+    }
+
+    fun reminderDayOfWeekMin(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_day_of_week_min)
+    }
+
+    fun reminderDayOfWeekMax(context: Context): Int {
+        return context.resources.getInteger(R.integer.reminder_day_of_week_max)
     }
 }

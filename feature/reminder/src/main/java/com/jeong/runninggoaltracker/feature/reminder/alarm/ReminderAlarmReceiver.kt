@@ -6,12 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
+import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -19,25 +19,16 @@ import dagger.hilt.components.SingletonComponent
 
 class ReminderAlarmReceiver : BroadcastReceiver() {
 
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
-        val payload = intent.toAlarmPayload()
+        val payload = intent.toAlarmPayload(context)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.hasPostNotificationsPermission()) {
-            Log.d(TAG, "POST_NOTIFICATIONS 권한이 허용되지 않아 알림을 건너뜁니다")
             return
         }
 
         ReminderNotifier.showNow(context, payload.hour, payload.minute)
 
-        val reminder = intent.toRunningReminderOrNull()
-        if (reminder == null) {
-            Log.d(
-                TAG,
-                "유효하지 않은 데이터로 인해 알람 재예약을 건너뜁니다: id=${payload.id}, dayOfWeek=${payload.dayOfWeekRaw}"
-            )
-            return
-        }
+        val reminder = intent.toRunningReminderOrNull(context) ?: return
 
         getEntryPoint(context)
             .reminderScheduler()
@@ -49,10 +40,6 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
             context.applicationContext,
             ReminderAlarmReceiverEntryPoint::class.java
         )
-
-    private companion object {
-        const val TAG = "ReminderAlarmReceiver"
-    }
 }
 
 @EntryPoint
@@ -68,12 +55,16 @@ private data class AlarmPayload(
     val dayOfWeekRaw: Int,
 )
 
-private fun Intent.toAlarmPayload() = AlarmPayload(
-    id = getIntExtra(EXTRA_ID, 0),
-    hour = getIntExtra(EXTRA_HOUR, 0),
-    minute = getIntExtra(EXTRA_MINUTE, 0),
-    dayOfWeekRaw = getIntExtra(EXTRA_DAY_OF_WEEK, 0),
-)
+private fun Intent.toAlarmPayload(context: Context): AlarmPayload {
+    val zeroInt = NumericResourceProvider.zeroInt(context)
+
+    return AlarmPayload(
+        id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt),
+        hour = getIntExtra(ReminderAlarmContract.EXTRA_HOUR, zeroInt),
+        minute = getIntExtra(ReminderAlarmContract.EXTRA_MINUTE, zeroInt),
+        dayOfWeekRaw = getIntExtra(ReminderAlarmContract.EXTRA_DAY_OF_WEEK, zeroInt)
+    )
+}
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun Context.hasPostNotificationsPermission(): Boolean =
@@ -82,14 +73,20 @@ private fun Context.hasPostNotificationsPermission(): Boolean =
         Manifest.permission.POST_NOTIFICATIONS
     ) == PackageManager.PERMISSION_GRANTED
 
-private fun Intent.toRunningReminderOrNull(): RunningReminder? {
-    val id = getIntExtra(EXTRA_ID, 0).takeIf { it != 0 } ?: return null
+private fun Intent.toRunningReminderOrNull(context: Context): RunningReminder? {
+    val zeroInt = NumericResourceProvider.zeroInt(context)
+    val minDay = NumericResourceProvider.reminderDayOfWeekMin(context)
+    val maxDay = NumericResourceProvider.reminderDayOfWeekMax(context)
 
-    val dayOfWeekRaw = getIntExtra(EXTRA_DAY_OF_WEEK, 0)
-    if (dayOfWeekRaw !in 1..7) return null
+    val id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt)
+        .takeIf { it != zeroInt }
+        ?: return null
 
-    val hour = getIntExtra(EXTRA_HOUR, 0)
-    val minute = getIntExtra(EXTRA_MINUTE, 0)
+    val dayOfWeekRaw = getIntExtra(ReminderAlarmContract.EXTRA_DAY_OF_WEEK, zeroInt)
+    if (dayOfWeekRaw !in minDay..maxDay) return null
+
+    val hour = getIntExtra(ReminderAlarmContract.EXTRA_HOUR, zeroInt)
+    val minute = getIntExtra(ReminderAlarmContract.EXTRA_MINUTE, zeroInt)
 
     return RunningReminder(
         id = id,
@@ -99,8 +96,3 @@ private fun Intent.toRunningReminderOrNull(): RunningReminder? {
         days = setOf(dayOfWeekRaw)
     )
 }
-
-private const val EXTRA_ID = "id"
-private const val EXTRA_HOUR = "hour"
-private const val EXTRA_MINUTE = "minute"
-private const val EXTRA_DAY_OF_WEEK = "dayOfWeek"

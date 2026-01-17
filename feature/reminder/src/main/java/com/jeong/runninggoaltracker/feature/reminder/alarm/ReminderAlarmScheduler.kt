@@ -6,8 +6,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresPermission
+import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
 import javax.inject.Inject
@@ -20,8 +21,14 @@ class ReminderAlarmScheduler @Inject constructor(
     private val alarmManager: AlarmManager =
         context.getSystemService(AlarmManager::class.java)
 
-    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int =
-        REQUEST_CODE_BASE + id * 10000 + hour * 100 + minute * 10 + dayOfWeek
+    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int {
+        val base = NumericResourceProvider.reminderRequestCodeBase(context)
+        val idMultiplier = NumericResourceProvider.reminderRequestCodeIdMultiplier(context)
+        val hourMultiplier = NumericResourceProvider.reminderRequestCodeHourMultiplier(context)
+        val minuteMultiplier = NumericResourceProvider.reminderRequestCodeMinuteMultiplier(context)
+
+        return base + id * idMultiplier + hour * hourMultiplier + minute * minuteMultiplier + dayOfWeek
+    }
 
     private fun createPendingIntent(
         id: Int,
@@ -30,12 +37,12 @@ class ReminderAlarmScheduler @Inject constructor(
         dayOfWeek: Int
     ): PendingIntent {
         val intent = Intent(context, ReminderAlarmReceiver::class.java).apply {
-            action = "com.jeong.runninggoaltracker.REMINDER_ALARM_${id}_${dayOfWeek}"
+            action = reminderAction(id, dayOfWeek)
 
-            putExtra("id", id)
-            putExtra("hour", hour)
-            putExtra("minute", minute)
-            putExtra("dayOfWeek", dayOfWeek)
+            putExtra(ReminderAlarmContract.EXTRA_ID, id)
+            putExtra(ReminderAlarmContract.EXTRA_HOUR, hour)
+            putExtra(ReminderAlarmContract.EXTRA_MINUTE, minute)
+            putExtra(ReminderAlarmContract.EXTRA_DAY_OF_WEEK, dayOfWeek)
         }
 
         return PendingIntent.getBroadcast(
@@ -53,27 +60,25 @@ class ReminderAlarmScheduler @Inject constructor(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val canExact = alarmManager.canScheduleExactAlarms()
-            Log.d("ReminderAlarmScheduler", "정확한 알람 예약 가능 여부 = $canExact")
             if (!canExact) {
-                Log.w(
-                    "ReminderAlarmScheduler",
-                    "정확한 알람을 예약할 수 없습니다. 예약을 건너뜁니다."
-                )
                 return
             }
         }
+
+        val zeroInt = NumericResourceProvider.zeroInt(context)
+        val oneInt = NumericResourceProvider.oneInt(context)
 
         days.forEach { dayOfWeek ->
             val calendar = Calendar.getInstance().apply {
                 timeInMillis = System.currentTimeMillis()
                 set(Calendar.HOUR_OF_DAY, hour)
                 set(Calendar.MINUTE, minute)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+                set(Calendar.SECOND, zeroInt)
+                set(Calendar.MILLISECOND, zeroInt)
                 set(Calendar.DAY_OF_WEEK, dayOfWeek)
 
                 if (timeInMillis <= System.currentTimeMillis()) {
-                    add(Calendar.WEEK_OF_YEAR, 1)
+                    add(Calendar.WEEK_OF_YEAR, oneInt)
                 }
             }
 
@@ -93,15 +98,10 @@ class ReminderAlarmScheduler @Inject constructor(
 
         days.forEach { dayOfWeek ->
             val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
-            Log.d(
-                "ReminderAlarmScheduler",
-                "cancel(): id=$nonNullId, dayOfWeek=$dayOfWeek"
-            )
             alarmManager.cancel(pendingIntent)
         }
     }
 
-    companion object {
-        private const val REQUEST_CODE_BASE = 1000
-    }
+    private fun reminderAction(id: Int, dayOfWeek: Int): String =
+        ReminderAlarmContract.ACTION_REMINDER_ALARM_FORMAT.format(id, dayOfWeek)
 }
