@@ -12,14 +12,16 @@ import androidx.core.content.ContextCompat
 object NotificationPermissionGate {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS, conditional = true)
-    fun notifyIfAllowed(context: Context, notificationId: Int, notification: Notification) {
-        if (!canPostNotifications(context)) {
-            return
-        }
-        try {
+    fun notifyIfAllowed(
+        context: Context,
+        notificationId: Int,
+        notification: Notification
+    ): Boolean = if (!canPostNotifications(context)) {
+        false
+    } else {
+        runCatching {
             notifyBoundary(context, notificationId, notification)
-        } catch (_: SecurityException) {
-        }
+        }.isSuccess
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
