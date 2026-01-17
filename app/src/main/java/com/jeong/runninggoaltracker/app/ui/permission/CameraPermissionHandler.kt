@@ -31,14 +31,14 @@ import com.jeong.runninggoaltracker.R
 @Composable
 fun CameraPermissionHandler(
     requestCameraPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    requestKey: Any = Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    requestKey: Any = Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     var permissionStatus by rememberSaveable { mutableStateOf(CameraPermissionStatus.Denied) }
     var hasRequested by rememberSaveable { mutableStateOf(false) }
-    var showDialog by rememberSaveable { mutableStateOf(false) }
+    val showDialogState = rememberSaveable { mutableStateOf(false) }
     val activity = remember(context) { context.findActivity() }
 
     val confirmLabel = stringResource(R.string.camera_permission_allow)
@@ -51,7 +51,7 @@ fun CameraPermissionHandler(
     fun refreshPermissionState(granted: Boolean) {
         if (granted) {
             permissionStatus = CameraPermissionStatus.Granted
-            showDialog = false
+            showDialogState.value = false
             return
         }
         val shouldShowRationale = activity?.let {
@@ -62,7 +62,7 @@ fun CameraPermissionHandler(
         } else {
             CameraPermissionStatus.Denied
         }
-        showDialog = true
+        showDialogState.value = true
     }
 
     fun requestPermission() {
@@ -92,7 +92,7 @@ fun CameraPermissionHandler(
             if (event == Lifecycle.Event.ON_RESUME) {
                 if (isPermissionGranted()) {
                     permissionStatus = CameraPermissionStatus.Granted
-                    showDialog = false
+                    showDialogState.value = false
                 }
             }
         }
@@ -100,15 +100,15 @@ fun CameraPermissionHandler(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    if (showDialog) {
+    if (showDialogState.value) {
         val isPermanentlyDenied = permissionStatus == CameraPermissionStatus.PermanentlyDenied
         AlertDialog(
             modifier = modifier,
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showDialogState.value = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDialog = false
+                        showDialogState.value = false
                         if (isPermanentlyDenied) {
                             context.openAppSettings()
                         } else {
@@ -120,7 +120,7 @@ fun CameraPermissionHandler(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(onClick = { showDialogState.value = false }) {
                     Text(text = cancelLabel)
                 }
             },
@@ -136,13 +136,12 @@ private enum class CameraPermissionStatus {
     PermanentlyDenied
 }
 
-private fun Context.findActivity(): Activity? {
-    return when (this) {
+private fun Context.findActivity(): Activity? =
+    when (this) {
         is Activity -> this
         is ContextWrapper -> baseContext.findActivity()
         else -> null
     }
-}
 
 private fun Context.openAppSettings() {
     val intent = Intent(

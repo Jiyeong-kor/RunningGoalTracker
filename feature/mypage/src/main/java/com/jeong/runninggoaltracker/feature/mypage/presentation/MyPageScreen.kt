@@ -426,9 +426,11 @@ private fun SettingsList(
 
 @Composable
 private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
-    Surface(modifier = Modifier
-        .fillMaxWidth()
-        .throttleClick(onClick = onClick)) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .throttleClick(onClick = onClick)
+    ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -465,8 +467,8 @@ private fun MyPageScreenPreview() {
     }
 }
 
-private fun deleteAccountErrorMessageRes(error: AuthError): Int {
-    return when (error) {
+private fun deleteAccountErrorMessageRes(error: AuthError): Int =
+    when (error) {
         AuthError.NetworkError ->
             R.string.mypage_delete_account_error_desc_network
 
@@ -479,4 +481,3 @@ private fun deleteAccountErrorMessageRes(error: AuthError): Int {
         AuthError.NicknameTaken ->
             R.string.mypage_delete_account_error_desc_unknown
     }
-}

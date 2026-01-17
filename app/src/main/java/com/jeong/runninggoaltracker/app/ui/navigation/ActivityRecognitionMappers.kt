@@ -16,19 +16,20 @@ internal fun ActivityLogEntry.toUiModel(): ActivityLogUiModel =
         labelResId = status.toHomeLabelRes()
     )
 
-private fun ActivityRecognitionStatus.toHomeLabelRes(): Int {
-    return when (this) {
+private fun ActivityRecognitionStatus.toHomeLabelRes(): Int =
+    when (this) {
         ActivityRecognitionStatus.NoPermission -> R.string.activity_permission_needed
         ActivityRecognitionStatus.RequestFailed,
         ActivityRecognitionStatus.SecurityException -> R.string.activity_recognition_failed
+
         ActivityRecognitionStatus.Stopped -> R.string.activity_stopped
         ActivityRecognitionStatus.NoResult,
         ActivityRecognitionStatus.NoActivity,
         ActivityRecognitionStatus.Unknown -> R.string.activity_unknown
+
         ActivityRecognitionStatus.Running -> R.string.activity_running
         ActivityRecognitionStatus.Walking -> R.string.activity_walking
         ActivityRecognitionStatus.OnBicycle -> R.string.activity_on_bicycle
         ActivityRecognitionStatus.InVehicle -> R.string.activity_in_vehicle
         ActivityRecognitionStatus.Still -> R.string.activity_still
     }
-}
