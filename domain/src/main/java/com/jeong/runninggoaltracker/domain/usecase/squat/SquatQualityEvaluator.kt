@@ -13,7 +13,10 @@ class SquatQualityEvaluator {
         }
         return when {
             issues.contains(SquatFormIssue.INSUFFICIENT_DEPTH) -> PostureFeedbackType.TOO_SHALLOW
-            issues.contains(SquatFormIssue.EXCESS_TRUNK_LEAN) -> PostureFeedbackType.EXCESS_FORWARD_LEAN
+            issues.contains(SquatFormIssue.EXCESS_TRUNK_LEAN_HARD) ->
+                PostureFeedbackType.EXCESS_FORWARD_LEAN
+
+            issues.contains(SquatFormIssue.EXCESS_TRUNK_LEAN_SOFT) -> PostureFeedbackType.STAND_TALL
             issues.contains(SquatFormIssue.HEEL_RISE) -> PostureFeedbackType.HEEL_RISE
             issues.contains(SquatFormIssue.KNEE_FORWARD_TRANSLATION) -> PostureFeedbackType.KNEE_FORWARD
             summary.grade == SquatFormGrade.BAD_FORM -> PostureFeedbackType.TOO_SHALLOW

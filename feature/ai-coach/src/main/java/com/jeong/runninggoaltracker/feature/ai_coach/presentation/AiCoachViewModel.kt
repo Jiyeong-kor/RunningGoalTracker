@@ -138,9 +138,13 @@ class AiCoachViewModel @Inject constructor(
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
                 append(frameMetrics.kneeAngleEma)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TRUNK)
+                append(SmartWorkoutLogContract.KEY_TRUNK_TILT)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.trunkLeanAngleEma)
+                append(frameMetrics.trunkTiltVerticalAngleEma)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_TRUNK_TO_THIGH)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(frameMetrics.trunkToThighAngleEma)
             }
         )
     }

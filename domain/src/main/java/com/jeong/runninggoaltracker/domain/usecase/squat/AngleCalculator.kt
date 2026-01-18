@@ -13,11 +13,14 @@ class AngleCalculator {
     fun kneeAngle(hip: PoseLandmark, knee: PoseLandmark, ankle: PoseLandmark): Float? =
         angle(hip, knee, ankle)
 
-    fun trunkLeanAngle(shoulder: PoseLandmark, hip: PoseLandmark): Float? =
+    fun trunkTiltVerticalAngle(shoulder: PoseLandmark, hip: PoseLandmark): Float? =
         angleBetweenVectors(
             floatArrayOf(shoulder.x - hip.x, shoulder.y - hip.y),
             floatArrayOf(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_NEGATIVE_ONE)
         )
+
+    fun trunkToThighAngle(shoulder: PoseLandmark, hip: PoseLandmark, knee: PoseLandmark): Float? =
+        angle(shoulder, hip, knee)
 
     fun angle(first: PoseLandmark, middle: PoseLandmark, last: PoseLandmark): Float? =
         angleBetweenVectors(

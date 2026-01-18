@@ -3,7 +3,8 @@ package com.jeong.runninggoaltracker.domain.usecase.squat
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_GOOD_DEPTH_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_HEEL_RISE_RATIO_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_KNEE_FORWARD_RATIO_THRESHOLD
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_MAX_TRUNK_LEAN_ANGLE_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.model.SquatFormGrade
 import com.jeong.runninggoaltracker.domain.model.SquatFormIssue
@@ -12,7 +13,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatRepSummary
 
 data class SquatRepMetrics(
     val minKneeAngle: Float,
-    val maxTrunkLeanAngle: Float,
+    val minTrunkToThighAngle: Float,
     val maxHeelRiseRatio: Float?,
     val maxKneeForwardRatio: Float?
 )
@@ -20,7 +21,8 @@ data class SquatRepMetrics(
 class SquatFormScorer(
     private val goodDepthAngle: Float = SQUAT_GOOD_DEPTH_ANGLE_THRESHOLD,
     private val shallowDepthAngle: Float = SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD,
-    private val maxTrunkLeanAngle: Float = SQUAT_MAX_TRUNK_LEAN_ANGLE_THRESHOLD,
+    private val trunkToThighSoftThreshold: Float = SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD,
+    private val trunkToThighHardThreshold: Float = SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD,
     private val heuristicConfig: SquatHeuristicConfig = defaultHeuristicConfig()
 ) {
     fun score(metrics: SquatRepMetrics): SquatRepSummary {
@@ -38,8 +40,12 @@ class SquatFormScorer(
 
             else -> SquatFormGrade.OK
         }
-        if (metrics.maxTrunkLeanAngle > maxTrunkLeanAngle) {
-            issues.add(SquatFormIssue.EXCESS_TRUNK_LEAN)
+        when {
+            metrics.minTrunkToThighAngle < trunkToThighHardThreshold ->
+                issues.add(SquatFormIssue.EXCESS_TRUNK_LEAN_HARD)
+
+            metrics.minTrunkToThighAngle < trunkToThighSoftThreshold ->
+                issues.add(SquatFormIssue.EXCESS_TRUNK_LEAN_SOFT)
         }
         if (heuristicConfig.enableHeelRiseProxy) {
             val heelRatio = metrics.maxHeelRiseRatio
@@ -60,7 +66,7 @@ class SquatFormScorer(
         }
         return SquatRepSummary(
             minKneeAngle = metrics.minKneeAngle,
-            maxTrunkLeanAngle = metrics.maxTrunkLeanAngle,
+            minTrunkToThighAngle = metrics.minTrunkToThighAngle,
             maxHeelRiseRatio = metrics.maxHeelRiseRatio,
             maxKneeForwardRatio = metrics.maxKneeForwardRatio,
             grade = grade,

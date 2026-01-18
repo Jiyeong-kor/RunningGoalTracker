@@ -7,6 +7,8 @@ import com.jeong.runninggoaltracker.domain.contract.SQUAT_GOOD_DEPTH_ANGLE_THRES
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_STANDING_KNEE_ANGLE_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TILT_VERTICAL_DIAGNOSTIC_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
 import com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult
 import com.jeong.runninggoaltracker.domain.model.PoseCalibration
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
@@ -31,12 +33,12 @@ class SquatAnalyzer(
     private var calibration: PoseCalibration? = null
     private var calibrationFrames: Int = SQUAT_INT_ZERO
     private var calibrationKneeSum: Float = SQUAT_FLOAT_ZERO
-    private var calibrationTrunkSum: Float = SQUAT_FLOAT_ZERO
+    private var calibrationTrunkTiltSum: Float = SQUAT_FLOAT_ZERO
     private var calibrationLegSum: Float = SQUAT_FLOAT_ZERO
     private var calibrationAnkleSum: Float = SQUAT_FLOAT_ZERO
     private var calibrationKneeXSum: Float = SQUAT_FLOAT_ZERO
     private var repMinKneeAngle: Float? = null
-    private var repMaxTrunkLean: Float? = null
+    private var repMinTrunkToThighAngle: Float? = null
     private var repMaxHeelRise: Float? = null
     private var repMaxKneeForward: Float? = null
     private var previousPhase: SquatPhase = SquatPhase.UP
@@ -76,11 +78,16 @@ class SquatAnalyzer(
         val accuracy = accuracyFor(counterResult.kneeAngleEma)
         val isPerfectForm = feedbackType == PostureFeedbackType.GOOD_FORM
         val side = sideSelection.selectedSide ?: PoseSide.LEFT
+        val isCameraTiltSuspected =
+            counterResult.trunkTiltVerticalEma > SQUAT_TRUNK_TILT_VERTICAL_DIAGNOSTIC_THRESHOLD &&
+                    counterResult.trunkToThighEma >= SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
         val frameMetrics = SquatFrameMetrics(
             kneeAngleRaw = counterResult.kneeAngleRaw,
             kneeAngleEma = counterResult.kneeAngleEma,
-            trunkLeanAngleRaw = counterResult.trunkLeanRaw,
-            trunkLeanAngleEma = counterResult.trunkLeanEma,
+            trunkTiltVerticalAngleRaw = counterResult.trunkTiltVerticalRaw,
+            trunkTiltVerticalAngleEma = counterResult.trunkTiltVerticalEma,
+            trunkToThighAngleRaw = counterResult.trunkToThighRaw,
+            trunkToThighAngleEma = counterResult.trunkToThighEma,
             heelRiseRatio = metrics?.heelRiseRatio,
             kneeForwardRatio = metrics?.kneeForwardRatio,
             phase = counterResult.phase,
@@ -97,6 +104,7 @@ class SquatAnalyzer(
             rotationDegrees = frame.rotationDegrees,
             isFrontCamera = frame.isFrontCamera,
             isMirroringApplied = frame.isMirrored,
+            isCameraTiltSuspected = isCameraTiltSuspected,
             transition = counterResult.transition,
             isLandmarkReliable = counterResult.isReliable,
             isCalibrated = calibration != null
@@ -119,7 +127,7 @@ class SquatAnalyzer(
     private fun accumulateCalibration(metrics: PoseRawSquatMetrics) {
         calibrationFrames += SQUAT_INT_ONE
         calibrationKneeSum += metrics.kneeAngle
-        calibrationTrunkSum += metrics.trunkLeanAngle
+        calibrationTrunkTiltSum += metrics.trunkTiltVerticalAngle
         calibrationLegSum += metrics.legLength
         calibrationAnkleSum += metrics.ankleY
         calibrationKneeXSum += metrics.kneeX
@@ -127,7 +135,7 @@ class SquatAnalyzer(
             val divisor = calibrationFrames.toFloat()
             calibration = PoseCalibration(
                 baselineKneeAngle = calibrationKneeSum / divisor,
-                baselineTrunkLeanAngle = calibrationTrunkSum / divisor,
+                baselineTrunkTiltVerticalAngle = calibrationTrunkTiltSum / divisor,
                 baselineLegLength = calibrationLegSum / divisor,
                 baselineAnkleY = calibrationAnkleSum / divisor,
                 baselineKneeX = calibrationKneeXSum / divisor
@@ -144,9 +152,10 @@ class SquatAnalyzer(
         }
         if (counterResult.phase == SquatPhase.DOWN && metrics != null) {
             val kneeAngle = counterResult.kneeAngleEma
-            val trunkLean = counterResult.trunkLeanEma
             repMinKneeAngle = repMinKneeAngle?.let { min(it, kneeAngle) } ?: kneeAngle
-            repMaxTrunkLean = repMaxTrunkLean?.let { max(it, trunkLean) } ?: trunkLean
+            val trunkToThigh = counterResult.trunkToThighEma
+            repMinTrunkToThighAngle =
+                repMinTrunkToThighAngle?.let { min(it, trunkToThigh) } ?: trunkToThigh
             val heel = metrics.heelRiseRatio
             if (heel != null) {
                 repMaxHeelRise = repMaxHeelRise?.let { max(it, heel) } ?: heel
@@ -158,11 +167,11 @@ class SquatAnalyzer(
         }
         if (counterResult.repCompleted) {
             val minKnee = repMinKneeAngle ?: counterResult.kneeAngleEma
-            val maxTrunk = repMaxTrunkLean ?: counterResult.trunkLeanEma
+            val minTrunkToThigh = repMinTrunkToThighAngle ?: counterResult.trunkToThighEma
             val summary = scorer.score(
                 SquatRepMetrics(
                     minKneeAngle = minKnee,
-                    maxTrunkLeanAngle = maxTrunk,
+                    minTrunkToThighAngle = minTrunkToThigh,
                     maxHeelRiseRatio = repMaxHeelRise,
                     maxKneeForwardRatio = repMaxKneeForward
                 )
@@ -175,7 +184,7 @@ class SquatAnalyzer(
 
     private fun resetRepTracking() {
         repMinKneeAngle = null
-        repMaxTrunkLean = null
+        repMinTrunkToThighAngle = null
         repMaxHeelRise = null
         repMaxKneeForward = null
     }

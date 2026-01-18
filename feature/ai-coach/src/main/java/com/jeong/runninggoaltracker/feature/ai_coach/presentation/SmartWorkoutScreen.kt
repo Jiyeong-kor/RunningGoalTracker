@@ -276,6 +276,11 @@ fun SmartWorkoutScreen(
                 } else {
                     stringResource(R.string.smart_workout_debug_off)
                 }
+                val cameraTiltText = if (metrics.isCameraTiltSuspected) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -303,16 +308,32 @@ fun SmartWorkoutScreen(
                     )
                     Text(
                         text = stringResource(
-                            R.string.smart_workout_debug_trunk_angle_raw,
-                            metrics.trunkLeanAngleRaw
+                            R.string.smart_workout_debug_trunk_tilt_raw,
+                            metrics.trunkTiltVerticalAngleRaw
                         ),
                         color = textMuted,
                         fontSize = accuracyLabelTextSize.value.sp
                     )
                     Text(
                         text = stringResource(
-                            R.string.smart_workout_debug_trunk_angle_ema,
-                            metrics.trunkLeanAngleEma
+                            R.string.smart_workout_debug_trunk_tilt_ema,
+                            metrics.trunkTiltVerticalAngleEma
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_trunk_to_thigh_raw,
+                            metrics.trunkToThighAngleRaw
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_trunk_to_thigh_ema,
+                            metrics.trunkToThighAngleEma
                         ),
                         color = textMuted,
                         fontSize = accuracyLabelTextSize.value.sp
@@ -425,6 +446,14 @@ fun SmartWorkoutScreen(
                         text = stringResource(
                             R.string.smart_workout_debug_mirroring,
                             mirroringText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_camera_tilt,
+                            cameraTiltText
                         ),
                         color = textMuted,
                         fontSize = accuracyLabelTextSize.value.sp

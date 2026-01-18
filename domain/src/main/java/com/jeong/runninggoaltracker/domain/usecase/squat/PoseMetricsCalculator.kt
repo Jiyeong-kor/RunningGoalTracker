@@ -12,7 +12,8 @@ import kotlin.math.sqrt
 
 data class PoseRawSquatMetrics(
     val kneeAngle: Float,
-    val trunkLeanAngle: Float,
+    val trunkTiltVerticalAngle: Float,
+    val trunkToThighAngle: Float,
     val heelRiseRatio: Float?,
     val kneeForwardRatio: Float?,
     val legLength: Float,
@@ -33,8 +34,14 @@ class PoseMetricsCalculator(
         val landmarks = createSideLandmarks(frame, side) ?: return null
         val kneeAngle =
             angleCalculator.kneeAngle(landmarks.hip, landmarks.knee, landmarks.ankle) ?: return null
-        val trunkLeanAngle =
-            angleCalculator.trunkLeanAngle(landmarks.shoulder, landmarks.hip) ?: return null
+        val trunkTiltVerticalAngle =
+            angleCalculator.trunkTiltVerticalAngle(landmarks.shoulder, landmarks.hip) ?: return null
+        val trunkToThighAngle =
+            angleCalculator.trunkToThighAngle(
+                landmarks.shoulder,
+                landmarks.hip,
+                landmarks.knee
+            ) ?: return null
         val legLength = distance(landmarks.hip, landmarks.ankle)
         val normalizedLength = calibration?.baselineLegLength ?: legLength
         val heelRiseRatio =
@@ -43,7 +50,8 @@ class PoseMetricsCalculator(
             calibration?.let { ratio(abs(landmarks.knee.x - landmarks.ankle.x), normalizedLength) }
         return PoseRawSquatMetrics(
             kneeAngle = kneeAngle,
-            trunkLeanAngle = trunkLeanAngle,
+            trunkTiltVerticalAngle = trunkTiltVerticalAngle,
+            trunkToThighAngle = trunkToThighAngle,
             heelRiseRatio = heelRiseRatio,
             kneeForwardRatio = kneeForwardRatio,
             legLength = legLength,

@@ -3,8 +3,10 @@ package com.jeong.runninggoaltracker.domain.model
 data class SquatFrameMetrics(
     val kneeAngleRaw: Float,
     val kneeAngleEma: Float,
-    val trunkLeanAngleRaw: Float,
-    val trunkLeanAngleEma: Float,
+    val trunkTiltVerticalAngleRaw: Float,
+    val trunkTiltVerticalAngleEma: Float,
+    val trunkToThighAngleRaw: Float,
+    val trunkToThighAngleEma: Float,
     val heelRiseRatio: Float?,
     val kneeForwardRatio: Float?,
     val phase: SquatPhase,
@@ -21,6 +23,7 @@ data class SquatFrameMetrics(
     val rotationDegrees: Int,
     val isFrontCamera: Boolean,
     val isMirroringApplied: Boolean,
+    val isCameraTiltSuspected: Boolean,
     val transition: SquatPhaseTransition?,
     val isLandmarkReliable: Boolean,
     val isCalibrated: Boolean

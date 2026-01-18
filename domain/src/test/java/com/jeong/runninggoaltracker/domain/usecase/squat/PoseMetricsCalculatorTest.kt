@@ -30,7 +30,8 @@ class PoseMetricsCalculatorTest {
         val metrics = calculator.calculate(frame, calibration = null, side = PoseSide.LEFT)
 
         assertEquals(90f, metrics?.kneeAngle ?: 0f, 0.1f)
-        assertEquals(0f, metrics?.trunkLeanAngle ?: 0f, 0.1f)
+        assertEquals(0f, metrics?.trunkTiltVerticalAngle ?: 0f, 0.1f)
+        assertEquals(180f, metrics?.trunkToThighAngle ?: 0f, 0.1f)
     }
 
     @Test
