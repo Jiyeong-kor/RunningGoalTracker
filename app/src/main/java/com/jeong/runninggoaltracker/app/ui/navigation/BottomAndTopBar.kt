@@ -8,6 +8,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -16,13 +18,19 @@ import com.jeong.runninggoaltracker.shared.navigation.MainTab
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.R
 
 @Composable
 fun BottomAndTopBar(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     navController: NavHostController,
 ) {
-    NavigationBar(windowInsets = WindowInsets(0, 0, 0, 0)) {
+    val density = LocalDensity.current
+    val insetPx = with(density) {
+        dimensionResource(R.dimen.navigation_bar_inset_none).roundToPx()
+    }
+
+    NavigationBar(windowInsets = WindowInsets(insetPx, insetPx, insetPx, insetPx)) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
