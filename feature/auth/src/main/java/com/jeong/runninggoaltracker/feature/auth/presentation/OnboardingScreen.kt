@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
+import androidx.annotation.StringRes
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
@@ -106,7 +107,7 @@ private fun buildOnboardingPermissions(): Array<String> =
 
 @Composable
 private fun PermissionsScreen(
-    permissionErrorResId: Int?,
+    @StringRes permissionErrorResId: Int?,
     onAgree: () -> Unit,
     modifier: Modifier = Modifier
 ) {

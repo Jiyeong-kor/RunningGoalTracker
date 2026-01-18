@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.AuthError
@@ -29,11 +30,11 @@ data class OnboardingUiState(
     val nickname: String = "",
     val isLoading: Boolean = false,
     val isNicknameValid: Boolean = false,
-    val nicknameValidationMessage: Int? = null,
-    val nicknameAvailabilityMessageResId: Int? = null,
+    @field:StringRes val nicknameValidationMessage: Int? = null,
+    @field:StringRes val nicknameAvailabilityMessageResId: Int? = null,
     val nicknameHintError: Boolean = false,
-    val errorMessageResId: Int? = null,
-    val permissionErrorResId: Int? = null,
+    @field:StringRes val errorMessageResId: Int? = null,
+    @field:StringRes val permissionErrorResId: Int? = null,
     val showNoInternetDialog: Boolean = false
 )
 
@@ -204,6 +205,6 @@ class OnboardingViewModel @Inject constructor(
 
 private data class NicknameValidationUiState(
     val isValid: Boolean,
-    val messageResId: Int?,
+    @field:StringRes val messageResId: Int?,
     val showHintError: Boolean
 )
