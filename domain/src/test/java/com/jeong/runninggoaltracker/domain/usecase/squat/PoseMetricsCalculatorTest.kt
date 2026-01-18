@@ -16,7 +16,8 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_HIP, 0f, 0f, 1f),
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 1f),
                 landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 1f)
-            )
+            ),
+            timestampMs = 0L
         )
         val calculator = PoseMetricsCalculator()
 
@@ -34,7 +35,8 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_HIP, 0f, 0f, 0.1f),
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 0.1f),
                 landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 0.1f)
-            )
+            ),
+            timestampMs = 0L
         )
         val calculator = PoseMetricsCalculator()
 

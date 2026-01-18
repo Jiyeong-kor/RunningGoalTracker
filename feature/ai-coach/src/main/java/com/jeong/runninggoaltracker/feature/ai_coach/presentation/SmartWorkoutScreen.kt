@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 import android.content.Context
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.animateColorAsState
@@ -26,22 +27,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -49,7 +53,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
+import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
+import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -64,10 +70,8 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingXl
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import androidx.camera.core.Preview as CameraPreview
-import androidx.compose.ui.tooling.preview.Preview as ComposePreview
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Composable
 fun SmartWorkoutRoute(
@@ -75,6 +79,27 @@ fun SmartWorkoutRoute(
     viewModel: AiCoachViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val ttsController = remember { SmartWorkoutTtsController(context) }
+    val cooldownMs = integerResource(R.integer.smart_workout_feedback_cooldown_ms).toLong()
+    val latestContext by rememberUpdatedState(LocalContext.current)
+
+    LaunchedEffect(cooldownMs) {
+        viewModel.updateSpeechCooldown(cooldownMs)
+    }
+
+    LaunchedEffect(viewModel, ttsController) {
+        viewModel.speechEvents.collect { feedbackType ->
+            val text = latestContext.getString(feedbackTextResId(feedbackType))
+            ttsController.speak(text)
+        }
+    }
+
+    DisposableEffect(ttsController) {
+        onDispose {
+            ttsController.shutdown()
+        }
+    }
 
     SmartWorkoutScreen(
         uiState = uiState,
@@ -162,6 +187,104 @@ fun SmartWorkoutScreen(
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Black
             )
+        }
+
+        uiState.frameMetrics?.let { metrics ->
+            val phaseText = when (metrics.phase) {
+                SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
+                SquatPhase.DOWN -> stringResource(R.string.smart_workout_phase_down)
+            }
+            val sideText = when (metrics.side) {
+                PoseSide.LEFT -> stringResource(R.string.smart_workout_side_left)
+                PoseSide.RIGHT -> stringResource(R.string.smart_workout_side_right)
+            }
+            val reliabilityText = if (metrics.isLandmarkReliable) {
+                stringResource(R.string.smart_workout_reliable_true)
+            } else {
+                stringResource(R.string.smart_workout_reliable_false)
+            }
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(
+                        horizontal = appSpacingLg(),
+                        vertical = appSpacingXl()
+                    ),
+                verticalArrangement = Arrangement.spacedBy(appSpacingSm())
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_knee_angle,
+                        metrics.kneeAngle
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_trunk_angle,
+                        metrics.trunkLeanAngle
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_phase,
+                        phaseText
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_side,
+                        sideText
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_up_threshold,
+                        metrics.upThreshold
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_down_threshold,
+                        metrics.downThreshold
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_up_frames,
+                        metrics.upFramesRequired
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_down_frames,
+                        metrics.downFramesRequired
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.smart_workout_debug_reliable,
+                        reliabilityText
+                    ),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+            }
         }
 
         AppSurfaceCard(
@@ -324,11 +447,18 @@ private fun SkeletonOverlay(
 }
 
 @Composable
-private fun feedbackText(type: PostureFeedbackType): String = when (type) {
-    PostureFeedbackType.GOOD_FORM -> stringResource(R.string.smart_workout_feedback_good)
-    PostureFeedbackType.TOO_SHALLOW -> stringResource(R.string.smart_workout_feedback_shallow)
-    PostureFeedbackType.STAND_TALL -> stringResource(R.string.smart_workout_feedback_stand_tall)
-    PostureFeedbackType.UNKNOWN -> stringResource(R.string.smart_workout_feedback_unknown)
+private fun feedbackText(type: PostureFeedbackType): String =
+    stringResource(feedbackTextResId(type))
+
+private fun feedbackTextResId(type: PostureFeedbackType): Int = when (type) {
+    PostureFeedbackType.GOOD_FORM -> R.string.smart_workout_feedback_good
+    PostureFeedbackType.EXCESS_FORWARD_LEAN -> R.string.smart_workout_feedback_forward_lean
+    PostureFeedbackType.HEEL_RISE -> R.string.smart_workout_feedback_heel_rise
+    PostureFeedbackType.KNEE_FORWARD -> R.string.smart_workout_feedback_knee_forward
+    PostureFeedbackType.TOO_SHALLOW -> R.string.smart_workout_feedback_shallow
+    PostureFeedbackType.STAND_TALL -> R.string.smart_workout_feedback_stand_tall
+    PostureFeedbackType.NOT_IN_FRAME -> R.string.smart_workout_feedback_not_in_frame
+    PostureFeedbackType.UNKNOWN -> R.string.smart_workout_feedback_unknown
 }
 
 @Composable

@@ -8,14 +8,21 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetector as MlKitPoseDetector
 import com.google.mlkit.vision.pose.PoseLandmark as MlKitPoseLandmark
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmark
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutPoseContract
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import java.util.concurrent.TimeUnit
 
 class MlKitPoseDetector(
-    private val poseDetector: MlKitPoseDetector
+    private val poseDetector: MlKitPoseDetector,
+    private val isFrontCamera: Boolean
 ) : PoseDetector, ImageAnalysis.Analyzer {
     private val frameFlow = MutableSharedFlow<PoseFrame>(extraBufferCapacity = 1)
 
@@ -32,10 +39,20 @@ class MlKitPoseDetector(
             return
         }
 
-        val inputImage = InputImage.fromMediaImage(mediaImage, image.imageInfo.rotationDegrees)
+        val rotationDegrees = image.imageInfo.rotationDegrees
+        val inputImage = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+        val timestampMs = TimeUnit.NANOSECONDS.toMillis(image.imageInfo.timestamp)
         poseDetector.process(inputImage)
             .addOnSuccessListener { pose ->
-                frameFlow.tryEmit(pose.toPoseFrame(image.width, image.height))
+                frameFlow.tryEmit(
+                    pose.toPoseFrame(
+                        imageWidth = image.width,
+                        imageHeight = image.height,
+                        rotationDegrees = rotationDegrees,
+                        isFrontCamera = isFrontCamera,
+                        timestampMs = timestampMs
+                    )
+                )
             }
             .addOnCompleteListener {
                 image.close()
@@ -46,20 +63,33 @@ class MlKitPoseDetector(
         poseDetector.close()
 }
 
-private fun Pose.toPoseFrame(imageWidth: Int, imageHeight: Int): PoseFrame {
-    val width = imageWidth.takeIf { it > 0 } ?: 1
-    val height = imageHeight.takeIf { it > 0 } ?: 1
+private fun Pose.toPoseFrame(
+    imageWidth: Int,
+    imageHeight: Int,
+    rotationDegrees: Int,
+    isFrontCamera: Boolean,
+    timestampMs: Long
+): PoseFrame {
+    val isRightAngle = rotationDegrees % SmartWorkoutPoseContract.ROTATION_HALF_TURN_DEGREES !=
+            SmartWorkoutPoseContract.ROTATION_ZERO_DEGREES
+    val rotatedWidth = if (isRightAngle) imageHeight else imageWidth
+    val rotatedHeight = if (isRightAngle) imageWidth else imageHeight
+    val width = rotatedWidth.takeIf { it > SQUAT_INT_ZERO } ?: SQUAT_INT_ONE
+    val height = rotatedHeight.takeIf { it > SQUAT_INT_ZERO } ?: SQUAT_INT_ONE
     val landmarks = allPoseLandmarks.mapNotNull { landmark ->
         val type = landmark.landmarkType.toDomainType() ?: return@mapNotNull null
+        val normalizedX = (landmark.position.x / width).coerceIn(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_ONE)
+        val normalizedY = (landmark.position.y / height).coerceIn(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_ONE)
+        val mappedX = if (isFrontCamera) SQUAT_FLOAT_ONE - normalizedX else normalizedX
         PoseLandmark(
             type = type,
-            x = (landmark.position.x / width).coerceIn(0f, 1f),
-            y = (landmark.position.y / height).coerceIn(0f, 1f),
+            x = mappedX,
+            y = normalizedY,
             z = landmark.position3D.z,
             confidence = landmark.inFrameLikelihood
         )
     }
-    return PoseFrame(landmarks)
+    return PoseFrame(landmarks = landmarks, timestampMs = timestampMs)
 }
 
 private fun Int.toDomainType(): PoseLandmarkType? = when (this) {

@@ -1,3 +1,4 @@
 <resources>
     <integer name="smart_workout_accuracy_percent_multiplier">100</integer>
+    <integer name="smart_workout_feedback_cooldown_ms">2500</integer>
 </resources>

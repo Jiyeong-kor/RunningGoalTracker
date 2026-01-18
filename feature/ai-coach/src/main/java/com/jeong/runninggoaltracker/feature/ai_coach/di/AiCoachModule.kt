@@ -19,6 +19,9 @@ object AiCoachModule {
         val options = PoseDetectorOptions.Builder()
             .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
             .build()
-        return MlKitPoseDetector(PoseDetection.getClient(options))
+        return MlKitPoseDetector(
+            poseDetector = PoseDetection.getClient(options),
+            isFrontCamera = true
+        )
     }
 }
