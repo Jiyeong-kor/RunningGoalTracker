@@ -13,6 +13,8 @@ import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
 import com.jeong.runninggoaltracker.feature.auth.domain.CheckInternetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,6 +51,8 @@ class OnboardingViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState
+    private val _effects = MutableSharedFlow<OnboardingEffect>()
+    val effects: SharedFlow<OnboardingEffect> = _effects
 
     fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) {
         _uiState.update { currentState ->
@@ -68,6 +72,12 @@ class OnboardingViewModel @Inject constructor(
                     isPermissionPermanentlyDenied = isPermanentlyDenied
                 )
             }
+        }
+    }
+
+    fun onOpenSettings() {
+        viewModelScope.launch {
+            _effects.emit(OnboardingEffect.OpenSettings)
         }
     }
 
@@ -218,3 +228,7 @@ private data class NicknameValidationUiState(
     @field:StringRes val messageResId: Int?,
     val showHintError: Boolean
 )
+
+sealed interface OnboardingEffect {
+    data object OpenSettings : OnboardingEffect
+}

@@ -3,11 +3,12 @@ package com.jeong.runninggoaltracker.feature.auth.presentation
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
-import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
@@ -89,14 +90,24 @@ fun OnboardingScreen(
 
     val permissionList = remember { buildOnboardingPermissions() }
     val openSettingsThrottled = rememberThrottleClick {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts(
-                PermissionSettingsContract.PACKAGE_URI_SCHEME,
-                context.packageName,
-                null
-            )
+        viewModel.onOpenSettings()
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                OnboardingEffect.OpenSettings -> {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts(
+                            PermissionSettingsContract.PACKAGE_URI_SCHEME,
+                            context.packageName,
+                            null
+                        )
+                    }
+                    context.startActivity(intent)
+                }
+            }
         }
-        context.startActivity(intent)
     }
 
     when (uiState.step) {
