@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 
 import android.content.Context
+import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview as CameraPreview
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -56,8 +58,13 @@ import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
 import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
 import com.jeong.runninggoaltracker.feature.ai_coach.R
+import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -72,6 +79,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.math.max
 
 @Composable
 fun SmartWorkoutRoute(
@@ -104,7 +112,8 @@ fun SmartWorkoutRoute(
     SmartWorkoutScreen(
         uiState = uiState,
         imageAnalyzer = viewModel.imageAnalyzer,
-        onBack = onBack
+        onBack = onBack,
+        onToggleDebugOverlay = viewModel::updateDebugOverlay
     )
 }
 
@@ -112,7 +121,8 @@ fun SmartWorkoutRoute(
 fun SmartWorkoutScreen(
     uiState: SmartWorkoutUiState,
     imageAnalyzer: ImageAnalysis.Analyzer,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onToggleDebugOverlay: (Boolean) -> Unit
 ) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
@@ -123,6 +133,9 @@ fun SmartWorkoutScreen(
     val accuracyLabelTextSize = dimensionResource(R.dimen.smart_workout_accuracy_label_text_size)
     val accuracyMultiplier = integerResource(R.integer.smart_workout_accuracy_percent_multiplier)
     val onBackClick = rememberThrottleClick(onClick = onBack)
+    val onToggleDebugOverlayClick = rememberThrottleClick {
+        onToggleDebugOverlay(!uiState.isDebugOverlayVisible)
+    }
     val containerColor by animateColorAsState(
         targetValue = if (uiState.isPerfectForm) {
             MaterialTheme.colorScheme.primaryContainer
@@ -135,6 +148,27 @@ fun SmartWorkoutScreen(
         targetValue = uiState.accuracy,
         label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL
     )
+
+    LaunchedEffect(uiState.repCount) {
+        Log.d(
+            SmartWorkoutLogContract.LOG_TAG,
+            buildString {
+                append(SmartWorkoutLogContract.EVENT_REP_COUNT)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_SOURCE)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(SmartWorkoutLogContract.SOURCE_UI)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(System.currentTimeMillis())
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_REP_COUNT)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(uiState.repCount)
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         CameraPreview(
@@ -167,12 +201,35 @@ fun SmartWorkoutScreen(
                 )
             }
             Box(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(SQUAT_FLOAT_ONE),
                 contentAlignment = Alignment.Center
             ) {
                 ExerciseTypeChip(exerciseType = uiState.exerciseType)
             }
             Box(modifier = Modifier.width(appSpacing2xl()))
+        }
+
+        if (BuildConfig.DEBUG) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(
+                        end = appSpacingLg(),
+                        top = appSpacingXl()
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
+            ) {
+                Text(
+                    text = stringResource(R.string.smart_workout_debug_toggle),
+                    color = textMuted,
+                    fontSize = accuracyLabelTextSize.value.sp
+                )
+                Switch(
+                    checked = uiState.isDebugOverlayVisible,
+                    onCheckedChange = { onToggleDebugOverlayClick() }
+                )
+            }
         }
 
         Box(
@@ -189,101 +246,198 @@ fun SmartWorkoutScreen(
             )
         }
 
-        uiState.frameMetrics?.let { metrics ->
-            val phaseText = when (metrics.phase) {
-                SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
-                SquatPhase.DOWN -> stringResource(R.string.smart_workout_phase_down)
-            }
-            val sideText = when (metrics.side) {
-                PoseSide.LEFT -> stringResource(R.string.smart_workout_side_left)
-                PoseSide.RIGHT -> stringResource(R.string.smart_workout_side_right)
-            }
-            val reliabilityText = if (metrics.isLandmarkReliable) {
-                stringResource(R.string.smart_workout_reliable_true)
-            } else {
-                stringResource(R.string.smart_workout_reliable_false)
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(
-                        horizontal = appSpacingLg(),
-                        vertical = appSpacingXl()
-                    ),
-                verticalArrangement = Arrangement.spacedBy(appSpacingSm())
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_knee_angle,
-                        metrics.kneeAngle
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_trunk_angle,
-                        metrics.trunkLeanAngle
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_phase,
-                        phaseText
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_side,
-                        sideText
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_up_threshold,
-                        metrics.upThreshold
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_down_threshold,
-                        metrics.downThreshold
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_up_frames,
-                        metrics.upFramesRequired
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_down_frames,
-                        metrics.downFramesRequired
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
-                Text(
-                    text = stringResource(
-                        R.string.smart_workout_debug_reliable,
-                        reliabilityText
-                    ),
-                    color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
-                )
+        if (BuildConfig.DEBUG && uiState.isDebugOverlayVisible) {
+            uiState.frameMetrics?.let { metrics ->
+                val phaseText = when (metrics.phase) {
+                    SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
+                    SquatPhase.DOWN -> stringResource(R.string.smart_workout_phase_down)
+                }
+                val sideText = when (metrics.side) {
+                    PoseSide.LEFT -> stringResource(R.string.smart_workout_side_left)
+                    PoseSide.RIGHT -> stringResource(R.string.smart_workout_side_right)
+                }
+                val lockText = if (metrics.isSideLocked) {
+                    stringResource(R.string.smart_workout_debug_lock_true)
+                } else {
+                    stringResource(R.string.smart_workout_debug_lock_false)
+                }
+                val reliableText = if (metrics.isLandmarkReliable) {
+                    stringResource(R.string.smart_workout_reliable_true)
+                } else {
+                    stringResource(R.string.smart_workout_reliable_false)
+                }
+                val frontCameraText = if (metrics.isFrontCamera) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
+                val mirroringText = if (metrics.isMirroringApplied) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            horizontal = appSpacingLg(),
+                            vertical = appSpacingXl()
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(appSpacingSm())
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_knee_angle_raw,
+                            metrics.kneeAngleRaw
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_knee_angle_ema,
+                            metrics.kneeAngleEma
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_trunk_angle_raw,
+                            metrics.trunkLeanAngleRaw
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_trunk_angle_ema,
+                            metrics.trunkLeanAngleEma
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_phase,
+                            phaseText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_side,
+                            sideText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lock_state,
+                            lockText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_up_threshold,
+                            metrics.upThreshold
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_down_threshold,
+                            metrics.downThreshold
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_up_frames,
+                            metrics.upFramesRequired
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_down_frames,
+                            metrics.downFramesRequired
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_up_frames_count,
+                            metrics.upCandidateFrames
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_down_frames_count,
+                            metrics.downCandidateFrames
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_left_confidence,
+                            metrics.leftConfidenceSum
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_right_confidence,
+                            metrics.rightConfidenceSum
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_rotation,
+                            metrics.rotationDegrees
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_front_camera,
+                            frontCameraText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_mirroring,
+                            mirroringText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_reliable,
+                            reliableText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                }
             }
         }
 
@@ -421,6 +575,23 @@ private fun SkeletonOverlay(
     Canvas(modifier = modifier) {
         val frame = poseFrame ?: return@Canvas
         val points = frame.landmarks.associateBy { it.type }
+        val imageWidth = frame.imageWidth.toFloat()
+        val imageHeight = frame.imageHeight.toFloat()
+        val hasValidSize = imageWidth > SQUAT_FLOAT_ZERO && imageHeight > SQUAT_FLOAT_ZERO
+        val scale = if (hasValidSize) {
+            max(size.width / imageWidth, size.height / imageHeight)
+        } else {
+            SQUAT_FLOAT_ONE
+        }
+        val scaledWidth = imageWidth * scale
+        val scaledHeight = imageHeight * scale
+        val offsetX = (size.width - scaledWidth) / SQUAT_FLOAT_TWO
+        val offsetY = (size.height - scaledHeight) / SQUAT_FLOAT_TWO
+
+        fun toOffset(landmarkX: Float, landmarkY: Float): Offset = Offset(
+            x = landmarkX * scaledWidth + offsetX,
+            y = landmarkY * scaledHeight + offsetY
+        )
 
         connections.forEach { (startType, endType) ->
             val start = points[startType]
@@ -428,8 +599,8 @@ private fun SkeletonOverlay(
             if (start != null && end != null) {
                 drawLine(
                     color = strokeColor,
-                    start = Offset(start.x * size.width, start.y * size.height),
-                    end = Offset(end.x * size.width, end.y * size.height),
+                    start = toOffset(start.x, start.y),
+                    end = toOffset(end.x, end.y),
                     strokeWidth = skeletonStrokeWidthPx,
                     cap = StrokeCap.Round
                 )
@@ -440,7 +611,7 @@ private fun SkeletonOverlay(
             drawCircle(
                 color = strokeColor,
                 radius = skeletonDotRadiusPx,
-                center = Offset(landmark.x * size.width, landmark.y * size.height)
+                center = toOffset(landmark.x, landmark.y)
             )
         }
     }
@@ -486,7 +657,8 @@ private fun SmartWorkoutScreenPreview() {
         SmartWorkoutScreen(
             uiState = SmartWorkoutUiState(),
             imageAnalyzer = { image -> image.close() },
-            onBack = {}
+            onBack = {},
+            onToggleDebugOverlay = {}
         )
     }
 }

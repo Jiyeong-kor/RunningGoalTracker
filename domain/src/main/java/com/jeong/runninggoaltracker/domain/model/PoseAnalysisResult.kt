@@ -4,5 +4,6 @@ data class PoseAnalysisResult(
     val repCount: RepCount,
     val feedback: PostureFeedback,
     val frameMetrics: SquatFrameMetrics?,
-    val repSummary: SquatRepSummary?
+    val repSummary: SquatRepSummary?,
+    val skippedLowConfidence: Boolean
 )

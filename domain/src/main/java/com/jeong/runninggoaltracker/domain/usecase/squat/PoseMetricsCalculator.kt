@@ -1,11 +1,6 @@
 package com.jeong.runninggoaltracker.domain.usecase.squat
 
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_CONFIDENCE_DIVISOR
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_FULL_ANGLE_DEGREES
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_MIN_LANDMARK_CONFIDENCE
 import com.jeong.runninggoaltracker.domain.model.PoseCalibration
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
@@ -13,7 +8,6 @@ import com.jeong.runninggoaltracker.domain.model.PoseLandmark
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
 import com.jeong.runninggoaltracker.domain.model.PoseSide
 import kotlin.math.abs
-import kotlin.math.acos
 import kotlin.math.sqrt
 
 data class PoseRawSquatMetrics(
@@ -28,111 +22,65 @@ data class PoseRawSquatMetrics(
 )
 
 class PoseMetricsCalculator(
-    private val minConfidence: Float = SQUAT_MIN_LANDMARK_CONFIDENCE
+    private val minConfidence: Float = SQUAT_MIN_LANDMARK_CONFIDENCE,
+    private val angleCalculator: AngleCalculator = AngleCalculator()
 ) {
-    fun calculate(frame: PoseFrame, calibration: PoseCalibration?): PoseRawSquatMetrics? {
-        val side = selectSideLandmarks(frame) ?: return null
-        val kneeAngle = calculateAngle(side.hip, side.knee, side.ankle) ?: return null
-        val trunkLeanAngle = calculateTrunkLean(side.shoulder, side.hip, side.knee) ?: return null
-        val legLength = distance(side.hip, side.ankle)
+    fun calculate(
+        frame: PoseFrame,
+        calibration: PoseCalibration?,
+        side: PoseSide
+    ): PoseRawSquatMetrics? {
+        val landmarks = createSideLandmarks(frame, side) ?: return null
+        val kneeAngle =
+            angleCalculator.kneeAngle(landmarks.hip, landmarks.knee, landmarks.ankle) ?: return null
+        val trunkLeanAngle =
+            angleCalculator.trunkLeanAngle(landmarks.shoulder, landmarks.hip) ?: return null
+        val legLength = distance(landmarks.hip, landmarks.ankle)
         val normalizedLength = calibration?.baselineLegLength ?: legLength
         val heelRiseRatio =
-            calibration?.let { ratio(it.baselineAnkleY - side.ankle.y, normalizedLength) }
+            calibration?.let { ratio(it.baselineAnkleY - landmarks.ankle.y, normalizedLength) }
         val kneeForwardRatio =
-            calibration?.let { ratio(abs(side.knee.x - side.ankle.x), normalizedLength) }
+            calibration?.let { ratio(abs(landmarks.knee.x - landmarks.ankle.x), normalizedLength) }
         return PoseRawSquatMetrics(
             kneeAngle = kneeAngle,
             trunkLeanAngle = trunkLeanAngle,
             heelRiseRatio = heelRiseRatio,
             kneeForwardRatio = kneeForwardRatio,
             legLength = legLength,
-            ankleY = side.ankle.y,
-            kneeX = side.knee.x,
-            side = side.side
+            ankleY = landmarks.ankle.y,
+            kneeX = landmarks.knee.x,
+            side = side
         )
     }
 
-    private fun selectSideLandmarks(frame: PoseFrame): SideLandmarks? {
-        val left = createSideLandmarks(
-            frame.landmark(PoseLandmarkType.LEFT_SHOULDER),
-            frame.landmark(PoseLandmarkType.LEFT_HIP),
-            frame.landmark(PoseLandmarkType.LEFT_KNEE),
+    private fun createSideLandmarks(frame: PoseFrame, side: PoseSide): SideLandmarks? {
+        val shoulder = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_SHOULDER)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_SHOULDER)
+        }
+        val hip = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_HIP)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_HIP)
+        }
+        val knee = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_KNEE)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_KNEE)
+        }
+        val ankle = if (side == PoseSide.LEFT) {
             frame.landmark(PoseLandmarkType.LEFT_ANKLE)
-        )
-        val right = createSideLandmarks(
-            frame.landmark(PoseLandmarkType.RIGHT_SHOULDER),
-            frame.landmark(PoseLandmarkType.RIGHT_HIP),
-            frame.landmark(PoseLandmarkType.RIGHT_KNEE),
+        } else {
             frame.landmark(PoseLandmarkType.RIGHT_ANKLE)
-        )
-        return when {
-            left != null && right != null -> if (left.averageConfidence >= right.averageConfidence) left else right
-            left != null -> left
-            right != null -> right
-            else -> null
         }
-    }
-
-    private fun createSideLandmarks(
-        shoulder: PoseLandmark?,
-        hip: PoseLandmark?,
-        knee: PoseLandmark?,
-        ankle: PoseLandmark?
-    ): SideLandmarks? {
         if (shoulder == null || hip == null || knee == null || ankle == null) return null
-        val side = when (shoulder.type) {
-            PoseLandmarkType.LEFT_SHOULDER -> PoseSide.LEFT
-            PoseLandmarkType.RIGHT_SHOULDER -> PoseSide.RIGHT
-            else -> PoseSide.LEFT
-        }
-        val minConfidence = listOf(shoulder, hip, knee, ankle).minOf { it.confidence }
-        return if (minConfidence >= this.minConfidence) {
-            SideLandmarks(
-                shoulder,
-                hip,
-                knee,
-                ankle,
-                averageConfidence = averageConfidence(shoulder, hip, knee, ankle),
-                side = side
-            )
+        val minConfidenceValue = listOf(shoulder, hip, knee, ankle).minOf { it.confidence }
+        return if (minConfidenceValue >= minConfidence) {
+            SideLandmarks(shoulder, hip, knee, ankle)
         } else {
             null
         }
-    }
-
-    private fun averageConfidence(
-        shoulder: PoseLandmark,
-        hip: PoseLandmark,
-        knee: PoseLandmark,
-        ankle: PoseLandmark
-    ): Float =
-        (shoulder.confidence + hip.confidence + knee.confidence + ankle.confidence) / SQUAT_CONFIDENCE_DIVISOR
-
-    private fun calculateTrunkLean(
-        shoulder: PoseLandmark,
-        hip: PoseLandmark,
-        knee: PoseLandmark
-    ): Float? {
-        val angle = calculateAngle(shoulder, hip, knee) ?: return null
-        return (SQUAT_FULL_ANGLE_DEGREES - angle).coerceAtLeast(SQUAT_FLOAT_ZERO)
-    }
-
-    private fun calculateAngle(
-        first: PoseLandmark,
-        middle: PoseLandmark,
-        last: PoseLandmark
-    ): Float? {
-        val vectorA = floatArrayOf(first.x - middle.x, first.y - middle.y)
-        val vectorB = floatArrayOf(last.x - middle.x, last.y - middle.y)
-        val dot =
-            vectorA[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] + vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE]
-        val normA =
-            sqrt(vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] + vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE])
-        val normB =
-            sqrt(vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] + vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE])
-        if (normA == SQUAT_FLOAT_ZERO || normB == SQUAT_FLOAT_ZERO) return null
-        val cosValue = (dot / (normA * normB)).coerceIn(-SQUAT_FLOAT_ONE, SQUAT_FLOAT_ONE)
-        return Math.toDegrees(acos(cosValue).toDouble()).toFloat()
     }
 
     private fun distance(first: PoseLandmark, last: PoseLandmark): Float {
@@ -149,7 +97,5 @@ data class SideLandmarks(
     val shoulder: PoseLandmark,
     val hip: PoseLandmark,
     val knee: PoseLandmark,
-    val ankle: PoseLandmark,
-    val averageConfidence: Float,
-    val side: PoseSide
+    val ankle: PoseLandmark
 )

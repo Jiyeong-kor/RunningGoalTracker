@@ -4,19 +4,26 @@ import com.jeong.runninggoaltracker.domain.contract.SQUAT_BOTTOM_KNEE_ANGLE_THRE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_DOWN_FRAMES_REQUIRED
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_REASON_DOWN_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_REASON_UP_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_STANDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_UP_FRAMES_REQUIRED
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
 
+
 data class SquatRepCounterResult(
     val repCount: Int,
     val phase: SquatPhase,
     val repCompleted: Boolean,
-    val kneeAngle: Float,
-    val trunkLeanAngle: Float,
+    val kneeAngleRaw: Float,
+    val kneeAngleEma: Float,
+    val trunkLeanRaw: Float,
+    val trunkLeanEma: Float,
     val isReliable: Boolean,
-    val transition: SquatPhaseTransition?
+    val transition: SquatPhaseTransition?,
+    val upCandidateFrames: Int,
+    val downCandidateFrames: Int
 )
 
 class SquatRepCounter(
@@ -31,28 +38,34 @@ class SquatRepCounter(
     private var repCount: Int = SQUAT_INT_ZERO
     private var upCandidateFrames: Int = SQUAT_INT_ZERO
     private var downCandidateFrames: Int = SQUAT_INT_ZERO
+    private var lastKneeRaw: Float? = null
+    private var lastTrunkRaw: Float? = null
 
-    fun update(
-        timestampMs: Long,
-        metrics: PoseRawSquatMetrics?,
-        isReliable: Boolean
-    ): SquatRepCounterResult? {
-        val kneeAngle = metrics?.let { kneeFilter.update(it.kneeAngle) } ?: kneeFilter.current()
-        val trunkLean =
+    fun update(timestampMs: Long, metrics: PoseRawSquatMetrics?): SquatRepCounterResult? {
+        if (metrics != null) {
+            lastKneeRaw = metrics.kneeAngle
+            lastTrunkRaw = metrics.trunkLeanAngle
+        }
+        val kneeAngleEma = metrics?.let { kneeFilter.update(it.kneeAngle) } ?: kneeFilter.current()
+        val trunkLeanEma =
             metrics?.let { trunkFilter.update(it.trunkLeanAngle) } ?: trunkFilter.current()
-        if (kneeAngle == null || trunkLean == null) return null
+        val kneeRaw = lastKneeRaw
+        val trunkRaw = lastTrunkRaw
+        if (kneeAngleEma == null || trunkLeanEma == null || kneeRaw == null || trunkRaw == null) return null
         var transition: SquatPhaseTransition? = null
         var repCompleted = false
+        val isReliable = metrics != null
         if (isReliable) {
             when (phase) {
                 SquatPhase.UP -> {
-                    if (kneeAngle <= downThreshold) {
+                    if (kneeAngleEma <= downThreshold) {
                         downCandidateFrames += SQUAT_INT_ONE
                         if (downCandidateFrames >= downFramesRequired) {
                             transition = SquatPhaseTransition(
                                 from = phase,
                                 to = SquatPhase.DOWN,
-                                timestampMs = timestampMs
+                                timestampMs = timestampMs,
+                                reason = SQUAT_REASON_DOWN_THRESHOLD
                             )
                             phase = SquatPhase.DOWN
                             resetDownCandidate()
@@ -63,13 +76,14 @@ class SquatRepCounter(
                 }
 
                 SquatPhase.DOWN -> {
-                    if (kneeAngle >= upThreshold) {
+                    if (kneeAngleEma >= upThreshold) {
                         upCandidateFrames += SQUAT_INT_ONE
                         if (upCandidateFrames >= upFramesRequired) {
                             transition = SquatPhaseTransition(
                                 from = phase,
                                 to = SquatPhase.UP,
-                                timestampMs = timestampMs
+                                timestampMs = timestampMs,
+                                reason = SQUAT_REASON_UP_THRESHOLD
                             )
                             phase = SquatPhase.UP
                             repCount += SQUAT_INT_ONE
@@ -88,10 +102,14 @@ class SquatRepCounter(
             repCount = repCount,
             phase = phase,
             repCompleted = repCompleted,
-            kneeAngle = kneeAngle,
-            trunkLeanAngle = trunkLean,
+            kneeAngleRaw = kneeRaw,
+            kneeAngleEma = kneeAngleEma,
+            trunkLeanRaw = trunkRaw,
+            trunkLeanEma = trunkLeanEma,
             isReliable = isReliable,
-            transition = transition
+            transition = transition,
+            upCandidateFrames = upCandidateFrames,
+            downCandidateFrames = downCandidateFrames
         )
     }
 

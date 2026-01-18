@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.domain.usecase.squat
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmark
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
+import com.jeong.runninggoaltracker.domain.model.PoseSide
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -17,11 +18,16 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 1f),
                 landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 1f)
             ),
-            timestampMs = 0L
+            timestampMs = 0L,
+            imageWidth = 100,
+            imageHeight = 100,
+            rotationDegrees = 0,
+            isFrontCamera = true,
+            isMirrored = true
         )
         val calculator = PoseMetricsCalculator()
 
-        val metrics = calculator.calculate(frame, calibration = null)
+        val metrics = calculator.calculate(frame, calibration = null, side = PoseSide.LEFT)
 
         assertEquals(90f, metrics?.kneeAngle ?: 0f, 0.1f)
         assertEquals(0f, metrics?.trunkLeanAngle ?: 0f, 0.1f)
@@ -36,11 +42,16 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 0.1f),
                 landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 0.1f)
             ),
-            timestampMs = 0L
+            timestampMs = 0L,
+            imageWidth = 100,
+            imageHeight = 100,
+            rotationDegrees = 0,
+            isFrontCamera = true,
+            isMirrored = true
         )
         val calculator = PoseMetricsCalculator()
 
-        val metrics = calculator.calculate(frame, calibration = null)
+        val metrics = calculator.calculate(frame, calibration = null, side = PoseSide.LEFT)
 
         assertNull(metrics)
     }

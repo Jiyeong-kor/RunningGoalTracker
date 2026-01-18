@@ -89,7 +89,15 @@ private fun Pose.toPoseFrame(
             confidence = landmark.inFrameLikelihood
         )
     }
-    return PoseFrame(landmarks = landmarks, timestampMs = timestampMs)
+    return PoseFrame(
+        landmarks = landmarks,
+        timestampMs = timestampMs,
+        imageWidth = width,
+        imageHeight = height,
+        rotationDegrees = rotationDegrees,
+        isFrontCamera = isFrontCamera,
+        isMirrored = isFrontCamera
+    )
 }
 
 private fun Int.toDomainType(): PoseLandmarkType? = when (this) {

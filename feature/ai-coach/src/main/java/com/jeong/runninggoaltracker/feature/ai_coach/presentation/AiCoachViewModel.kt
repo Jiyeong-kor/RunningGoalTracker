@@ -43,10 +43,20 @@ class AiCoachViewModel @Inject constructor(
         poseDetector.poseFrames
             .onEach { frame ->
                 val analysis = processPoseUseCase.analyze(frame, _uiState.value.exerciseType)
-                handleSpeechFeedback(
-                    feedbackType = analysis.feedback.type,
-                    timestampMs = frame.timestampMs
-                )
+                if (analysis.skippedLowConfidence) {
+                    logSkippedFrame(frame.timestampMs)
+                }
+                if (analysis.repCount.isIncremented) {
+                    logRepCountUpdate(
+                        source = SmartWorkoutLogContract.SOURCE_ANALYZER,
+                        repCount = analysis.repCount.value,
+                        timestampMs = frame.timestampMs
+                    )
+                    handleSpeechFeedback(
+                        feedbackType = analysis.feedback.type,
+                        timestampMs = frame.timestampMs
+                    )
+                }
                 analysis.frameMetrics?.let { metrics ->
                     metrics.transition?.let { transition ->
                         logTransition(transition, metrics)
@@ -68,6 +78,9 @@ class AiCoachViewModel @Inject constructor(
     }
 
     fun updateSpeechCooldown(cooldownMs: Long) = Unit.also { speechCooldownMs = cooldownMs }
+
+    fun updateDebugOverlay(isVisible: Boolean) =
+        _uiState.update { current -> current.copy(isDebugOverlayVisible = isVisible) }
 
     override fun onCleared() {
         poseDetector.clear()
@@ -91,7 +104,7 @@ class AiCoachViewModel @Inject constructor(
     private fun logTransition(
         transition: SquatPhaseTransition,
         frameMetrics: SquatFrameMetrics
-    ) {
+    ): Unit = Unit.also {
         Log.d(
             SmartWorkoutLogContract.LOG_TAG,
             buildString {
@@ -109,6 +122,10 @@ class AiCoachViewModel @Inject constructor(
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
                 append(transition.timestampMs)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_REASON)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(transition.reason)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
                 append(SmartWorkoutLogContract.KEY_SIDE)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
                 append(frameMetrics.side.name)
@@ -119,11 +136,46 @@ class AiCoachViewModel @Inject constructor(
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
                 append(SmartWorkoutLogContract.KEY_KNEE)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.kneeAngle)
+                append(frameMetrics.kneeAngleEma)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
                 append(SmartWorkoutLogContract.KEY_TRUNK)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.trunkLeanAngle)
+                append(frameMetrics.trunkLeanAngleEma)
+            }
+        )
+    }
+
+    private fun logRepCountUpdate(source: String, repCount: Int, timestampMs: Long): Unit =
+        Unit.also {
+            Log.d(
+                SmartWorkoutLogContract.LOG_TAG,
+                buildString {
+                    append(SmartWorkoutLogContract.EVENT_REP_COUNT)
+                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                    append(SmartWorkoutLogContract.KEY_SOURCE)
+                    append(SmartWorkoutLogContract.LOG_ASSIGN)
+                    append(source)
+                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                    append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+                    append(SmartWorkoutLogContract.LOG_ASSIGN)
+                    append(timestampMs)
+                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                    append(SmartWorkoutLogContract.KEY_REP_COUNT)
+                    append(SmartWorkoutLogContract.LOG_ASSIGN)
+                    append(repCount)
+                }
+            )
+        }
+
+    private fun logSkippedFrame(timestampMs: Long): Unit = Unit.also {
+        Log.d(
+            SmartWorkoutLogContract.LOG_TAG,
+            buildString {
+                append(SmartWorkoutLogContract.EVENT_FRAME_SKIP)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(timestampMs)
             }
         )
     }
