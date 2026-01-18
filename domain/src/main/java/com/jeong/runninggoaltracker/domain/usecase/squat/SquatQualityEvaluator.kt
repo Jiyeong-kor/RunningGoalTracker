@@ -8,11 +8,13 @@ import com.jeong.runninggoaltracker.domain.model.SquatRepSummary
 class SquatQualityEvaluator {
     fun feedbackType(summary: SquatRepSummary): PostureFeedbackType {
         val issues = summary.issues
+        if (issues.contains(SquatFormIssue.INSUFFICIENT_DEPTH)) {
+            return PostureFeedbackType.TOO_SHALLOW
+        }
         if (summary.grade == SquatFormGrade.OK && issues.isEmpty()) {
             return PostureFeedbackType.GOOD_FORM
         }
         return when {
-            issues.contains(SquatFormIssue.INSUFFICIENT_DEPTH) -> PostureFeedbackType.TOO_SHALLOW
             issues.contains(SquatFormIssue.EXCESS_TRUNK_LEAN_HARD) ->
                 PostureFeedbackType.EXCESS_FORWARD_LEAN
 
