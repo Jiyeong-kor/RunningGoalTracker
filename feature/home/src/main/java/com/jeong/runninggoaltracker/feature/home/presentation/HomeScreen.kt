@@ -67,7 +67,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.os.Build
 
 data class ActivityRecognitionUiState(
-    @field:StringRes val labelResId: Int = R.string.activity_unknown
+    @field:StringRes val labelResId: Int? = null
 )
 
 data class ActivityLogUiModel(
@@ -120,6 +120,7 @@ fun HomeScreen(
     val listItemSpacing = dimensionResource(id = R.dimen.home_screen_list_spacing)
     val screenPaddingTop = dimensionResource(id = R.dimen.home_screen_padding_top)
     val screenPaddingBottom = dimensionResource(id = R.dimen.home_screen_padding_bottom)
+    val activityLabelResId = activityState.labelResId ?: R.string.activity_unknown
 
     var isAnonymousBannerVisible by rememberSaveable { mutableStateOf(true) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
@@ -232,7 +233,7 @@ fun HomeScreen(
                 Text(
                     stringResource(
                         R.string.home_empty_recent_activity_format,
-                        stringResource(activityState.labelResId)
+                        stringResource(activityLabelResId)
                     ),
                     color = textMuted,
                     fontSize = dimensionResource(id = R.dimen.home_empty_text_size).value.sp,
