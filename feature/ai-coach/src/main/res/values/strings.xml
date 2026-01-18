@@ -18,6 +18,9 @@
     <string name="smart_workout_debug_trunk_tilt_ema">상체 기울기(수직 기준, EMA) %.1f°</string>
     <string name="smart_workout_debug_trunk_to_thigh_raw">상체-허벅지 각도(원본) %.1f°</string>
     <string name="smart_workout_debug_trunk_to_thigh_ema">상체-허벅지 각도(EMA) %.1f°</string>
+    <string name="smart_workout_debug_rep_min_knee">반복 최소 무릎 각도 %.1f°</string>
+    <string name="smart_workout_debug_rep_trunk_to_thigh_min">상체-허벅지 각도(최소) %.1f°</string>
+    <string name="smart_workout_debug_rep_trunk_tilt_max">상체 기울기(수직 기준, 최대) %.1f°</string>
     <string name="smart_workout_debug_phase">상태 %1$s</string>
     <string name="smart_workout_debug_side">측면 %1$s</string>
     <string name="smart_workout_debug_lock_state">측면 고정 %1$s</string>

@@ -4,6 +4,7 @@ import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_NEGATIVE_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.model.PoseLandmark
 import kotlin.math.acos
@@ -20,7 +21,18 @@ class AngleCalculator {
         )
 
     fun trunkToThighAngle(shoulder: PoseLandmark, hip: PoseLandmark, knee: PoseLandmark): Float? =
-        angle(shoulder, hip, knee)
+        angleBetweenVectors3d(
+            floatArrayOf(
+                shoulder.x - hip.x,
+                shoulder.y - hip.y,
+                shoulder.z - hip.z
+            ),
+            floatArrayOf(
+                knee.x - hip.x,
+                knee.y - hip.y,
+                knee.z - hip.z
+            )
+        )
 
     fun angle(first: PoseLandmark, middle: PoseLandmark, last: PoseLandmark): Float? =
         angleBetweenVectors(
@@ -35,6 +47,28 @@ class AngleCalculator {
             sqrt(vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] + vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE])
         val normB =
             sqrt(vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] + vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE])
+        if (normA == SQUAT_FLOAT_ZERO || normB == SQUAT_FLOAT_ZERO) return null
+        val cosValue = (dot / (normA * normB)).coerceIn(SQUAT_FLOAT_NEGATIVE_ONE, SQUAT_FLOAT_ONE)
+        return Math.toDegrees(acos(cosValue).toDouble()).toFloat()
+    }
+
+    private fun angleBetweenVectors3d(vectorA: FloatArray, vectorB: FloatArray): Float? {
+        val dot =
+            vectorA[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
+                    vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
+                    vectorA[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO]
+        val normA =
+            sqrt(
+                vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] +
+                        vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE] +
+                        vectorA[SQUAT_INT_TWO] * vectorA[SQUAT_INT_TWO]
+            )
+        val normB =
+            sqrt(
+                vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
+                        vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
+                        vectorB[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO]
+            )
         if (normA == SQUAT_FLOAT_ZERO || normB == SQUAT_FLOAT_ZERO) return null
         val cosValue = (dot / (normA * normB)).coerceIn(SQUAT_FLOAT_NEGATIVE_ONE, SQUAT_FLOAT_ONE)
         return Math.toDegrees(acos(cosValue).toDouble()).toFloat()

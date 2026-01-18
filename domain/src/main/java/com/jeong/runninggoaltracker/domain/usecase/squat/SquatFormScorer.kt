@@ -14,6 +14,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatRepSummary
 data class SquatRepMetrics(
     val minKneeAngle: Float,
     val minTrunkToThighAngle: Float,
+    val maxTrunkTiltVerticalAngle: Float,
     val maxHeelRiseRatio: Float?,
     val maxKneeForwardRatio: Float?
 )
@@ -67,6 +68,7 @@ class SquatFormScorer(
         return SquatRepSummary(
             minKneeAngle = metrics.minKneeAngle,
             minTrunkToThighAngle = metrics.minTrunkToThighAngle,
+            maxTrunkTiltVerticalAngle = metrics.maxTrunkTiltVerticalAngle,
             maxHeelRiseRatio = metrics.maxHeelRiseRatio,
             maxKneeForwardRatio = metrics.maxKneeForwardRatio,
             grade = grade,

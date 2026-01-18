@@ -4,18 +4,25 @@ import com.jeong.runninggoaltracker.domain.contract.SQUAT_CALIBRATION_REQUIRED_F
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_GOOD_DEPTH_ANGLE_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_HEEL_RISE_RATIO_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_KNEE_FORWARD_RATIO_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_STANDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TILT_VERTICAL_DIAGNOSTIC_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
+import com.jeong.runninggoaltracker.domain.model.ComparisonOperator
 import com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult
 import com.jeong.runninggoaltracker.domain.model.PoseCalibration
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PostureFeedback
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
+import com.jeong.runninggoaltracker.domain.model.PostureWarningEvent
 import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.model.RepCount
+import com.jeong.runninggoaltracker.domain.model.SquatWarningMetric
 import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
 import com.jeong.runninggoaltracker.domain.model.SquatRepSummary
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
@@ -39,8 +46,10 @@ class SquatAnalyzer(
     private var calibrationKneeXSum: Float = SQUAT_FLOAT_ZERO
     private var repMinKneeAngle: Float? = null
     private var repMinTrunkToThighAngle: Float? = null
+    private var repMaxTrunkTiltVerticalAngle: Float? = null
     private var repMaxHeelRise: Float? = null
     private var repMaxKneeForward: Float? = null
+    private var hasBottomFeedback: Boolean = false
     private var previousPhase: SquatPhase = SquatPhase.UP
     private var lastFeedbackType: PostureFeedbackType = PostureFeedbackType.UNKNOWN
 
@@ -61,19 +70,25 @@ class SquatAnalyzer(
                 ),
                 frameMetrics = null,
                 repSummary = null,
+                warningEvent = null,
                 skippedLowConfidence = skippedLowConfidence
             )
         }
         if (calibration == null && counterResult.isReliable && counterResult.phase == SquatPhase.UP) {
             metrics?.let { accumulateCalibration(it) }
         }
-        val repSummary = handleRepTracking(counterResult, metrics)
-        val feedbackType = when {
+        val feedbackResult = handleRepTracking(counterResult, metrics)
+        val feedbackSummary = feedbackResult.repSummary ?: feedbackResult.bottomSummary
+        val rawFeedbackType = when {
             !counterResult.isReliable -> PostureFeedbackType.NOT_IN_FRAME
-            repSummary != null -> qualityEvaluator.feedbackType(repSummary)
+            feedbackSummary != null -> qualityEvaluator.feedbackType(feedbackSummary)
                 .also { lastFeedbackType = it }
 
             else -> lastFeedbackType
+        }
+        val feedbackType = suppressStandingFeedback(counterResult, rawFeedbackType)
+        if (feedbackType != rawFeedbackType) {
+            lastFeedbackType = feedbackType
         }
         val accuracy = accuracyFor(counterResult.kneeAngleEma)
         val isPerfectForm = feedbackType == PostureFeedbackType.GOOD_FORM
@@ -81,6 +96,9 @@ class SquatAnalyzer(
         val isCameraTiltSuspected =
             counterResult.trunkTiltVerticalEma > SQUAT_TRUNK_TILT_VERTICAL_DIAGNOSTIC_THRESHOLD &&
                     counterResult.trunkToThighEma >= SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
+        val repMinKnee = repMinKneeAngle ?: counterResult.kneeAngleEma
+        val repMinTrunkToThigh = repMinTrunkToThighAngle ?: counterResult.trunkToThighEma
+        val repMaxTrunkTilt = repMaxTrunkTiltVerticalAngle ?: counterResult.trunkTiltVerticalEma
         val frameMetrics = SquatFrameMetrics(
             kneeAngleRaw = counterResult.kneeAngleRaw,
             kneeAngleEma = counterResult.kneeAngleEma,
@@ -99,6 +117,9 @@ class SquatAnalyzer(
             downFramesRequired = repCounter.downFramesRequired(),
             upCandidateFrames = counterResult.upCandidateFrames,
             downCandidateFrames = counterResult.downCandidateFrames,
+            repMinKneeAngle = repMinKnee,
+            repMinTrunkToThighAngle = repMinTrunkToThigh,
+            repMaxTrunkTiltVerticalAngle = repMaxTrunkTilt,
             leftConfidenceSum = sideSelection.leftConfidenceSum,
             rightConfidenceSum = sideSelection.rightConfidenceSum,
             rotationDegrees = frame.rotationDegrees,
@@ -109,17 +130,25 @@ class SquatAnalyzer(
             isLandmarkReliable = counterResult.isReliable,
             isCalibrated = calibration != null
         )
+        val warningEvent = feedbackSummary?.let { summary ->
+            if (feedbackType == rawFeedbackType && isFormCorrection(feedbackType)) {
+                warningEventFor(feedbackType, summary, counterResult.phase, frame.timestampMs)
+            } else {
+                null
+            }
+        }
         previousPhase = counterResult.phase
         return PoseAnalysisResult(
             repCount = RepCount(counterResult.repCount, isIncremented = counterResult.repCompleted),
             feedback = PostureFeedback(
                 type = feedbackType,
-                isValid = repSummary != null,
+                isValid = feedbackSummary != null,
                 accuracy = accuracy,
                 isPerfectForm = isPerfectForm
             ),
             frameMetrics = frameMetrics,
-            repSummary = repSummary,
+            repSummary = feedbackResult.repSummary,
+            warningEvent = warningEvent,
             skippedLowConfidence = skippedLowConfidence
         )
     }
@@ -146,9 +175,12 @@ class SquatAnalyzer(
     private fun handleRepTracking(
         counterResult: SquatRepCounterResult,
         metrics: PoseRawSquatMetrics?
-    ): SquatRepSummary? {
+    ): SquatFeedbackResult {
+        var bottomSummary: SquatRepSummary? = null
+        var repSummary: SquatRepSummary? = null
         if (counterResult.phase == SquatPhase.DOWN && previousPhase == SquatPhase.UP) {
             resetRepTracking()
+            hasBottomFeedback = false
         }
         if (counterResult.phase == SquatPhase.DOWN && metrics != null) {
             val kneeAngle = counterResult.kneeAngleEma
@@ -156,6 +188,9 @@ class SquatAnalyzer(
             val trunkToThigh = counterResult.trunkToThighEma
             repMinTrunkToThighAngle =
                 repMinTrunkToThighAngle?.let { min(it, trunkToThigh) } ?: trunkToThigh
+            val trunkTilt = counterResult.trunkTiltVerticalEma
+            repMaxTrunkTiltVerticalAngle =
+                repMaxTrunkTiltVerticalAngle?.let { max(it, trunkTilt) } ?: trunkTilt
             val heel = metrics.heelRiseRatio
             if (heel != null) {
                 repMaxHeelRise = repMaxHeelRise?.let { max(it, heel) } ?: heel
@@ -165,26 +200,25 @@ class SquatAnalyzer(
                 repMaxKneeForward = repMaxKneeForward?.let { max(it, kneeForward) } ?: kneeForward
             }
         }
-        if (counterResult.repCompleted) {
-            val minKnee = repMinKneeAngle ?: counterResult.kneeAngleEma
-            val minTrunkToThigh = repMinTrunkToThighAngle ?: counterResult.trunkToThighEma
-            val summary = scorer.score(
-                SquatRepMetrics(
-                    minKneeAngle = minKnee,
-                    minTrunkToThighAngle = minTrunkToThigh,
-                    maxHeelRiseRatio = repMaxHeelRise,
-                    maxKneeForwardRatio = repMaxKneeForward
-                )
-            )
-            resetRepTracking()
-            return summary
+        if (counterResult.phase == SquatPhase.DOWN &&
+            counterResult.kneeAngleEma <= repCounter.downThreshold() &&
+            !hasBottomFeedback
+        ) {
+            bottomSummary = scorer.score(buildRepMetrics(counterResult))
+            hasBottomFeedback = true
         }
-        return null
+        if (counterResult.repCompleted) {
+            repSummary = scorer.score(buildRepMetrics(counterResult))
+            resetRepTracking()
+            return SquatFeedbackResult(repSummary = repSummary, bottomSummary = bottomSummary)
+        }
+        return SquatFeedbackResult(repSummary = repSummary, bottomSummary = bottomSummary)
     }
 
     private fun resetRepTracking() {
         repMinKneeAngle = null
         repMinTrunkToThighAngle = null
+        repMaxTrunkTiltVerticalAngle = null
         repMaxHeelRise = null
         repMaxKneeForward = null
     }
@@ -195,4 +229,101 @@ class SquatAnalyzer(
             .coerceIn(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_ONE)
         return (SQUAT_FLOAT_ONE - normalized).coerceIn(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_ONE)
     }
+
+    private fun suppressStandingFeedback(
+        counterResult: SquatRepCounterResult,
+        feedbackType: PostureFeedbackType
+    ): PostureFeedbackType =
+        if (counterResult.phase == SquatPhase.UP &&
+            counterResult.kneeAngleEma > repCounter.upThreshold() &&
+            isFormCorrection(feedbackType)
+        ) {
+            PostureFeedbackType.GOOD_FORM
+        } else {
+            feedbackType
+        }
+
+    private fun isFormCorrection(type: PostureFeedbackType): Boolean =
+        type == PostureFeedbackType.EXCESS_FORWARD_LEAN ||
+                type == PostureFeedbackType.HEEL_RISE ||
+                type == PostureFeedbackType.KNEE_FORWARD ||
+                type == PostureFeedbackType.TOO_SHALLOW ||
+                type == PostureFeedbackType.STAND_TALL
+
+    private fun buildRepMetrics(counterResult: SquatRepCounterResult): SquatRepMetrics =
+        SquatRepMetrics(
+            minKneeAngle = repMinKneeAngle ?: counterResult.kneeAngleEma,
+            minTrunkToThighAngle = repMinTrunkToThighAngle ?: counterResult.trunkToThighEma,
+            maxTrunkTiltVerticalAngle =
+                repMaxTrunkTiltVerticalAngle ?: counterResult.trunkTiltVerticalEma,
+            maxHeelRiseRatio = repMaxHeelRise,
+            maxKneeForwardRatio = repMaxKneeForward
+        )
+
+    private fun warningEventFor(
+        feedbackType: PostureFeedbackType,
+        summary: SquatRepSummary,
+        phase: SquatPhase,
+        timestampMs: Long
+    ): PostureWarningEvent? = when (feedbackType) {
+        PostureFeedbackType.EXCESS_FORWARD_LEAN ->
+            PostureWarningEvent(
+                feedbackType = feedbackType,
+                metric = SquatWarningMetric.TRUNK_TO_THIGH,
+                value = summary.minTrunkToThighAngle,
+                threshold = SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD,
+                operator = ComparisonOperator.LESS_THAN,
+                phase = phase,
+                timestampMs = timestampMs
+            )
+
+        PostureFeedbackType.TOO_SHALLOW ->
+            PostureWarningEvent(
+                feedbackType = feedbackType,
+                metric = SquatWarningMetric.KNEE_ANGLE,
+                value = summary.minKneeAngle,
+                threshold = depthThreshold(summary),
+                operator = ComparisonOperator.GREATER_THAN,
+                phase = phase,
+                timestampMs = timestampMs
+            )
+
+        PostureFeedbackType.HEEL_RISE -> summary.maxHeelRiseRatio?.let { value ->
+            PostureWarningEvent(
+                feedbackType = feedbackType,
+                metric = SquatWarningMetric.HEEL_RISE_RATIO,
+                value = value,
+                threshold = SQUAT_HEEL_RISE_RATIO_THRESHOLD,
+                operator = ComparisonOperator.GREATER_THAN,
+                phase = phase,
+                timestampMs = timestampMs
+            )
+        }
+
+        PostureFeedbackType.KNEE_FORWARD -> summary.maxKneeForwardRatio?.let { value ->
+            PostureWarningEvent(
+                feedbackType = feedbackType,
+                metric = SquatWarningMetric.KNEE_FORWARD_RATIO,
+                value = value,
+                threshold = SQUAT_KNEE_FORWARD_RATIO_THRESHOLD,
+                operator = ComparisonOperator.GREATER_THAN,
+                phase = phase,
+                timestampMs = timestampMs
+            )
+        }
+
+        else -> null
+    }
+
+    private fun depthThreshold(summary: SquatRepSummary): Float =
+        if (summary.minKneeAngle > SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD) {
+            SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD
+        } else {
+            SQUAT_GOOD_DEPTH_ANGLE_THRESHOLD
+        }
 }
+
+private data class SquatFeedbackResult(
+    val repSummary: SquatRepSummary?,
+    val bottomSummary: SquatRepSummary?
+)

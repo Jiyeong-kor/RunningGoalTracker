@@ -34,6 +34,7 @@ class ProcessPoseUseCase @Inject constructor() {
                 ),
                 frameMetrics = null,
                 repSummary = null,
+                warningEvent = null,
                 skippedLowConfidence = false
             )
 }

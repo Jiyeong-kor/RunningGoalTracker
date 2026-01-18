@@ -18,5 +18,5 @@ data class SmartWorkoutUiState(
     val poseFrame: PoseFrame? = null,
     val frameMetrics: SquatFrameMetrics? = null,
     val repSummary: SquatRepSummary? = null,
-    val isDebugOverlayVisible: Boolean = false
+    val isDebugOverlayVisible: Boolean = true
 )

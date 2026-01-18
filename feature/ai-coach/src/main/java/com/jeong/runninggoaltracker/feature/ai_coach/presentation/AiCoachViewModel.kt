@@ -5,6 +5,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
+import com.jeong.runninggoaltracker.domain.model.PostureWarningEvent
 import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
 import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
 import com.jeong.runninggoaltracker.domain.usecase.ProcessPoseUseCase
@@ -61,6 +62,9 @@ class AiCoachViewModel @Inject constructor(
                     metrics.transition?.let { transition ->
                         logTransition(transition, metrics)
                     }
+                }
+                analysis.warningEvent?.let { event ->
+                    logWarningEvent(event)
                 }
                 _uiState.update { current ->
                     current.copy(
@@ -170,6 +174,43 @@ class AiCoachViewModel @Inject constructor(
                 }
             )
         }
+
+    private fun logWarningEvent(event: PostureWarningEvent): Unit = Unit.also {
+        Log.d(
+            SmartWorkoutLogContract.LOG_TAG,
+            buildString {
+                append(SmartWorkoutLogContract.EVENT_WARNING)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_FEEDBACK)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.feedbackType.name)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_METRIC)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.metric.name)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_VALUE)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.value)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_THRESHOLD)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.threshold)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_OPERATOR)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.operator.name)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_STATE)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.phase.name)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(event.timestampMs)
+            }
+        )
+    }
 
     private fun logSkippedFrame(timestampMs: Long): Unit = Unit.also {
         Log.d(

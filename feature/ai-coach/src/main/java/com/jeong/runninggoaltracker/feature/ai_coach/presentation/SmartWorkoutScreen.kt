@@ -340,6 +340,30 @@ fun SmartWorkoutScreen(
                     )
                     Text(
                         text = stringResource(
+                            R.string.smart_workout_debug_rep_min_knee,
+                            metrics.repMinKneeAngle
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_rep_trunk_to_thigh_min,
+                            metrics.repMinTrunkToThighAngle
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_rep_trunk_tilt_max,
+                            metrics.repMaxTrunkTiltVerticalAngle
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
                             R.string.smart_workout_debug_phase,
                             phaseText
                         ),

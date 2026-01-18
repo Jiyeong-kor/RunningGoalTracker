@@ -25,5 +25,6 @@ const val SQUAT_FLOAT_TWO = 2f
 const val SQUAT_FLOAT_NEGATIVE_ONE = -1f
 const val SQUAT_INT_ZERO = 0
 const val SQUAT_INT_ONE = 1
+const val SQUAT_INT_TWO = 2
 const val SQUAT_REASON_DOWN_THRESHOLD = "down_threshold"
 const val SQUAT_REASON_UP_THRESHOLD = "up_threshold"
