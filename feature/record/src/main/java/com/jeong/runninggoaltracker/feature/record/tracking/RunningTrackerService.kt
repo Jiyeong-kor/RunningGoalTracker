@@ -151,6 +151,7 @@ class RunningTrackerService : Service() {
             .setMinUpdateDistanceMeters(minDistanceMeters())
             .build()
 
+        val metersInKmValue = metersInKm()
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
@@ -164,9 +165,9 @@ class RunningTrackerService : Service() {
                     distanceMeters ?: NumericResourceProvider.zeroDouble(
                         this@RunningTrackerService
                     )
-                stateUpdater.update(currentDistance / metersInKm(), elapsed)
+                stateUpdater.update(currentDistance / metersInKmValue, elapsed)
                 notificationDispatcher
-                    .notifyProgress(currentDistance / metersInKm(), elapsed)
+                    .notifyProgress(currentDistance / metersInKmValue, elapsed)
             }
         }
 
@@ -195,6 +196,7 @@ class RunningTrackerService : Service() {
     private fun startElapsedUpdater() {
         elapsedUpdateJob?.cancel()
         elapsedUpdateJob = serviceScope.launch {
+            val metersInKmValue = metersInKm()
             while (tracking) {
                 val startMillis =
                     startTimeMillis ?: NumericResourceProvider
@@ -203,9 +205,9 @@ class RunningTrackerService : Service() {
                 val currentDistance =
                     distanceMeters ?: NumericResourceProvider
                         .zeroDouble(this@RunningTrackerService)
-                stateUpdater.update(currentDistance / metersInKm(), elapsed)
+                stateUpdater.update(currentDistance / metersInKmValue, elapsed)
                 notificationDispatcher
-                    .notifyProgress(currentDistance / metersInKm(), elapsed)
+                    .notifyProgress(currentDistance / metersInKmValue, elapsed)
                 delay(elapsedUpdateIntervalMillis())
             }
         }
