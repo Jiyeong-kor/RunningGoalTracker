@@ -328,7 +328,7 @@ private fun SummaryStats(uiState: MyPageUiState) {
 }
 
 @Composable
-private fun StatItem(modifier: Modifier, label: String, value: String) {
+private fun StatItem(label: String, value: String, modifier: Modifier = Modifier) {
     AppContentCard(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
