@@ -1,6 +1,5 @@
 package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 
-import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +11,7 @@ import com.jeong.runninggoaltracker.domain.usecase.ProcessPoseUseCase
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutSpeechContract
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,108 +118,99 @@ class AiCoachViewModel @Inject constructor(
     private fun logTransition(
         transition: SquatPhaseTransition,
         frameMetrics: SquatFrameMetrics
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.TRANSITION_PREFIX)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_FROM)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(transition.from.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TO)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(transition.to.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(transition.timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_REASON)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(transition.reason)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_SIDE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.side.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_PHASE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.phase.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_KNEE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.kneeAngleEma)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TRUNK_TILT)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.trunkTiltVerticalAngleEma)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TRUNK_TO_THIGH)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(frameMetrics.trunkToThighAngleEma)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.TRANSITION_PREFIX)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_FROM)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(transition.from.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TO)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(transition.to.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(transition.timestampMs)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_REASON)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(transition.reason)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_SIDE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(frameMetrics.side.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_PHASE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(frameMetrics.phase.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_KNEE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(frameMetrics.kneeAngleEma)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TRUNK_TILT)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(frameMetrics.trunkTiltVerticalAngleEma)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TRUNK_TO_THIGH)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(frameMetrics.trunkToThighAngleEma)
+        }
     }
 
     private fun logRepCountUpdate(source: String, repCount: Int, timestampMs: Long): Unit =
-        Unit.also {
-            Log.d(
-                SmartWorkoutLogContract.LOG_TAG,
-                buildString {
-                    append(SmartWorkoutLogContract.EVENT_REP_COUNT)
-                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                    append(SmartWorkoutLogContract.KEY_SOURCE)
-                    append(SmartWorkoutLogContract.LOG_ASSIGN)
-                    append(source)
-                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                    append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                    append(SmartWorkoutLogContract.LOG_ASSIGN)
-                    append(timestampMs)
-                    append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                    append(SmartWorkoutLogContract.KEY_REP_COUNT)
-                    append(SmartWorkoutLogContract.LOG_ASSIGN)
-                    append(repCount)
-                }
-            )
-        }
-
-    private fun logWarningEvent(event: PostureWarningEvent): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
+        SmartWorkoutLogger.logDebug {
             buildString {
-                append(SmartWorkoutLogContract.EVENT_WARNING)
+                append(SmartWorkoutLogContract.EVENT_REP_COUNT)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_FEEDBACK)
+                append(SmartWorkoutLogContract.KEY_SOURCE)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.feedbackType.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_METRIC)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.metric.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_VALUE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.value)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_THRESHOLD)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.threshold)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_OPERATOR)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.operator.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_STATE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.phase.name)
+                append(source)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
                 append(SmartWorkoutLogContract.KEY_TIMESTAMP)
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(event.timestampMs)
+                append(timestampMs)
+                append(SmartWorkoutLogContract.LOG_SEPARATOR)
+                append(SmartWorkoutLogContract.KEY_REP_COUNT)
+                append(SmartWorkoutLogContract.LOG_ASSIGN)
+                append(repCount)
             }
-        )
+        }
+
+    private fun logWarningEvent(event: PostureWarningEvent): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_WARNING)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_FEEDBACK)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.feedbackType.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_METRIC)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.metric.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_VALUE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.value)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_THRESHOLD)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.threshold)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_OPERATOR)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.operator.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_STATE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.phase.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(event.timestampMs)
+        }
     }
 
     private fun logMetricsState(
@@ -257,133 +248,115 @@ class AiCoachViewModel @Inject constructor(
     private fun logAttemptStart(
         metrics: SquatFrameMetrics,
         timestampMs: Long
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_ATTEMPT_START)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.attemptActive)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.attemptMinKneeAngle)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_ATTEMPT_START)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.attemptActive)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.attemptMinKneeAngle)
+        }
     }
 
     private fun logAttemptEnd(
         metrics: SquatFrameMetrics,
         timestampMs: Long
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_ATTEMPT_END)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.attemptActive)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.depthReached)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.attemptMinKneeAngle)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_ATTEMPT_END)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.attemptActive)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.depthReached)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.attemptMinKneeAngle)
+        }
     }
 
     private fun logDepthReached(
         metrics: SquatFrameMetrics,
         timestampMs: Long
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_DEPTH_REACHED)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.depthReached)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.attemptMinKneeAngle)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_DEPTH_REACHED)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.depthReached)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.attemptMinKneeAngle)
+        }
     }
 
     private fun logFullBodyVisibility(
         metrics: SquatFrameMetrics,
         timestampMs: Long
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_FULL_BODY_VISIBILITY)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_FULL_BODY_VISIBLE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.fullBodyVisible)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_INVISIBLE_DURATION)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(metrics.fullBodyInvisibleDurationMs)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_FULL_BODY_VISIBILITY)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_FULL_BODY_VISIBLE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.fullBodyVisible)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_INVISIBLE_DURATION)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(metrics.fullBodyInvisibleDurationMs)
+        }
     }
 
     private fun logFeedbackEvent(
         feedbackType: PostureFeedbackType,
         timestampMs: Long
-    ): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_FEEDBACK_EMIT)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_FEEDBACK)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(feedbackType.name)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-            }
-        )
+    ): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_FEEDBACK_EMIT)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_FEEDBACK)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(feedbackType.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+        }
     }
 
-    private fun logSkippedFrame(timestampMs: Long): Unit = Unit.also {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_FRAME_SKIP)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-            }
-        )
+    private fun logSkippedFrame(timestampMs: Long): Unit = SmartWorkoutLogger.logDebug {
+        buildString {
+            append(SmartWorkoutLogContract.EVENT_FRAME_SKIP)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(timestampMs)
+        }
     }
 }

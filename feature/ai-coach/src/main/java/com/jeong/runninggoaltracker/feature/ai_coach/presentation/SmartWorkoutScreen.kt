@@ -1,7 +1,6 @@
 package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 
 import android.content.Context
-import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview as CameraPreview
@@ -58,6 +57,7 @@ import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
 import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
@@ -151,8 +151,7 @@ fun SmartWorkoutScreen(
     )
 
     LaunchedEffect(uiState.repCount) {
-        Log.d(
-            SmartWorkoutLogContract.LOG_TAG,
+        SmartWorkoutLogger.logDebug {
             buildString {
                 append(SmartWorkoutLogContract.EVENT_REP_COUNT)
                 append(SmartWorkoutLogContract.LOG_SEPARATOR)
@@ -168,7 +167,7 @@ fun SmartWorkoutScreen(
                 append(SmartWorkoutLogContract.LOG_ASSIGN)
                 append(uiState.repCount)
             }
-        )
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
