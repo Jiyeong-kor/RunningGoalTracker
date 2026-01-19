@@ -81,10 +81,8 @@ fun rememberThrottleClick(
 }
 
 @Composable
-private fun throttleClickIntervalMillis(): Long {
-    val context = LocalContext.current
-    return NumericResourceProvider.throttleClickIntervalMillis(context)
-}
+private fun throttleClickIntervalMillis(): Long =
+    NumericResourceProvider.throttleClickIntervalMillis(LocalContext.current)
 
 private const val FLOW_BUFFER_CAPACITY = 1
 private const val INITIAL_EXECUTION_TIME_MILLIS = 0L
