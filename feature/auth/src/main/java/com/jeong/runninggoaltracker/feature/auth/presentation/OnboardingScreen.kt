@@ -163,26 +163,26 @@ private fun PermissionsScreen(
     val permissions = listOf(
         PermissionItem(
             icon = Icons.AutoMirrored.Outlined.DirectionsRun,
-            title = stringResource(id = R.string.permission_activity_title),
-            description = stringResource(id = R.string.permission_activity_description),
+            titleResId = R.string.permission_activity_title,
+            descriptionResId = R.string.permission_activity_description,
             isEssential = true
         ),
         PermissionItem(
             icon = Icons.Outlined.LocationOn,
-            title = stringResource(id = R.string.permission_location_title),
-            description = stringResource(id = R.string.permission_location_description),
+            titleResId = R.string.permission_location_title,
+            descriptionResId = R.string.permission_location_description,
             isEssential = true
         ),
         PermissionItem(
             icon = Icons.Outlined.PhotoCamera,
-            title = stringResource(id = R.string.permission_camera_title),
-            description = stringResource(id = R.string.permission_camera_description),
+            titleResId = R.string.permission_camera_title,
+            descriptionResId = R.string.permission_camera_description,
             isEssential = true
         ),
         PermissionItem(
             icon = Icons.Outlined.Notifications,
-            title = stringResource(id = R.string.permission_notification_title),
-            description = stringResource(id = R.string.permission_notification_description),
+            titleResId = R.string.permission_notification_title,
+            descriptionResId = R.string.permission_notification_description,
             isEssential = true
         )
     )
@@ -286,7 +286,7 @@ private fun PermissionRow(
                 horizontalArrangement = Arrangement.spacedBy(spacingSm)
             ) {
                 Text(
-                    text = item.title,
+                    text = stringResource(id = item.titleResId),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -309,7 +309,7 @@ private fun PermissionRow(
             }
             Spacer(modifier = Modifier.height(spacingSm))
             Text(
-                text = item.description,
+                text = stringResource(id = item.descriptionResId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -375,8 +375,8 @@ private fun SuccessScreen(
 
 private data class PermissionItem(
     val icon: ImageVector,
-    val title: String,
-    val description: String,
+    @field:StringRes val titleResId: Int,
+    @field:StringRes val descriptionResId: Int,
     val isEssential: Boolean
 )
 
@@ -473,8 +473,8 @@ private fun PermissionRowPreview() =
         PermissionRow(
             item = PermissionItem(
                 icon = Icons.Outlined.LocationOn,
-                title = stringResource(id = R.string.permission_location_title),
-                description = stringResource(id = R.string.permission_location_description),
+                titleResId = R.string.permission_location_title,
+                descriptionResId = R.string.permission_location_description,
                 isEssential = true
             )
         )
