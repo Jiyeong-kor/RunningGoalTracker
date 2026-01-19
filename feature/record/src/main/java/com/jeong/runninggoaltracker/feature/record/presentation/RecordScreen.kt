@@ -271,8 +271,8 @@ private fun RecordControlButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     containerColor: Color,
     contentColor: Color,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val onClickThrottled = rememberThrottleClick(onClick = onClick)
     Button(
