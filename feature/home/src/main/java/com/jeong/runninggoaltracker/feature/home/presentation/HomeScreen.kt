@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.annotation.IntegerRes
+import androidx.annotation.StringRes
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
@@ -205,7 +206,7 @@ fun HomeScreen(
 
         item {
             SectionHeader(
-                title = stringResource(R.string.home_section_recent_activity),
+                titleResId = R.string.home_section_recent_activity,
                 onViewAllClick = onRecordClickThrottled
             )
         }
@@ -437,7 +438,10 @@ private fun RecentActivityRow(activity: HomeRecentActivityUiModel) {
 }
 
 @Composable
-private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
+private fun SectionHeader(
+    @StringRes titleResId: Int,
+    onViewAllClick: () -> Unit
+) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
     val titleTextSize = dimensionResource(id = R.dimen.home_section_title_text_size).value.sp
@@ -449,7 +453,12 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, color = textPrimary, fontSize = titleTextSize, fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(titleResId),
+            color = textPrimary,
+            fontSize = titleTextSize,
+            fontWeight = FontWeight.Bold
+        )
         TextButton(onClick = onViewAllClickThrottled) {
             Text(
                 stringResource(R.string.home_action_view_all),
