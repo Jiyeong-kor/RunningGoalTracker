@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.contract.ThrottleContract
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -25,12 +26,13 @@ fun Modifier.throttleClick(
 
     val eventFlow = remember {
         MutableSharedFlow<Unit>(
-            extraBufferCapacity = FLOW_BUFFER_CAPACITY,
+            extraBufferCapacity = ThrottleContract.FLOW_BUFFER_CAPACITY,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
     }
 
-    val lastExecutionTime = remember { mutableLongStateOf(INITIAL_EXECUTION_TIME_MILLIS) }
+    val lastExecutionTime =
+        remember { mutableLongStateOf(ThrottleContract.INITIAL_EXECUTION_TIME_MILLIS) }
 
     LaunchedEffect(Unit) {
         eventFlow.collect {
@@ -58,12 +60,13 @@ fun rememberThrottleClick(
 
     val eventFlow = remember {
         MutableSharedFlow<Unit>(
-            extraBufferCapacity = FLOW_BUFFER_CAPACITY,
+            extraBufferCapacity = ThrottleContract.FLOW_BUFFER_CAPACITY,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
     }
 
-    val lastExecutionTime = remember { mutableLongStateOf(INITIAL_EXECUTION_TIME_MILLIS) }
+    val lastExecutionTime =
+        remember { mutableLongStateOf(ThrottleContract.INITIAL_EXECUTION_TIME_MILLIS) }
 
     LaunchedEffect(Unit) {
         eventFlow.collect {
@@ -83,6 +86,3 @@ fun rememberThrottleClick(
 @Composable
 private fun throttleClickIntervalMillis(): Long =
     NumericResourceProvider.throttleClickIntervalMillis(LocalContext.current)
-
-private const val FLOW_BUFFER_CAPACITY = 1
-private const val INITIAL_EXECUTION_TIME_MILLIS = 0L
