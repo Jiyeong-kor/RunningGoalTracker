@@ -170,8 +170,7 @@ class RunningTrackerService : Service() {
                         this@RunningTrackerService
                     )
                 stateUpdater.update(currentDistance / metersInKmValue, elapsed)
-                notificationDispatcher
-                    .notifyProgress(currentDistance / metersInKmValue, elapsed)
+                handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
             }
         }
 
@@ -210,8 +209,7 @@ class RunningTrackerService : Service() {
                     distanceMeters ?: NumericResourceProvider
                         .zeroDouble(this@RunningTrackerService)
                 stateUpdater.update(currentDistance / metersInKmValue, elapsed)
-                notificationDispatcher
-                    .notifyProgress(currentDistance / metersInKmValue, elapsed)
+                handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
                 delay(elapsedUpdateIntervalMillis())
             }
         }
@@ -223,6 +221,14 @@ class RunningTrackerService : Service() {
             distanceMeters = currentDistance + previous.distanceTo(newLocation).toDouble()
         }
         lastLocation = newLocation
+    }
+
+    private fun handleNotificationUpdate(distanceKm: Double, elapsedMillis: Long) {
+        val notified = notificationDispatcher.notifyProgress(distanceKm, elapsedMillis)
+        if (!notified) {
+            stateUpdater.markPermissionRequired()
+            stopTracking()
+        }
     }
 
     override fun onDestroy() {
