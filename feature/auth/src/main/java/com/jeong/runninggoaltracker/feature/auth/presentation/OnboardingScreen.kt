@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -288,6 +289,7 @@ private fun PermissionRow(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_tag_padding_horizontal)
     val tagPaddingVertical =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_tag_padding_vertical)
+    val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
 
     Row(
         modifier = modifier,
@@ -299,7 +301,7 @@ private fun PermissionRow(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(weightOne)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(spacingSm)
@@ -349,6 +351,7 @@ private fun SuccessScreen(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
     val iconSize =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_icon_size)
+    val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
     val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
 
     Column(
@@ -358,7 +361,7 @@ private fun SuccessScreen(
             .padding(horizontal = spacingXl, vertical = spacing2xl),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(weightOne))
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.DirectionsRun,
             contentDescription = null,
@@ -378,7 +381,7 @@ private fun SuccessScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(weightOne))
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onContinueThrottled,
