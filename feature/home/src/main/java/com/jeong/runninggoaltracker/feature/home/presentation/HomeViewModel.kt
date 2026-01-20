@@ -3,6 +3,9 @@ package com.jeong.runninggoaltracker.feature.home.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_ZERO_DOUBLE
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_ZERO_FLOAT
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_ZERO_INT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,11 +20,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
-    val weeklyGoalKm: Double = 0.0,
-    val totalThisWeekKm: Double = 0.0,
-    val remainingKm: Float = 0f,
-    val recordCountThisWeek: Int = 0,
-    val progress: Float = 0f,
+    val weeklyGoalKm: Double = HOME_ZERO_DOUBLE,
+    val totalThisWeekKm: Double = HOME_ZERO_DOUBLE,
+    val remainingKm: Float = HOME_ZERO_FLOAT,
+    val recordCountThisWeek: Int = HOME_ZERO_INT,
+    val progress: Float = HOME_ZERO_FLOAT,
     val activityLabelResId: Int? = null,
     val recentActivities: List<HomeRecentActivityUiModel> = emptyList()
 )
@@ -39,7 +42,7 @@ class HomeViewModel @Inject constructor(
 
     private val activityState = MutableStateFlow(ActivityRecognitionUiState())
     private val activityLogs = MutableStateFlow<List<ActivityLogUiModel>>(emptyList())
-    private val recentActivityMaxCount = MutableStateFlow(0)
+    private val recentActivityMaxCount = MutableStateFlow(HOME_ZERO_INT)
     private var activityStateJob: Job? = null
     private var activityLogsJob: Job? = null
 
@@ -53,10 +56,11 @@ class HomeViewModel @Inject constructor(
             activityLogs,
             recentActivityMaxCount
         ) { summary, currentActivityState, logs, maxCount ->
-            val weeklyGoalKm = summary.weeklyGoalKm ?: 0.0
+            val weeklyGoalKm = summary.weeklyGoalKm ?: HOME_ZERO_DOUBLE
             val totalThisWeekKm = summary.totalThisWeekKm
-            val remainingKm = (weeklyGoalKm - totalThisWeekKm).coerceAtLeast(0.0).toFloat()
-            val recentActivities = if (maxCount > 0) {
+            val remainingKm =
+                (weeklyGoalKm - totalThisWeekKm).coerceAtLeast(HOME_ZERO_DOUBLE).toFloat()
+            val recentActivities = if (maxCount > HOME_ZERO_INT) {
                 logs.takeLast(maxCount)
                     .asReversed()
                     .map { log ->
