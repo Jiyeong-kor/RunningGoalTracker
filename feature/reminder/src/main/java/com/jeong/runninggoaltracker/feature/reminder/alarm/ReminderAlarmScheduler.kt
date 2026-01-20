@@ -21,14 +21,12 @@ class ReminderAlarmScheduler @Inject constructor(
     private val alarmManager: AlarmManager =
         context.getSystemService(AlarmManager::class.java)
 
-    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int {
-        val base = ReminderAlarmContract.REQUEST_CODE_BASE
-        val idMultiplier = ReminderAlarmContract.REQUEST_CODE_ID_MULTIPLIER
-        val hourMultiplier = ReminderAlarmContract.REQUEST_CODE_HOUR_MULTIPLIER
-        val minuteMultiplier = ReminderAlarmContract.REQUEST_CODE_MINUTE_MULTIPLIER
-
-        return base + id * idMultiplier + hour * hourMultiplier + minute * minuteMultiplier + dayOfWeek
-    }
+    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int =
+        ReminderAlarmContract.REQUEST_CODE_BASE +
+                id * ReminderAlarmContract.REQUEST_CODE_ID_MULTIPLIER +
+                hour * ReminderAlarmContract.REQUEST_CODE_HOUR_MULTIPLIER +
+                minute * ReminderAlarmContract.REQUEST_CODE_MINUTE_MULTIPLIER +
+                dayOfWeek
 
     private fun createPendingIntent(
         id: Int,
