@@ -29,11 +29,17 @@ object NotificationPermissionGate {
         }
 
     fun canPostNotifications(context: Context): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED && areNotificationsEnabled(context)
+        } else {
+            areNotificationsEnabled(context)
+        }
+
+    private fun areNotificationsEnabled(context: Context): Boolean =
+        NotificationManagerCompat.from(context).areNotificationsEnabled()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun notifyBoundary(
