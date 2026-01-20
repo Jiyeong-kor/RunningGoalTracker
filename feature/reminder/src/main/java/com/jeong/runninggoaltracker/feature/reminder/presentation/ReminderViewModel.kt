@@ -17,10 +17,10 @@ import javax.inject.Inject
 
 data class ReminderUiState(
     val id: Int,
-    val hour: Int = 20,
-    val minute: Int = 0,
-    val enabled: Boolean = false,
-    val days: Set<Int> = emptySet()
+    val hour: Int,
+    val minute: Int,
+    val enabled: Boolean,
+    val days: Set<Int>
 )
 
 data class ReminderListUiState(
