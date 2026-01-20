@@ -3,6 +3,9 @@ package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
+import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.PostureWarningEvent
 import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
@@ -31,9 +34,10 @@ class AiCoachViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SmartWorkoutUiState())
     val uiState: StateFlow<SmartWorkoutUiState> = _uiState.asStateFlow()
-    private val _speechEvents = MutableSharedFlow<PostureFeedbackType>(extraBufferCapacity = 1)
+    private val _speechEvents = MutableSharedFlow<SmartWorkoutSpeechEvent>(extraBufferCapacity = 1)
     val speechEvents = _speechEvents.asSharedFlow()
     private var lastSpokenType: PostureFeedbackType? = null
+    private var lastSpokenKey: String? = null
     private var lastSpokenTimestampMs: Long = SmartWorkoutSpeechContract.DEFAULT_COOLDOWN_MS
     private var speechCooldownMs: Long = SmartWorkoutSpeechContract.DEFAULT_COOLDOWN_MS
     private var lastAttemptActive: Boolean? = null
@@ -58,7 +62,13 @@ class AiCoachViewModel @Inject constructor(
                     )
                 }
                 val feedbackTypeForUi = analysis.feedbackEvent?.let { feedbackType ->
-                    if (handleSpeechFeedback(feedbackType, frame.timestampMs)) {
+                    if (handleSpeechFeedback(
+                            feedbackType = feedbackType,
+                            feedbackKeys = analysis.feedbackKeys,
+                            exerciseType = _uiState.value.exerciseType,
+                            timestampMs = frame.timestampMs
+                        )
+                    ) {
                         feedbackType
                     } else {
                         null
@@ -77,6 +87,7 @@ class AiCoachViewModel @Inject constructor(
                     current.copy(
                         repCount = analysis.repCount.value,
                         feedbackType = feedbackTypeForUi ?: current.feedbackType,
+                        feedbackKeys = analysis.feedbackKeys,
                         accuracy = analysis.feedback.accuracy,
                         isPerfectForm = analysis.feedback.isPerfectForm,
                         poseFrame = frame,
@@ -93,6 +104,25 @@ class AiCoachViewModel @Inject constructor(
     fun updateDebugOverlay(isVisible: Boolean) =
         _uiState.update { current -> current.copy(isDebugOverlayVisible = isVisible) }
 
+    fun updateExerciseType(exerciseType: ExerciseType) {
+        _uiState.update { current ->
+            if (current.exerciseType == exerciseType) {
+                current
+            } else {
+                current.copy(
+                    exerciseType = exerciseType,
+                    repCount = SQUAT_INT_ZERO,
+                    feedbackType = PostureFeedbackType.UNKNOWN,
+                    feedbackKeys = emptyList(),
+                    accuracy = SQUAT_FLOAT_ZERO,
+                    isPerfectForm = false
+                )
+            }
+        }
+        lastSpokenType = null
+        lastSpokenKey = null
+    }
+
     override fun onCleared() {
         poseDetector.clear()
         super.onCleared()
@@ -100,15 +130,25 @@ class AiCoachViewModel @Inject constructor(
 
     private fun handleSpeechFeedback(
         feedbackType: PostureFeedbackType,
+        feedbackKeys: List<String>,
+        exerciseType: ExerciseType,
         timestampMs: Long
     ): Boolean {
         val lastType = lastSpokenType
-        val isChanged = lastType != feedbackType
+        val key = feedbackKeys.firstOrNull()
+        val isChanged = lastType != feedbackType || lastSpokenKey != key
         val elapsedMs = timestampMs - lastSpokenTimestampMs
         val shouldEmit = isChanged || elapsedMs >= speechCooldownMs
         if (shouldEmit) {
-            _speechEvents.tryEmit(feedbackType)
+            _speechEvents.tryEmit(
+                SmartWorkoutSpeechEvent(
+                    feedbackType = feedbackType,
+                    feedbackKeys = feedbackKeys,
+                    exerciseType = exerciseType
+                )
+            )
             lastSpokenType = feedbackType
+            lastSpokenKey = key
             lastSpokenTimestampMs = timestampMs
             logFeedbackEvent(feedbackType, timestampMs)
         }

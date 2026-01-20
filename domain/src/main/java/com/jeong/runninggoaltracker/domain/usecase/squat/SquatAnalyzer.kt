@@ -89,7 +89,9 @@ class SquatAnalyzer(
                 feedbackEvent = fullBodyState.feedbackEvent,
                 frameMetrics = null,
                 repSummary = null,
+                lungeRepSummary = null,
                 warningEvent = null,
+                feedbackKeys = emptyList(),
                 skippedLowConfidence = skippedLowConfidence
             )
         }
@@ -191,7 +193,9 @@ class SquatAnalyzer(
             feedbackEvent = feedbackEvent,
             frameMetrics = frameMetrics,
             repSummary = feedbackResult.repSummary,
+            lungeRepSummary = null,
             warningEvent = warningEvent,
+            feedbackKeys = emptyList(),
             skippedLowConfidence = skippedLowConfidence
         )
     }

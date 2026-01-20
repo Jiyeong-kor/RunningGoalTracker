@@ -13,6 +13,7 @@ data class SmartWorkoutUiState(
     val exerciseType: ExerciseType = ExerciseType.SQUAT,
     val repCount: Int = SQUAT_INT_ZERO,
     val feedbackType: PostureFeedbackType = PostureFeedbackType.UNKNOWN,
+    val feedbackKeys: List<String> = emptyList(),
     val accuracy: Float = SQUAT_FLOAT_ZERO,
     val isPerfectForm: Boolean = false,
     val poseFrame: PoseFrame? = null,

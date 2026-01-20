@@ -6,6 +6,8 @@ data class PoseAnalysisResult(
     val feedbackEvent: PostureFeedbackType?,
     val frameMetrics: SquatFrameMetrics?,
     val repSummary: SquatRepSummary?,
+    val lungeRepSummary: LungeRepSummary?,
     val warningEvent: PostureWarningEvent?,
+    val feedbackKeys: List<String>,
     val skippedLowConfidence: Boolean
 )

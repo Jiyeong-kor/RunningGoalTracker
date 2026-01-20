@@ -8,6 +8,7 @@ import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PostureFeedback
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.RepCount
+import com.jeong.runninggoaltracker.domain.usecase.lunge.LungeAnalyzer
 import com.jeong.runninggoaltracker.domain.usecase.squat.SquatAnalyzer
 import javax.inject.Inject
 
@@ -18,7 +19,7 @@ interface ExerciseAnalyzer {
 class ProcessPoseUseCase @Inject constructor() {
     private val analyzers: Map<ExerciseType, ExerciseAnalyzer> = mapOf(
         ExerciseType.SQUAT to SquatAnalyzer(),
-        ExerciseType.LUNGE to SquatAnalyzer(),
+        ExerciseType.LUNGE to LungeAnalyzer(),
         ExerciseType.PUSH_UP to SquatAnalyzer()
     )
 
@@ -35,7 +36,9 @@ class ProcessPoseUseCase @Inject constructor() {
                 feedbackEvent = null,
                 frameMetrics = null,
                 repSummary = null,
+                lungeRepSummary = null,
                 warningEvent = null,
+                feedbackKeys = emptyList(),
                 skippedLowConfidence = false
             )
 }

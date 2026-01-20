@@ -10,6 +10,13 @@
     <string name="smart_workout_feedback_stand_tall">자세를 바르게 세워주세요</string>
     <string name="smart_workout_feedback_not_in_frame">전신이 화면에 들어오게 해주세요</string>
     <string name="smart_workout_feedback_unknown">자세를 인식 중입니다</string>
+    <string name="smart_workout_feedback_lunge_shallow_front">앞쪽 무릎을 더 굽혀주세요</string>
+    <string name="smart_workout_feedback_lunge_deep_front">앞쪽 무릎을 너무 깊게 굽히지 마세요</string>
+    <string name="smart_workout_feedback_lunge_shallow_back">뒤쪽 무릎을 더 낮춰주세요</string>
+    <string name="smart_workout_feedback_lunge_knee_forward">앞 무릎이 발끝을 많이 넘지 않게 해주세요</string>
+    <string name="smart_workout_feedback_lunge_torso_lean">상체를 과하게 숙이지 마세요</string>
+    <string name="smart_workout_feedback_lunge_knee_collapse">무릎이 안쪽으로 무너지지 않게 해주세요</string>
+    <string name="smart_workout_feedback_lunge_unstable">몸의 흔들림을 줄여주세요</string>
     <string name="smart_workout_rep_count_value">%1$d</string>
     <string name="smart_workout_accuracy_label">정확도 %1$d%%</string>
     <string name="smart_workout_debug_toggle">디버그 오버레이</string>
