@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.auth.presentation
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -116,7 +115,9 @@ fun OnboardingScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 OnboardingEffect.OpenSettings -> {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    val intent = Intent(
+                        PermissionSettingsContract.ACTION_APPLICATION_DETAILS_SETTINGS
+                    ).apply {
                         data = Uri.fromParts(
                             PermissionSettingsContract.PACKAGE_URI_SCHEME,
                             context.packageName,
