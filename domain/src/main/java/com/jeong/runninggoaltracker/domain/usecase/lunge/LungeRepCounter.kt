@@ -4,6 +4,7 @@ import com.jeong.runninggoaltracker.domain.contract.LUNGE_INT_ONE
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_INT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_REASON_DOWN_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_REASON_UP_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
 import com.jeong.runninggoaltracker.domain.model.SquatState
@@ -51,11 +52,12 @@ class LungeRepCounter(
         val trunkTiltEma = metrics?.let { trunkTiltFilter.update(it.trunkTiltVerticalAngle) }
             ?: trunkTiltFilter.current()
         val kneeRaw = lastKneeRaw
-        val trunkTiltRaw = lastTrunkTiltRaw
-        if (kneeAngleEma == null || trunkTiltEma == null || kneeRaw == null || trunkTiltRaw == null) {
+        val trunkTiltRaw = lastTrunkTiltRaw ?: LUNGE_FLOAT_ZERO
+        val trunkTiltEmaValue = trunkTiltEma ?: trunkTiltRaw
+        if (kneeAngleEma == null || kneeRaw == null) {
             return null
         }
-        val isReliable = metrics != null
+        val isReliable = frontKneeAngle != null
         val stateResult = stateMachine.update(kneeAngleEma, isReliable)
         val newPhase = if (stateResult.state == SquatState.DESCENDING ||
             stateResult.state == SquatState.BOTTOM
@@ -91,7 +93,7 @@ class LungeRepCounter(
             kneeAngleRaw = kneeRaw,
             kneeAngleEma = kneeAngleEma,
             trunkTiltVerticalRaw = trunkTiltRaw,
-            trunkTiltVerticalEma = trunkTiltEma,
+            trunkTiltVerticalEma = trunkTiltEmaValue,
             isReliable = isReliable,
             transition = transition,
             upCandidateFrames = upCandidateFrames,

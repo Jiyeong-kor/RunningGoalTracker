@@ -56,9 +56,15 @@ class LungeAnalyzer(
     override fun analyze(frame: PoseFrame): PoseAnalysisResult {
         val metrics = metricsCalculator.calculate(frame)
         val fullBodyState = updateFullBodyVisibility(frame)
-        val leadLeg = leadLegSelector.update(metrics) ?: PoseSide.LEFT
-        val frontKneeAngle = metrics?.let { frontKneeAngle(it, leadLeg) }
-        val backKneeAngle = metrics?.let { backKneeAngle(it, leadLeg) }
+        val leftKneeAngle =
+            metrics?.leftKneeAngle ?: metricsCalculator.kneeAngle(frame, PoseSide.LEFT)
+        val rightKneeAngle =
+            metrics?.rightKneeAngle ?: metricsCalculator.kneeAngle(frame, PoseSide.RIGHT)
+        val leadLeg = leadLegSelector.update(metrics)
+            ?: leadLegFromAngles(leftKneeAngle, rightKneeAngle)
+            ?: PoseSide.LEFT
+        val frontKneeAngle = if (leadLeg == PoseSide.LEFT) leftKneeAngle else rightKneeAngle
+        val backKneeAngle = if (leadLeg == PoseSide.LEFT) rightKneeAngle else leftKneeAngle
         val counterResult = repCounter.update(frame.timestampMs, metrics, frontKneeAngle)
         val skippedLowConfidence = metrics == null
         if (counterResult == null) {
@@ -84,7 +90,7 @@ class LungeAnalyzer(
                 skippedLowConfidence = skippedLowConfidence
             )
         }
-        updateRepTracking(counterResult, metrics, frontKneeAngle, backKneeAngle, leadLeg, frame)
+        updateRepTracking(counterResult, metrics, frontKneeAngle, backKneeAngle, leadLeg)
         val feedbackResult =
             handleFeedback(counterResult, metrics, frontKneeAngle, backKneeAngle, leadLeg, frame)
         val feedbackSummary = feedbackResult.repSummary ?: feedbackResult.bottomSummary
@@ -175,8 +181,7 @@ class LungeAnalyzer(
         metrics: LungeRawMetrics?,
         frontKneeAngle: Float?,
         backKneeAngle: Float?,
-        leadLeg: PoseSide,
-        frame: PoseFrame
+        leadLeg: PoseSide
     ) {
         if (counterResult.phase == SquatPhase.DOWN && previousPhase == SquatPhase.UP) {
             resetRepTracking()
@@ -195,7 +200,7 @@ class LungeAnalyzer(
                 updateMaxRatio(repMaxKneeForwardRatio, frontKneeForwardRatio(metrics, leadLeg))
             repMaxKneeCollapseRatio =
                 updateMaxRatio(repMaxKneeCollapseRatio, frontKneeCollapseRatio(metrics, leadLeg))
-            updateStability(frame, metrics)
+            updateStability(metrics)
         }
     }
 
@@ -259,9 +264,8 @@ class LungeAnalyzer(
         )
     }
 
-    private fun updateStability(frame: PoseFrame, metrics: LungeRawMetrics) {
-        val width = frame.imageWidth.toFloat()
-        if (width == LUNGE_FLOAT_ZERO) return
+    private fun updateStability(metrics: LungeRawMetrics) {
+        val width = LUNGE_FLOAT_ONE
         hipStats.update(metrics.hipCenterX / width)
         shoulderStats.update(metrics.shoulderCenterX / width)
     }
@@ -305,6 +309,15 @@ class LungeAnalyzer(
         metrics?.let {
             if (leadLeg == PoseSide.LEFT) it.leftKneeCollapseRatio else it.rightKneeCollapseRatio
         }
+
+    private fun leadLegFromAngles(leftKneeAngle: Float?, rightKneeAngle: Float?): PoseSide? = when {
+        leftKneeAngle == null && rightKneeAngle == null -> null
+        rightKneeAngle == null -> PoseSide.LEFT
+        leftKneeAngle == null -> PoseSide.RIGHT
+        leftKneeAngle < rightKneeAngle -> PoseSide.LEFT
+        rightKneeAngle < leftKneeAngle -> PoseSide.RIGHT
+        else -> null
+    }
 
     private fun feedbackTypeForKey(key: String): PostureFeedbackType = when (key) {
         LUNGE_DEPTH_TOO_SHALLOW_FRONT,

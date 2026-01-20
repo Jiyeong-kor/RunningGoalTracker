@@ -1,11 +1,13 @@
 package com.jeong.runninggoaltracker.domain.usecase.lunge
 
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_HALF
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_MIN_LANDMARK_CONFIDENCE
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmark
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
+import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.usecase.squat.AngleCalculator
 import kotlin.math.abs
 
@@ -45,13 +47,11 @@ class LungeMetricsCalculator(
         val midHip = midpoint(leftHip, rightHip)
         val trunkTiltVerticalAngle = angleCalculator.trunkTiltVerticalAngle(midShoulder, midHip)
             ?: return null
-        val frameWidth = frame.imageWidth.toFloat()
+        val frameWidth = LUNGE_FLOAT_ONE
         val leftKneeForwardRatio = ratio(abs(leftKnee.x - leftAnkle.x), frameWidth)
         val rightKneeForwardRatio = ratio(abs(rightKnee.x - rightAnkle.x), frameWidth)
-        val collapseRatios = if (frameWidth == LUNGE_FLOAT_ZERO) {
-            Pair(null, null)
-        } else {
-            val centerX = frameWidth * LUNGE_FLOAT_HALF
+        val collapseRatios = run {
+            val centerX = LUNGE_FLOAT_HALF
             val leftCollapse = collapseRatio(leftKnee, leftAnkle, centerX, frameWidth)
             val rightCollapse = collapseRatio(rightKnee, rightAnkle, centerX, frameWidth)
             Pair(leftCollapse, rightCollapse)
@@ -69,6 +69,28 @@ class LungeMetricsCalculator(
             hipCenterX = midHip.x,
             shoulderCenterX = midShoulder.x
         )
+    }
+
+    fun kneeAngle(frame: PoseFrame, side: PoseSide): Float? {
+        val hip = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_HIP)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_HIP)
+        }
+        val knee = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_KNEE)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_KNEE)
+        }
+        val ankle = if (side == PoseSide.LEFT) {
+            frame.landmark(PoseLandmarkType.LEFT_ANKLE)
+        } else {
+            frame.landmark(PoseLandmarkType.RIGHT_ANKLE)
+        }
+        if (hip == null || knee == null || ankle == null) return null
+        val minConfidenceValue = listOf(hip, knee, ankle).minOf { it.confidence }
+        if (minConfidenceValue < minConfidence) return null
+        return angleCalculator.kneeAngle(hip, knee, ankle)
     }
 
     private fun midpoint(first: PoseLandmark, second: PoseLandmark): PoseLandmark =
