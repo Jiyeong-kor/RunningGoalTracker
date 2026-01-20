@@ -6,6 +6,11 @@ import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import javax.inject.Inject
 
+private const val MIN_WEEKLY_GOAL_KM = 0.0
+private const val MIN_PROGRESS_BOUND = 0.0
+private const val MAX_PROGRESS_BOUND = 1.0
+private const val ZERO_PROGRESS = 0f
+
 interface RunningSummaryCalculator {
     fun calculate(
         goal: RunningGoal?,
@@ -31,12 +36,12 @@ class WeeklySummaryCalculator @Inject constructor(private val dateProvider: Date
         val count = thisWeekRecords.size
         val weeklyGoalKm = goal?.weeklyGoalKm
 
-        val progress = if (weeklyGoalKm != null && weeklyGoalKm > 0.0) {
+        val progress = if (weeklyGoalKm != null && weeklyGoalKm > MIN_WEEKLY_GOAL_KM) {
             (totalKm / weeklyGoalKm)
-                .coerceIn(0.0, 1.0)
+                .coerceIn(MIN_PROGRESS_BOUND, MAX_PROGRESS_BOUND)
                 .toFloat()
         } else {
-            0f
+            ZERO_PROGRESS
         }
 
         return RunningSummary(
