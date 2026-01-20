@@ -62,7 +62,6 @@ object DataProvidesModule {
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }
 
-@Suppress("unused")
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataBindsModule {
