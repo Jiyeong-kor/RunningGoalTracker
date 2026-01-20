@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.feature.home.presentation
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
@@ -25,7 +26,7 @@ data class HomeUiState(
     val remainingKm: Float = HOME_ZERO_FLOAT,
     val recordCountThisWeek: Int = HOME_ZERO_INT,
     val progress: Float = HOME_ZERO_FLOAT,
-    val activityLabelResId: Int? = null,
+    @field:StringRes val activityLabelResId: Int? = null,
     val recentActivities: List<HomeRecentActivityUiModel> = emptyList()
 )
 
@@ -113,6 +114,5 @@ class HomeViewModel @Inject constructor(
 
     fun onReminderClick() = emitEffect(HomeUiEffect.NavigateToReminder)
 
-    private fun emitEffect(effect: HomeUiEffect) =
-        viewModelScope.launch { _effect.emit(effect) }
+    private fun emitEffect(effect: HomeUiEffect) = viewModelScope.launch { _effect.emit(effect) }
 }
