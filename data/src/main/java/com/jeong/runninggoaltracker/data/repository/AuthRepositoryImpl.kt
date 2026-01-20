@@ -9,8 +9,9 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
-import com.jeong.runninggoaltracker.data.contract.FirestoreFields
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.UserFirestoreFields
+import com.jeong.runninggoaltracker.data.contract.UsernameFirestoreFields
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
@@ -57,18 +58,18 @@ class AuthRepositoryImpl @Inject constructor(
                 }
                 val now = Timestamp.now()
                 val usernameData = mapOf(
-                    FirestoreFields.UID to uid,
-                    FirestoreFields.CREATED_AT to now,
-                    FirestoreFields.LAST_ACTIVE_AT to now,
-                    FirestoreFields.IS_ANONYMOUS to user.isAnonymous
+                    UsernameFirestoreFields.UID to uid,
+                    UsernameFirestoreFields.CREATED_AT to now,
+                    UsernameFirestoreFields.LAST_ACTIVE_AT to now,
+                    UsernameFirestoreFields.IS_ANONYMOUS to user.isAnonymous
                 )
                 val userData = mapOf(
-                    FirestoreFields.UID to uid,
-                    FirestoreFields.NICKNAME to nickname,
-                    FirestoreFields.NORMALIZED_NICKNAME to normalizedNickname,
-                    FirestoreFields.CREATED_AT to now,
-                    FirestoreFields.LAST_ACTIVE_AT to now,
-                    FirestoreFields.IS_ANONYMOUS to user.isAnonymous
+                    UserFirestoreFields.UID to uid,
+                    UserFirestoreFields.NICKNAME to nickname,
+                    UserFirestoreFields.NORMALIZED_NICKNAME to normalizedNickname,
+                    UserFirestoreFields.CREATED_AT to now,
+                    UserFirestoreFields.LAST_ACTIVE_AT to now,
+                    UserFirestoreFields.IS_ANONYMOUS to user.isAnonymous
                 )
                 transaction.set(usernameDocRef, usernameData)
                 transaction.set(userDocRef, userData, SetOptions.merge())
@@ -104,15 +105,15 @@ class AuthRepositoryImpl @Inject constructor(
             firestore.runTransaction { transaction ->
                 val userSnapshot = transaction.get(userDocRef)
                 val normalizedNickname =
-                    userSnapshot.getString(FirestoreFields.NORMALIZED_NICKNAME)
-                        ?: userSnapshot.getString(FirestoreFields.NICKNAME)
+                    userSnapshot.getString(UserFirestoreFields.NORMALIZED_NICKNAME)
+                        ?: userSnapshot.getString(UserFirestoreFields.NICKNAME)
                             ?.let { NicknameNormalizer.normalize(it) }
                         ?: user.displayName?.let { NicknameNormalizer.normalize(it) }
                 normalizedNickname?.let { nickname ->
                     val usernameDocRef =
                         firestore.collection(FirestorePaths.COLLECTION_USERNAMES).document(nickname)
                     val usernameSnapshot = transaction.get(usernameDocRef)
-                    val usernameOwner = usernameSnapshot.getString(FirestoreFields.UID)
+                    val usernameOwner = usernameSnapshot.getString(UsernameFirestoreFields.UID)
                     if (usernameSnapshot.exists() && usernameOwner == uid) {
                         transaction.delete(usernameDocRef)
                     }

@@ -1,9 +1,16 @@
 package com.jeong.runninggoaltracker.data.contract
 
-object FirestoreFields {
+object UserFirestoreFields {
     const val UID = "uid"
     const val NICKNAME = "nickname"
     const val NORMALIZED_NICKNAME = "normalizedNickname"
+    const val CREATED_AT = "createdAt"
+    const val LAST_ACTIVE_AT = "lastActiveAt"
+    const val IS_ANONYMOUS = "isAnonymous"
+}
+
+object UsernameFirestoreFields {
+    const val UID = "uid"
     const val CREATED_AT = "createdAt"
     const val LAST_ACTIVE_AT = "lastActiveAt"
     const val IS_ANONYMOUS = "isAnonymous"
