@@ -6,6 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 interface ActivityStateUpdater {
     fun update(status: ActivityRecognitionStatus)
@@ -17,9 +18,6 @@ class ActivityRecognitionStateHolder @Inject constructor() : ActivityStateUpdate
     private val _state = MutableStateFlow(ActivityState())
     val state: StateFlow<ActivityState> = _state
 
-    override fun update(status: ActivityRecognitionStatus) {
-        _state.value = ActivityState(
-            status = status,
-        )
-    }
+    override fun update(status: ActivityRecognitionStatus) =
+        _state.update { ActivityState(status = status) }
 }
