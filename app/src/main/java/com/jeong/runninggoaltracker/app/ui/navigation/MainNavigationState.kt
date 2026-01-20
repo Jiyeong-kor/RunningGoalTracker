@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,5 +40,5 @@ data class MainNavigationState(
     val currentDestination: NavDestination?,
     val currentScreen: MainScreen?,
     val activeTab: MainTabItem?,
-    val titleResId: Int?,
+    @field:StringRes val titleResId: Int?,
 )

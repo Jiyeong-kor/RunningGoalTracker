@@ -15,6 +15,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
+import com.jeong.runninggoaltracker.shared.navigation.isBottomTab
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick

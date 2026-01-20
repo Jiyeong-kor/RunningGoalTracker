@@ -3,6 +3,8 @@ package com.jeong.runninggoaltracker.app.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -20,7 +22,7 @@ fun MainContainerRoute(
 ) {
     val viewModel = hiltViewModel<MainNavigationViewModel>()
     val navController = rememberNavController()
-    val tabItemsByTab = viewModel.tabItemsByTab
+    val tabItemsByTab by viewModel.tabItemsByTab.collectAsState()
     val navigationState = rememberMainNavigationState(
         navController = navController,
         tabItemsByTab = tabItemsByTab
