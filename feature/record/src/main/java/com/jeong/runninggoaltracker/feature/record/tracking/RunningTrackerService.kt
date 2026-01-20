@@ -145,10 +145,11 @@ class RunningTrackerService : Service() {
             return
         }
 
+        val updateIntervalMillis = updateIntervalMillis()
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            updateIntervalMillis()
-        ).setMinUpdateIntervalMillis(updateIntervalMillis())
+            updateIntervalMillis
+        ).setMinUpdateIntervalMillis(updateIntervalMillis)
             .setMinUpdateDistanceMeters(minDistanceMeters())
             .build()
 
