@@ -69,14 +69,33 @@ fun OnboardingScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
-        val allGranted = results.values.all { it }
+        val locationGranted =
+            results[android.Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                    results[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        val allGranted = results.all { (permission, granted) ->
+            if (permission == android.Manifest.permission.ACCESS_FINE_LOCATION ||
+                permission == android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) {
+                locationGranted
+            } else {
+                granted
+            }
+        }
         val permanentlyDenied =
             if (allGranted) {
                 false
             } else {
                 activity?.let { currentActivity ->
                     results.any { (permission, granted) ->
-                        !granted &&
+                        val shouldCheckPermanentlyDenied =
+                            if (permission == android.Manifest.permission.ACCESS_FINE_LOCATION ||
+                                permission == android.Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) {
+                                !locationGranted
+                            } else {
+                                !granted
+                            }
+                        shouldCheckPermanentlyDenied &&
                                 !ActivityCompat.shouldShowRequestPermissionRationale(
                                     currentActivity,
                                     permission
