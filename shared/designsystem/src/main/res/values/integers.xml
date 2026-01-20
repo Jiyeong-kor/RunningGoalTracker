@@ -12,5 +12,6 @@
     <integer name="percentage_fraction_digits">0</integer>
     <integer name="percentage_scale">100</integer>
     <integer name="progress_bar_background_alpha_percent">70</integer>
+    <integer name="progress_bar_corner_divisor">2</integer>
     <integer name="throttle_click_interval_millis">500</integer>
 </resources>

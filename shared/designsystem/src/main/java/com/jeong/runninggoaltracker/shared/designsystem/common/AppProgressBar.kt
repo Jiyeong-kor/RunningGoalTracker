@@ -25,15 +25,17 @@ fun AppProgressBar(
     foregroundColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val resolvedHeight = height ?: dimensionResource(R.dimen.progress_bar_height)
+    val percentScale = integerResource(R.integer.percentage_scale).toFloat()
+    val cornerDivisor = integerResource(R.integer.progress_bar_corner_divisor).toFloat()
     val backgroundAlpha =
-        integerResource(R.integer.progress_bar_background_alpha_percent) / 100f
+        integerResource(R.integer.progress_bar_background_alpha_percent).toFloat() / percentScale
     val resolvedBackgroundColor =
         backgroundColor ?: MaterialTheme.colorScheme.surfaceContainer.copy(alpha = backgroundAlpha)
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(resolvedHeight)
-            .clip(RoundedCornerShape(resolvedHeight / 2))
+            .clip(RoundedCornerShape(resolvedHeight / cornerDivisor))
             .background(resolvedBackgroundColor)
     ) {
         Box(
