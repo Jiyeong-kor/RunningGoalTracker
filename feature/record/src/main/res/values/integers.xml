@@ -1,5 +1,4 @@
 <resources>
-    <integer name="record_seconds_per_minute">60</integer>
     <integer name="record_alpha_denominator">100</integer>
     <integer name="record_accent_alpha_weak">5</integer>
     <integer name="record_accent_alpha_strong">30</integer>

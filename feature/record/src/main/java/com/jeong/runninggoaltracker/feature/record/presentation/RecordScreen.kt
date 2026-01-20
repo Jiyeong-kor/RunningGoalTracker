@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
@@ -50,9 +49,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 @Composable
 fun RecordRoute(
@@ -78,10 +75,6 @@ fun RecordScreen(
     onStopTracking: () -> Unit,
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
-    val context = LocalContext.current
-    val zeroLong = NumericResourceProvider.zeroLong(context)
-    val zeroDouble = NumericResourceProvider.zeroDouble(context)
-    val secondsPerMinute = integerResource(R.integer.record_seconds_per_minute)
     val alphaDenominator = integerResource(R.integer.record_alpha_denominator)
     val fullWeight = integerResource(R.integer.record_weight_full).toFloat()
     val accentAlphaWeak = integerResource(R.integer.record_accent_alpha_weak).toFloat() /
@@ -111,15 +104,29 @@ fun RecordScreen(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val onAccent = appOnAccentColor()
-    val paceLabel = formatPace(
-        distanceKm = uiState.distanceKm,
-        elapsedMillis = uiState.elapsedMillis,
-        paceZero = stringResource(R.string.record_pace_zero),
-        paceFormat = stringResource(R.string.record_pace_format),
-        zeroDouble = zeroDouble,
-        zeroLong = zeroLong,
-        secondsPerMinute = secondsPerMinute
-    )
+    val paceLabel = if (uiState.pace.isAvailable) {
+        stringResource(
+            R.string.record_pace_format,
+            uiState.pace.minutes,
+            uiState.pace.seconds
+        )
+    } else {
+        stringResource(R.string.record_pace_zero)
+    }
+    val elapsedTimeLabel = if (uiState.elapsedTime.showHours) {
+        stringResource(
+            R.string.record_elapsed_time_hms_format,
+            uiState.elapsedTime.hours,
+            uiState.elapsedTime.minutes,
+            uiState.elapsedTime.seconds
+        )
+    } else {
+        stringResource(
+            R.string.record_elapsed_time_ms_format,
+            uiState.elapsedTime.minutes,
+            uiState.elapsedTime.seconds
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -176,7 +183,7 @@ fun RecordScreen(
         ) {
             MetricItem(
                 label = stringResource(R.string.record_metric_time),
-                value = formatElapsedTimeLabel(uiState.elapsedMillis, zeroLong),
+                value = elapsedTimeLabel,
                 modifier = Modifier.weight(fullWeight)
             )
             MetricItem(
@@ -335,40 +342,6 @@ private fun ActivityRecognitionStatus.toRecordLabel(): String =
 
         ActivityRecognitionStatus.Still ->
             stringResource(R.string.activity_still)
-    }
-
-private fun formatPace(
-    distanceKm: Double,
-    elapsedMillis: Long,
-    paceZero: String,
-    paceFormat: String,
-    zeroDouble: Double,
-    zeroLong: Long,
-    secondsPerMinute: Int
-): String {
-    if (distanceKm <= zeroDouble || elapsedMillis <= zeroLong) {
-        return paceZero
-    }
-    val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
-    val secondsPerKm = totalSeconds.toDouble() / distanceKm
-    val minutes = (secondsPerKm / secondsPerMinute).toInt()
-    val seconds = (secondsPerKm % secondsPerMinute).toInt()
-    return String.format(Locale.getDefault(), paceFormat, minutes, seconds)
-}
-
-@Composable
-private fun formatElapsedTimeLabel(elapsedMillis: Long, zeroLong: Long): String =
-    run {
-        val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
-        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
-        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) - TimeUnit.HOURS.toMinutes(hours)
-        val seconds =
-            totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
-        if (hours > zeroLong) {
-            stringResource(R.string.record_elapsed_time_hms_format, hours, minutes, seconds)
-        } else {
-            stringResource(R.string.record_elapsed_time_ms_format, minutes, seconds)
-        }
     }
 
 @Preview(showBackground = true)

@@ -10,6 +10,7 @@
     <string name="smart_workout_feedback_stand_tall">자세를 바르게 세워주세요</string>
     <string name="smart_workout_feedback_not_in_frame">전신이 화면에 들어오게 해주세요</string>
     <string name="smart_workout_feedback_unknown">자세를 인식 중입니다</string>
+    <string name="smart_workout_rep_count_value">%1$d</string>
     <string name="smart_workout_accuracy_label">정확도 %1$d%%</string>
     <string name="smart_workout_debug_toggle">디버그 오버레이</string>
     <string name="smart_workout_debug_knee_angle_raw">무릎 각도(원본) %.1f°</string>

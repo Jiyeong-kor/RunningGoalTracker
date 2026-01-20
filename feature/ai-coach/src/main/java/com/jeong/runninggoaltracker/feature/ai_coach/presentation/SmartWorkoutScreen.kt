@@ -238,7 +238,7 @@ fun SmartWorkoutScreen(
                 .padding(end = appSpacingXl())
         ) {
             Text(
-                text = uiState.repCount.toString(),
+                text = stringResource(R.string.smart_workout_rep_count_value, uiState.repCount),
                 color = textPrimary,
                 fontSize = repCountTextSize.value.sp,
                 fontStyle = FontStyle.Italic,

@@ -38,14 +38,19 @@ class ReminderScreenTest {
 
         composeRule.setContent {
             RunningGoalTrackerTheme {
+                val messageHandler = rememberUserMessageHandler()
+                val timeFormatter = rememberReminderTimeFormatter()
+                val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
                 ReminderScreen(
                     state = ReminderListUiState(reminders = listOf(reminder)),
-                    context = context,
                     onAddReminder = { addCalled = true },
                     onDeleteReminder = { deletedId = it },
                     onToggleReminder = { _, enabled -> toggleCalled = enabled },
                     onUpdateTime = { _, _, _ -> },
-                    onToggleDay = { id, day -> toggledDay = id to day }
+                    onToggleDay = { id, day -> toggledDay = id to day },
+                    messageHandler = messageHandler,
+                    timeFormatter = timeFormatter,
+                    daysOfWeekLabelProvider = daysOfWeekLabelProvider
                 )
             }
         }

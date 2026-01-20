@@ -142,8 +142,8 @@ fun ReminderScreen(
             contentPadding = PaddingValues(bottom = spacingLg),
             verticalArrangement = Arrangement.spacedBy(spacingMd)
         ) {
-            val list = state.reminders.filter { it.id != null }
-            items(count = list.size, key = { index -> list[index].id!! }) { index ->
+            val list = state.reminders
+            items(count = list.size, key = { index -> list[index].id }) { index ->
                 ReminderCard(
                     reminder = list[index],
                     onToggleReminder = onToggleReminder,
@@ -176,7 +176,7 @@ private fun ReminderCard(
     val textMuted = appTextMutedColor()
     val textPrimary = appTextPrimaryColor()
     val showTimePicker = remember { mutableStateOf(false) }
-    val id = reminder.id ?: return
+    val id = reminder.id
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
     val cardCornerRadius = dimensionResource(id = R.dimen.reminder_card_corner_radius)

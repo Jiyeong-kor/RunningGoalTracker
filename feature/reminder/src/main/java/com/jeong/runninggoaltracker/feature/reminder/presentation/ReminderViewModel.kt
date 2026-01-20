@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ReminderUiState(
-    val id: Int? = null,
+    val id: Int,
     val hour: Int = 20,
     val minute: Int = 0,
     val enabled: Boolean = false,
@@ -37,7 +37,9 @@ class ReminderViewModel @Inject constructor(
 
     val uiState: StateFlow<ReminderListUiState> =
         getRunningRemindersUseCase()
-            .map { reminders -> ReminderListUiState(reminders.map { it.toUiState() }) }
+            .map { reminders ->
+                ReminderListUiState(reminders.mapNotNull { it.toUiStateOrNull() })
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -55,8 +57,7 @@ class ReminderViewModel @Inject constructor(
     }
 
     fun deleteReminder(id: Int) {
-        val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
-            ?: return
+        val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomain() ?: return
 
         viewModelScope.launch {
             reminderSchedulingInteractor.deleteReminder(currentReminder)
@@ -77,7 +78,7 @@ class ReminderViewModel @Inject constructor(
         update: (RunningReminder) -> RunningReminder
     ) {
         val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
-        val currentRunningReminder = currentReminderUiState.toDomainOrNull() ?: return
+        val currentRunningReminder = currentReminderUiState.toDomain()
 
         val updatedReminder = update(currentRunningReminder).validateEnabledDays()
         if (updatedReminder == currentRunningReminder) return
@@ -98,14 +99,16 @@ class ReminderViewModel @Inject constructor(
         }
 }
 
-private fun RunningReminder.toUiState(): ReminderUiState =
-    ReminderUiState(
-        id = id,
+private fun RunningReminder.toUiStateOrNull(): ReminderUiState? {
+    val reminderId = id ?: return null
+    return ReminderUiState(
+        id = reminderId,
         hour = hour,
         minute = minute,
         enabled = enabled,
         days = days
     )
+}
 
 private fun ReminderUiState.toDomain(): RunningReminder =
     RunningReminder(
@@ -115,6 +118,3 @@ private fun ReminderUiState.toDomain(): RunningReminder =
         enabled = enabled,
         days = days
     )
-
-private fun ReminderUiState.toDomainOrNull(): RunningReminder? =
-    runCatching { toDomain() }.getOrNull()

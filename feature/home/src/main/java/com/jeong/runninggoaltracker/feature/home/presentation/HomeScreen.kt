@@ -63,12 +63,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun HomeRoute(
-    viewModel: HomeViewModel = hiltViewModel(),
     activityStateFlow: Flow<ActivityRecognitionUiState>,
     activityLogsFlow: Flow<List<ActivityLogUiModel>>,
     onNavigateToRecord: () -> Unit,
     onNavigateToGoal: () -> Unit,
-    onNavigateToReminder: () -> Unit
+    onNavigateToReminder: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val recentActivityMaxCount = integerResource(id = R.integer.home_recent_activity_max_count)
