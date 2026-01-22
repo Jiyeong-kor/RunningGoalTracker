@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingScreen
-import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.navigation.AuthRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
@@ -17,7 +16,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    activityRecognitionMonitor: ActivityRecognitionMonitor,
     modifier: Modifier = Modifier,
     viewModel: AppNavGraphViewModel = hiltViewModel()
 ) {
@@ -39,7 +37,6 @@ fun AppNavGraph(
             )
         }
         mainNavGraph(
-            activityRecognitionMonitor = activityRecognitionMonitor
         )
     }
 }

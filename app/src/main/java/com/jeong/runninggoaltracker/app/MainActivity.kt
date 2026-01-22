@@ -21,7 +21,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             RunningGoalTrackerTheme {
                 EntryPointScreen(
-                    activityRecognitionMonitor = activityRecognitionMonitor
                 )
             }
         }
