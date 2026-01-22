@@ -123,6 +123,7 @@ fun HomeScreen(
     val surfaceColor = appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
     val horizontalPadding = appSpacingLg()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -162,7 +163,7 @@ fun HomeScreen(
                     PeriodSegmentedTabs(
                         selectedPeriod = uiState.periodState,
                         onPeriodSelected = onPeriodSelected,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(weightOne)
                     )
                     IconButton(onClick = onCalendarClickThrottled) {
                         Icon(
@@ -437,6 +438,7 @@ private fun ActivityLogRow(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val surfaceColor = appSurfaceColor()
+    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
     val icon = when (activity.type) {
         HomeWorkoutType.RUNNING -> Icons.AutoMirrored.Filled.DirectionsRun
         HomeWorkoutType.SQUAT -> Icons.Default.FitnessCenter
@@ -473,7 +475,7 @@ private fun ActivityLogRow(
                 tint = textMuted
             )
         }
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(weightOne)) {
             Text(
                 text = stringResource(
                     R.string.home_activity_title_format,
@@ -541,6 +543,8 @@ private fun CalendarBottomSheet(
     val textMuted = appTextMutedColor()
     val accentColor = appAccentColor()
     val onAccentColor = appOnAccentColor()
+    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
+    val calendarColumnCount = integerResource(R.integer.home_calendar_column_count)
     val initialMonth = remember(selectedDateMillis) { yearMonthFromMillis(selectedDateMillis) }
     var visibleYear by rememberSaveable { mutableIntStateOf(initialMonth.year) }
     var visibleMonth by rememberSaveable { mutableIntStateOf(initialMonth.month) }
@@ -612,7 +616,7 @@ private fun CalendarBottomSheet(
                         text = stringResource(labelResId),
                         color = textMuted,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(weightOne),
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -620,7 +624,7 @@ private fun CalendarBottomSheet(
 
             val calendarDays = visibleState.buildCalendarDays()
             LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
+                columns = GridCells.Fixed(calendarColumnCount),
                 horizontalArrangement = Arrangement.spacedBy(appSpacingSm()),
                 verticalArrangement = Arrangement.spacedBy(appSpacingSm()),
                 modifier = Modifier.height(calendarGridHeight),
@@ -812,29 +816,47 @@ private fun yearMonthFromMillis(dateMillis: Long): YearMonthState {
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
+    val distanceScale = integerResource(R.integer.home_preview_distance_scale_tenths).toDouble()
+    val totalDistance =
+        integerResource(R.integer.home_preview_total_distance_tenths).toDouble() / distanceScale
+    val firstActivityDistance =
+        integerResource(R.integer.home_preview_activity_first_distance_tenths)
+            .toDouble() / distanceScale
+    val secondActivityDistance =
+        integerResource(R.integer.home_preview_activity_second_distance_tenths)
+            .toDouble() / distanceScale
+    val dayMillis = integerResource(R.integer.home_preview_day_millis).toLong()
     val uiState = HomeUiState(
         periodState = PeriodState.WEEKLY,
         selectedDateState = SelectedDateState(dateMillis = System.currentTimeMillis()),
         summary = HomeSummaryUiState(
-            totalDistanceKm = 12.5,
-            totalCalories = 740,
-            totalDurationMinutes = 85,
-            averagePace = HomePaceUiState(minutes = 6, seconds = 48, isAvailable = true)
+            totalDistanceKm = totalDistance,
+            totalCalories = integerResource(R.integer.home_preview_total_calories),
+            totalDurationMinutes = integerResource(R.integer.home_preview_total_duration_minutes),
+            averagePace = HomePaceUiState(
+                minutes = integerResource(R.integer.home_preview_average_pace_minutes),
+                seconds = integerResource(R.integer.home_preview_average_pace_seconds),
+                isAvailable = true
+            )
         ),
         activityLogs = listOf(
             HomeWorkoutLogUiModel(
-                id = 1,
+                id = integerResource(R.integer.home_preview_activity_first_id).toLong(),
                 timestamp = System.currentTimeMillis(),
-                distanceKm = 5.2,
-                durationMinutes = 32,
+                distanceKm = firstActivityDistance,
+                durationMinutes = integerResource(
+                    R.integer.home_preview_activity_first_duration_minutes
+                ),
                 type = HomeWorkoutType.RUNNING,
                 typeLabelResId = R.string.activity_running
             ),
             HomeWorkoutLogUiModel(
-                id = 2,
-                timestamp = System.currentTimeMillis() - 86_400_000L,
-                distanceKm = 0.0,
-                durationMinutes = 20,
+                id = integerResource(R.integer.home_preview_activity_second_id).toLong(),
+                timestamp = System.currentTimeMillis() - dayMillis,
+                distanceKm = secondActivityDistance,
+                durationMinutes = integerResource(
+                    R.integer.home_preview_activity_second_duration_minutes
+                ),
                 type = HomeWorkoutType.SQUAT,
                 typeLabelResId = R.string.home_activity_squat
             )

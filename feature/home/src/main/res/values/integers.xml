@@ -10,4 +10,18 @@
     <integer name="home_alpha_summary_metric_background_percent">10</integer>
     <integer name="home_numeric_zero">0</integer>
     <integer name="home_weight_one">1</integer>
+    <integer name="home_calendar_column_count">7</integer>
+    <integer name="home_preview_distance_scale_tenths">10</integer>
+    <integer name="home_preview_total_distance_tenths">125</integer>
+    <integer name="home_preview_total_calories">740</integer>
+    <integer name="home_preview_total_duration_minutes">85</integer>
+    <integer name="home_preview_average_pace_minutes">6</integer>
+    <integer name="home_preview_average_pace_seconds">48</integer>
+    <integer name="home_preview_activity_first_id">1</integer>
+    <integer name="home_preview_activity_first_distance_tenths">52</integer>
+    <integer name="home_preview_activity_first_duration_minutes">32</integer>
+    <integer name="home_preview_activity_second_id">2</integer>
+    <integer name="home_preview_activity_second_distance_tenths">0</integer>
+    <integer name="home_preview_activity_second_duration_minutes">20</integer>
+    <integer name="home_preview_day_millis">86400000</integer>
 </resources>

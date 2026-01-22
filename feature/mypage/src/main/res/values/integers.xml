@@ -2,4 +2,10 @@
 <resources>
     <integer name="mypage_numeric_zero">0</integer>
     <integer name="mypage_weight_one">1</integer>
+    <integer name="mypage_percent_base">100</integer>
+    <integer name="mypage_distance_scale_tenths">10</integer>
+    <integer name="mypage_preview_weekly_goal_km_tenths">150</integer>
+    <integer name="mypage_preview_total_week_km_tenths">95</integer>
+    <integer name="mypage_preview_record_count">3</integer>
+    <integer name="mypage_preview_progress_percent">63</integer>
 </resources>

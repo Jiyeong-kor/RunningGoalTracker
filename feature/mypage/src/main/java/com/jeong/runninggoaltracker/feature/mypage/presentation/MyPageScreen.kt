@@ -489,14 +489,24 @@ private fun MyPageScreenPreview() =
     RunningGoalTrackerTheme {
         val previewNickname = stringResource(id = R.string.mypage_default_nickname)
         val previewLevel = stringResource(id = R.string.mypage_default_level)
+        val distanceScale = integerResource(id = R.integer.mypage_distance_scale_tenths).toDouble()
+        val progressBase = integerResource(id = R.integer.mypage_percent_base).toFloat()
+        val weeklyGoalKm = integerResource(id = R.integer.mypage_preview_weekly_goal_km_tenths)
+            .toDouble() / distanceScale
+        val totalThisWeekKm =
+            integerResource(id = R.integer.mypage_preview_total_week_km_tenths).toDouble() /
+                    distanceScale
+        val progress =
+            integerResource(id = R.integer.mypage_preview_progress_percent).toFloat() / progressBase
         MyPageContent(
             uiState = MyPageUiState(
                 isLoading = false,
                 summary = RunningSummary(
-                    weeklyGoalKm = 15.0,
-                    totalThisWeekKm = 9.5,
-                    recordCountThisWeek = 3,
-                    progress = 0.63f
+                    weeklyGoalKm = weeklyGoalKm,
+                    totalThisWeekKm = totalThisWeekKm,
+                    recordCountThisWeek =
+                        integerResource(id = R.integer.mypage_preview_record_count),
+                    progress = progress
                 ),
                 userNickname = previewNickname,
                 userLevel = previewLevel,
