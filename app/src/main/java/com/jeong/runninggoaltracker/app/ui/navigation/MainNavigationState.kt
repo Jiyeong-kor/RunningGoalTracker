@@ -31,7 +31,8 @@ fun rememberMainNavigationState(
             currentDestination = currentDestination,
             currentScreen = currentScreen,
             activeTab = activeTab,
-            titleResId = currentScreen?.titleResId ?: activeTab?.titleResId
+            titleResId = currentScreen?.titleResId ?: activeTab?.titleResId,
+            showBackInTopBar = currentScreen?.showBackInTopBar == true
         )
     }
 }
@@ -41,4 +42,5 @@ data class MainNavigationState(
     val currentScreen: MainScreen?,
     val activeTab: MainTabItem?,
     @field:StringRes val titleResId: Int?,
+    val showBackInTopBar: Boolean,
 )

@@ -10,7 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import com.jeong.runninggoaltracker.shared.designsystem.R
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,6 +24,7 @@ fun AppTopBar(
     @StringRes titleResId: Int?,
     modifier: Modifier = Modifier,
     @StringRes fallbackTitleResId: Int? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -34,6 +40,19 @@ fun AppTopBar(
                     text = title,
                     style = typography.titleMedium
                 )
+            }
+        },
+        navigationIcon = {
+            if (onBack != null) {
+                val onBackClick = rememberThrottleClick(onClick = onBack)
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(
+                            R.string.designsystem_app_top_bar_back
+                        )
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
