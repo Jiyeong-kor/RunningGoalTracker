@@ -20,6 +20,8 @@
     <string name="smart_workout_rep_count_value">%1$d</string>
     <string name="smart_workout_accuracy_label">정확도 %1$d%%</string>
     <string name="smart_workout_debug_toggle">디버그 오버레이</string>
+    <string name="smart_workout_tts_test_label">TTS 테스트</string>
+    <string name="smart_workout_tts_test_message">음성 테스트입니다</string>
     <string name="smart_workout_debug_knee_angle_raw">무릎 각도(원본) %.1f°</string>
     <string name="smart_workout_debug_knee_angle_ema">무릎 각도(EMA) %.1f°</string>
     <string name="smart_workout_debug_trunk_tilt_raw">상체 기울기(수직 기준, 원본) %.1f°</string>
@@ -79,6 +81,9 @@
     <string name="smart_workout_debug_lunge_shoulder_center">어깨 중심 X %.3f (min %.3f / max %.3f)</string>
     <string name="smart_workout_debug_lunge_normalization_warning">정규화 범위 이상</string>
     <string name="smart_workout_debug_lunge_outlier_reason">이상치 %1$s</string>
+    <string name="smart_workout_debug_lunge_outlier_left">L:%1$s</string>
+    <string name="smart_workout_debug_lunge_outlier_right">R:%1$s</string>
+    <string name="smart_workout_debug_lunge_outlier_separator"> </string>
     <string name="smart_workout_debug_lunge_rep_min_update">반복 최소 업데이트 %1$s</string>
     <string name="smart_workout_debug_lunge_key_separator">, </string>
     <string name="smart_workout_debug_lunge_empty">없음</string>
@@ -91,6 +96,7 @@
     <string name="smart_workout_debug_lunge_outlier_low">범위 하한</string>
     <string name="smart_workout_debug_lunge_outlier_high">범위 상한</string>
     <string name="smart_workout_debug_lunge_outlier_jump">급변</string>
+    <string name="smart_workout_debug_lunge_feedback_label">%1$s (%2$s)</string>
     <string name="smart_workout_phase_up">업</string>
     <string name="smart_workout_phase_down">다운</string>
     <string name="smart_workout_side_left">왼쪽</string>

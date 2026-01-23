@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -113,8 +114,12 @@ fun SmartWorkoutRoute(
         uiState = uiState,
         imageAnalyzer = viewModel.imageAnalyzer,
         onBack = onBack,
-        onToggleDebugOverlay = viewModel::updateDebugOverlay,
-        onExerciseTypeChange = viewModel::updateExerciseType
+        onToggleDebugOverlay = viewModel::toggleDebugOverlay,
+        onExerciseTypeChange = viewModel::updateExerciseType,
+        onTestTts = {
+            val testMessage = latestContext.getString(R.string.smart_workout_tts_test_message)
+            ttsController.speak(testMessage)
+        }
     )
 }
 
@@ -123,8 +128,9 @@ fun SmartWorkoutScreen(
     uiState: SmartWorkoutUiState,
     imageAnalyzer: ImageAnalysis.Analyzer,
     onBack: () -> Unit,
-    onToggleDebugOverlay: (Boolean) -> Unit,
-    onExerciseTypeChange: (ExerciseType) -> Unit
+    onToggleDebugOverlay: () -> Unit,
+    onExerciseTypeChange: (ExerciseType) -> Unit,
+    onTestTts: () -> Unit
 ) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
@@ -135,9 +141,8 @@ fun SmartWorkoutScreen(
     val accuracyLabelTextSize = dimensionResource(R.dimen.smart_workout_accuracy_label_text_size)
     val accuracyMultiplier = integerResource(R.integer.smart_workout_accuracy_percent_multiplier)
     val onBackClick = rememberThrottleClick(onClick = onBack)
-    val onToggleDebugOverlayClick = rememberThrottleClick {
-        onToggleDebugOverlay(!uiState.isDebugOverlayVisible)
-    }
+    val onToggleDebugOverlayClick = rememberThrottleClick(onClick = onToggleDebugOverlay)
+    val onTestTtsClick = rememberThrottleClick(onClick = onTestTts)
     val containerColor by animateColorAsState(
         targetValue = if (uiState.isPerfectForm) {
             MaterialTheme.colorScheme.primaryContainer
@@ -230,9 +235,16 @@ fun SmartWorkoutScreen(
                     fontSize = accuracyLabelTextSize.value.sp
                 )
                 Switch(
-                    checked = uiState.isDebugOverlayVisible,
+                    checked = uiState.overlayMode != DebugOverlayMode.OFF,
                     onCheckedChange = { onToggleDebugOverlayClick() }
                 )
+                TextButton(onClick = onTestTtsClick) {
+                    Text(
+                        text = stringResource(R.string.smart_workout_tts_test_label),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                }
             }
         }
 
@@ -250,7 +262,7 @@ fun SmartWorkoutScreen(
             )
         }
 
-        if (BuildConfig.DEBUG && uiState.isDebugOverlayVisible) {
+        if (BuildConfig.DEBUG && uiState.overlayMode == DebugOverlayMode.LUNGE) {
             LungeDebugOverlay(
                 debugInfo = uiState.lungeDebugInfo,
                 snapshot = uiState.lastLungeRepSnapshot,
@@ -262,6 +274,9 @@ fun SmartWorkoutScreen(
                         vertical = appSpacingLg()
                     )
             )
+        }
+
+        if (BuildConfig.DEBUG && uiState.overlayMode == DebugOverlayMode.GENERAL) {
             uiState.frameMetrics?.let { metrics ->
                 val phaseText = when (metrics.phase) {
                     SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
@@ -812,7 +827,8 @@ private fun SmartWorkoutScreenPreview() {
             imageAnalyzer = { image -> image.close() },
             onBack = {},
             onToggleDebugOverlay = {},
-            onExerciseTypeChange = {}
+            onExerciseTypeChange = {},
+            onTestTts = {}
         )
     }
 }

@@ -11,7 +11,6 @@ import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
 import com.jeong.runninggoaltracker.domain.model.SquatRepSummary
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 
-
 data class SmartWorkoutUiState(
     val exerciseType: ExerciseType = ExerciseType.SQUAT,
     val repCount: Int = SQUAT_INT_ZERO,
@@ -25,5 +24,5 @@ data class SmartWorkoutUiState(
     val repSummary: SquatRepSummary? = null,
     val lungeDebugInfo: LungeDebugInfo? = null,
     val lastLungeRepSnapshot: LungeRepSnapshot? = null,
-    val isDebugOverlayVisible: Boolean = true
+    val overlayMode: DebugOverlayMode = DebugOverlayMode.GENERAL
 )

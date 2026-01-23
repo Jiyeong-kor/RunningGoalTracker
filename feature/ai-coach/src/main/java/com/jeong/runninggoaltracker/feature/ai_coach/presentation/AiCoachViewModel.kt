@@ -114,8 +114,16 @@ class AiCoachViewModel @Inject constructor(
 
     fun updateSpeechCooldown(cooldownMs: Long) = Unit.also { speechCooldownMs = cooldownMs }
 
-    fun updateDebugOverlay(isVisible: Boolean) =
-        _uiState.update { current -> current.copy(isDebugOverlayVisible = isVisible) }
+    fun toggleDebugOverlay() {
+        _uiState.update { current ->
+            val nextMode = if (current.overlayMode == DebugOverlayMode.OFF) {
+                overlayModeFor(current.exerciseType)
+            } else {
+                DebugOverlayMode.OFF
+            }
+            current.copy(overlayMode = nextMode)
+        }
+    }
 
     fun updateExerciseType(exerciseType: ExerciseType) {
         _uiState.update { current ->
@@ -128,7 +136,12 @@ class AiCoachViewModel @Inject constructor(
                     feedbackType = PostureFeedbackType.UNKNOWN,
                     feedbackKeys = emptyList(),
                     accuracy = SQUAT_FLOAT_ZERO,
-                    isPerfectForm = false
+                    isPerfectForm = false,
+                    overlayMode = if (current.overlayMode == DebugOverlayMode.OFF) {
+                        current.overlayMode
+                    } else {
+                        overlayModeFor(exerciseType)
+                    }
                 )
             }
         }
@@ -209,6 +222,11 @@ class AiCoachViewModel @Inject constructor(
             maxKneeCollapseRatio = summary?.maxKneeCollapseRatio,
             goodFormReason = goodFormReason
         )
+    }
+
+    private fun overlayModeFor(exerciseType: ExerciseType): DebugOverlayMode = when (exerciseType) {
+        ExerciseType.LUNGE -> DebugOverlayMode.LUNGE
+        else -> DebugOverlayMode.GENERAL
     }
 
     private fun logTransition(
