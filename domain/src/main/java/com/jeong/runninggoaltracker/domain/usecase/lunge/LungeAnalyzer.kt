@@ -5,6 +5,7 @@ import com.jeong.runninggoaltracker.domain.contract.LUNGE_BOTTOM_FRAMES_REQUIRED
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_DEEP_FRONT
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_SHALLOW_BACK
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_SHALLOW_FRONT
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_DESCENDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_FULL_BODY_INVISIBLE_DURATION_MS
@@ -12,6 +13,8 @@ import com.jeong.runninggoaltracker.domain.contract.LUNGE_INT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_KNEE_COLLAPSE_INWARD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_KNEE_TOO_FORWARD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_MIN_LANDMARK_CONFIDENCE
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_REP_COMPLETE_KNEE_ANGLE_THRESHOLD
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_REP_COMPLETE_MARGIN
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_SCORE_PERFECT_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_STANDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_STABILITY_MIN_SAMPLES
@@ -19,6 +22,7 @@ import com.jeong.runninggoaltracker.domain.contract.LUNGE_FRONT_KNEE_TARGET_MIN_
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_TOP_FRAMES_REQUIRED
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_TORSO_TOO_LEAN_FORWARD
 import com.jeong.runninggoaltracker.domain.contract.LUNGE_UNSTABLE
+import com.jeong.runninggoaltracker.domain.contract.LUNGE_ASCENDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.runninggoaltracker.domain.model.LungeDebugInfo
 import com.jeong.runninggoaltracker.domain.model.LungeRepSummary
 import com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult
@@ -66,9 +70,20 @@ class LungeAnalyzer(
     private val kneeSanitizer = LungeKneeAngleSanitizer()
     private var lastLeftMetricValid: Float? = null
     private var lastRightMetricValid: Float? = null
+    private var metricsTotalFrames: Int = LUNGE_INT_ZERO
+    private var metricsNullFrames: Int = LUNGE_INT_ZERO
+    private var metricsNullStreak: Int = LUNGE_INT_ZERO
 
     override fun analyze(frame: PoseFrame): PoseAnalysisResult {
         val metrics = metricsCalculator.calculate(frame)
+        metricsTotalFrames += 1
+        if (metrics == null) {
+            metricsNullFrames += 1
+            metricsNullStreak += 1
+        } else {
+            metricsNullStreak = LUNGE_INT_ZERO
+        }
+        val metricsNullRate = metricsNullFrames.toFloat() / metricsTotalFrames.toFloat()
         val fullBodyState = updateFullBodyVisibility(frame)
         val leftKneeAngleRaw =
             metrics?.leftKneeAngle ?: metricsCalculator.kneeAngle(frame, PoseSide.LEFT)
@@ -166,6 +181,8 @@ class LungeAnalyzer(
             rightKneeAngleRaw = rightKneeAngleRaw,
             leftKneeAngleSanitized = leftKneeAngle,
             rightKneeAngleSanitized = rightKneeAngle,
+            lastLeftKneeAngle = lastLeftMetricValid,
+            lastRightKneeAngle = lastRightMetricValid,
             leftOutlierReason = leftSanitizeResult.outlier?.reason,
             rightOutlierReason = rightSanitizeResult.outlier?.reason,
             repMinUpdated = repTrackingResult.repMinUpdated,
@@ -180,7 +197,25 @@ class LungeAnalyzer(
             stabilityStdDev = stabilityInfo.value,
             stabilityEligible = stabilityInfo.isEligible,
             stabilityNormalized = normalizedRangeOk,
-            feedbackEventKey = feedbackEventKey
+            feedbackEventKey = feedbackEventKey,
+            state = counterResult.state,
+            phase = counterResult.phase,
+            isReliable = counterResult.isReliable,
+            standingThreshold = LUNGE_STANDING_KNEE_ANGLE_THRESHOLD,
+            descendingThreshold = LUNGE_DESCENDING_KNEE_ANGLE_THRESHOLD,
+            bottomThreshold = LUNGE_BOTTOM_KNEE_ANGLE_THRESHOLD,
+            ascendingThreshold = LUNGE_ASCENDING_KNEE_ANGLE_THRESHOLD,
+            repCompleteThreshold = LUNGE_REP_COMPLETE_KNEE_ANGLE_THRESHOLD - LUNGE_REP_COMPLETE_MARGIN,
+            hysteresisFrames = counterResult.hysteresisFrames,
+            standingToDescendingCount = counterResult.standingToDescendingCount,
+            descendingToBottomCount = counterResult.descendingToBottomCount,
+            descendingToStandingCount = counterResult.descendingToStandingCount,
+            bottomToAscendingCount = counterResult.bottomToAscendingCount,
+            ascendingToCompleteCount = counterResult.ascendingToCompleteCount,
+            repCompleteToStandingCount = counterResult.repCompleteToStandingCount,
+            repCompleteToDescendingCount = counterResult.repCompleteToDescendingCount,
+            metricsNullRate = metricsNullRate,
+            metricsNullStreak = metricsNullStreak
         )
         debugLogger(
             LungeAnalyzerDebug(

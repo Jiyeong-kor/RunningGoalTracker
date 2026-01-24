@@ -27,7 +27,15 @@ data class LungeRepCounterResult(
     val isReliable: Boolean,
     val transition: SquatPhaseTransition?,
     val upCandidateFrames: Int,
-    val downCandidateFrames: Int
+    val downCandidateFrames: Int,
+    val standingToDescendingCount: Int,
+    val descendingToBottomCount: Int,
+    val descendingToStandingCount: Int,
+    val bottomToAscendingCount: Int,
+    val ascendingToCompleteCount: Int,
+    val repCompleteToStandingCount: Int,
+    val repCompleteToDescendingCount: Int,
+    val hysteresisFrames: Int
 )
 
 class LungeRepCounter(
@@ -77,7 +85,11 @@ class LungeRepCounter(
             lastTrunkTiltRaw = metrics.trunkTiltVerticalAngle
         }
         val stateResultPre = lastState
-        val countingAngle = selectCountingAngle(countingSide, leadLeg, leftValidAngle, rightValidAngle)
+        val withinGrace = isWithinReliabilityGrace(timestampMs)
+        val leftAngleForCounting = leftValidAngle ?: if (withinGrace) lastLeftValidKneeRaw else null
+        val rightAngleForCounting = rightValidAngle ?: if (withinGrace) lastRightValidKneeRaw else null
+        val countingAngle =
+            selectCountingAngle(countingSide, leadLeg, leftAngleForCounting, rightAngleForCounting)
         if (countingAngle != null) {
             lastKneeRaw = countingAngle
             lastReliableTimestampMs = timestampMs
@@ -91,7 +103,7 @@ class LungeRepCounter(
         if (kneeAngleEma == null || kneeRaw == null) {
             return null
         }
-        val isReliable = countingAngle != null || isWithinReliabilityGrace(timestampMs)
+        val isReliable = countingAngle != null || withinGrace
         val stateResult = stateMachine.update(kneeAngleEma, kneeRaw, isReliable)
         if (stateResult.state == SquatState.DESCENDING && stateResultPre == SquatState.STANDING) {
             startCountingSideLock()
@@ -185,7 +197,15 @@ class LungeRepCounter(
             isReliable = isReliable,
             transition = transition,
             upCandidateFrames = upCandidateFrames,
-            downCandidateFrames = downCandidateFrames
+            downCandidateFrames = downCandidateFrames,
+            standingToDescendingCount = stateResult.standingToDescendingCount,
+            descendingToBottomCount = stateResult.descendingToBottomCount,
+            descendingToStandingCount = stateResult.descendingToStandingCount,
+            bottomToAscendingCount = stateResult.bottomToAscendingCount,
+            ascendingToCompleteCount = stateResult.ascendingToCompleteCount,
+            repCompleteToStandingCount = stateResult.repCompleteToStandingCount,
+            repCompleteToDescendingCount = stateResult.repCompleteToDescendingCount,
+            hysteresisFrames = stateResult.hysteresisFrames
         )
     }
 

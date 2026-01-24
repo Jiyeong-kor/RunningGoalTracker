@@ -31,6 +31,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -76,6 +77,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.math.max
 import androidx.camera.core.Preview as CameraPreview
@@ -686,10 +688,12 @@ private fun CameraPreview(
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
-    val executor = remember { ContextCompat.getMainExecutor(context) }
+    val executor = remember { Executors.newSingleThreadExecutor() }
+    val cameraProviderState = remember { mutableStateOf<ProcessCameraProvider?>(null) }
 
     LaunchedEffect(imageAnalyzer) {
         val cameraProvider = context.awaitCameraProvider()
+        cameraProviderState.value = cameraProvider
         val preview = CameraPreview.Builder().build().also {
             it.surfaceProvider = previewView.surfaceProvider
         }
@@ -707,6 +711,12 @@ private fun CameraPreview(
             preview,
             analysis
         )
+    }
+    DisposableEffect(lifecycleOwner) {
+        onDispose {
+            cameraProviderState.value?.unbindAll()
+            executor.shutdown()
+        }
     }
 
     AndroidView(

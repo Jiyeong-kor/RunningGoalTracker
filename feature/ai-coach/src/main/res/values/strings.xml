@@ -72,9 +72,17 @@
     <string name="smart_workout_debug_lunge_live_trunk_ema">상체 기울기(EMA) %.1f°</string>
     <string name="smart_workout_debug_lunge_rep_min_knee_tracking">트래킹 최소 무릎 각도 %.1f°</string>
     <string name="smart_workout_debug_lunge_rep_trunk_max_tracking">트래킹 최대 상체 기울기 %.1f°</string>
+    <string name="smart_workout_debug_lunge_state">상태 %1$s</string>
+    <string name="smart_workout_debug_lunge_phase">페이즈 %1$s</string>
+    <string name="smart_workout_debug_lunge_reliable">신뢰도 %1$s</string>
+    <string name="smart_workout_debug_lunge_last_knee_angles">마지막 유효 무릎 각도 L %.1f° / R %.1f°</string>
     <string name="smart_workout_debug_lunge_stability_eligible">안정성 계산 가능 %1$s</string>
     <string name="smart_workout_debug_lunge_hip_samples">골반 샘플 %1$d</string>
     <string name="smart_workout_debug_lunge_shoulder_samples">어깨 샘플 %1$d</string>
+    <string name="smart_workout_debug_lunge_metrics_null_rate">메트릭 누락률 %.2f (연속 %2$d)</string>
+    <string name="smart_workout_debug_lunge_thresholds">임계값 S %.1f° / D %.1f° / B %.1f° / A %.1f° / C %.1f°</string>
+    <string name="smart_workout_debug_lunge_hysteresis_frames">히스테리시스 프레임 %1$d</string>
+    <string name="smart_workout_debug_lunge_hysteresis_counts">카운트 S→D %1$d / D→B %2$d / D→S %3$d / B→A %4$d / A→C %5$d / C→S %6$d / C→D %7$d</string>
     <string name="smart_workout_debug_lunge_hip_center">골반 중심 X %.3f (min %.3f / max %.3f)</string>
     <string name="smart_workout_debug_lunge_shoulder_center">어깨 중심 X %.3f (min %.3f / max %.3f)</string>
     <string name="smart_workout_debug_lunge_normalization_warning">정규화 범위 이상</string>

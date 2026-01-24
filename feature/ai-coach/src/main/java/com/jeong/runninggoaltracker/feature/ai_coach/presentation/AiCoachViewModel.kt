@@ -16,6 +16,7 @@ import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutSpeech
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
 import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +35,10 @@ class AiCoachViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SmartWorkoutUiState())
     val uiState: StateFlow<SmartWorkoutUiState> = _uiState.asStateFlow()
-    private val _speechEvents = MutableSharedFlow<SmartWorkoutSpeechEvent>(extraBufferCapacity = 1)
+    private val _speechEvents = MutableSharedFlow<SmartWorkoutSpeechEvent>(
+        extraBufferCapacity = 2,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val speechEvents = _speechEvents.asSharedFlow()
     private var lastSpokenType: PostureFeedbackType? = null
     private var lastSpokenKey: String? = null
@@ -61,24 +65,20 @@ class AiCoachViewModel @Inject constructor(
                         timestampMs = frame.timestampMs
                     )
                 }
-                val feedbackTypeForUi = analysis.feedbackEvent?.let { feedbackType ->
-                    if (handleSpeechFeedback(
-                            feedbackType = feedbackType,
-                            feedbackEventKey = analysis.feedbackEventKey,
-                            exerciseType = _uiState.value.exerciseType,
-                            timestampMs = frame.timestampMs
-                        )
-                    ) {
-                        feedbackType
-                    } else {
-                        null
-                    }
+                val exerciseType = _uiState.value.exerciseType
+                val speechFeedbackResId = analysis.feedbackEvent?.let { feedbackType ->
+                    handleSpeechFeedback(
+                        feedbackType = feedbackType,
+                        feedbackEventKey = analysis.feedbackEventKey,
+                        exerciseType = exerciseType,
+                        timestampMs = frame.timestampMs
+                    )
                 }
-                val feedbackResId = FeedbackStringMapper.feedbackResId(
-                    exerciseType = _uiState.value.exerciseType,
-                    feedbackType = feedbackTypeForUi ?: analysis.feedback.type,
-                    feedbackKey = analysis.feedbackEventKey
-                )
+                val feedbackTypeForUi = if (speechFeedbackResId != null) {
+                    analysis.feedbackEvent
+                } else {
+                    null
+                }
                 analysis.frameMetrics?.let { metrics ->
                     metrics.transition?.let { transition ->
                         logTransition(transition, metrics)
@@ -93,7 +93,15 @@ class AiCoachViewModel @Inject constructor(
                         repCount = analysis.repCount.value,
                         feedbackType = feedbackTypeForUi ?: current.feedbackType,
                         feedbackKeys = listOfNotNull(analysis.feedbackEventKey),
-                        feedbackResId = feedbackResId,
+                        feedbackResId = if (exerciseType == ExerciseType.LUNGE) {
+                            speechFeedbackResId ?: current.feedbackResId
+                        } else {
+                            FeedbackStringMapper.feedbackResId(
+                                exerciseType = exerciseType,
+                                feedbackType = feedbackTypeForUi ?: analysis.feedback.type,
+                                feedbackKey = analysis.feedbackEventKey
+                            )
+                        },
                         accuracy = analysis.feedback.accuracy,
                         isPerfectForm = analysis.feedback.isPerfectForm,
                         poseFrame = frame,
@@ -159,15 +167,19 @@ class AiCoachViewModel @Inject constructor(
         feedbackEventKey: String?,
         exerciseType: ExerciseType,
         timestampMs: Long
-    ): Boolean {
+    ): Int? {
         if (feedbackEventKey == null) {
-            return false
+            return null
         }
         val lastType = lastSpokenType
         val key = feedbackEventKey
         val isChanged = lastType != feedbackType || lastSpokenKey != key
         val elapsedMs = timestampMs - lastSpokenTimestampMs
-        val shouldEmit = isChanged || elapsedMs >= speechCooldownMs
+        val shouldEmit = if (exerciseType == ExerciseType.LUNGE && !isChanged) {
+            elapsedMs >= speechCooldownMs
+        } else {
+            isChanged || elapsedMs >= speechCooldownMs
+        }
         if (shouldEmit) {
             val feedbackResId = FeedbackStringMapper.feedbackResId(
                 exerciseType = exerciseType,
@@ -185,8 +197,9 @@ class AiCoachViewModel @Inject constructor(
             lastSpokenKey = key
             lastSpokenTimestampMs = timestampMs
             logFeedbackEvent(feedbackType, key, timestampMs)
+            return feedbackResId
         }
-        return shouldEmit
+        return null
     }
 
     private fun updateLungeSnapshot(

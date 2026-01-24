@@ -14,7 +14,15 @@ import com.jeong.runninggoaltracker.domain.model.SquatState
 
 data class LungeStateMachineResult(
     val state: SquatState,
-    val repCompleted: Boolean
+    val repCompleted: Boolean,
+    val standingToDescendingCount: Int,
+    val descendingToBottomCount: Int,
+    val descendingToStandingCount: Int,
+    val bottomToAscendingCount: Int,
+    val ascendingToCompleteCount: Int,
+    val repCompleteToStandingCount: Int,
+    val repCompleteToDescendingCount: Int,
+    val hysteresisFrames: Int
 )
 
 class LungeStateMachine(
@@ -38,13 +46,25 @@ class LungeStateMachine(
 
     fun update(kneeAngleEma: Float, kneeAngleRaw: Float, isReliable: Boolean): LungeStateMachineResult {
         if (!isReliable) {
-            return LungeStateMachineResult(state = state, repCompleted = false)
+            return LungeStateMachineResult(
+                state = state,
+                repCompleted = false,
+                standingToDescendingCount = standingToDescendingCount,
+                descendingToBottomCount = descendingToBottomCount,
+                descendingToStandingCount = descendingToStandingCount,
+                bottomToAscendingCount = bottomToAscendingCount,
+                ascendingToCompleteCount = ascendingToCompleteCount,
+                repCompleteToStandingCount = repCompleteToStandingCount,
+                repCompleteToDescendingCount = repCompleteToDescendingCount,
+                hysteresisFrames = hysteresisFrames
+            )
         }
+        val descentAngle = minOf(kneeAngleEma, kneeAngleRaw)
         var repCompleted = false
         when (state) {
             SquatState.STANDING -> {
                 if (applyTransition(
-                        condition = kneeAngleEma <= descendingAngleThreshold,
+                        condition = descentAngle <= descendingAngleThreshold,
                         currentCount = standingToDescendingCount,
                         nextState = SquatState.DESCENDING,
                         threshold = descendingAngleThreshold,
@@ -56,7 +76,7 @@ class LungeStateMachine(
                 } else {
                     standingToDescendingCount = updateCount(
                         standingToDescendingCount,
-                        kneeAngleEma <= descendingAngleThreshold,
+                        descentAngle <= descendingAngleThreshold,
                         allowDecay = false
                     )
                 }
@@ -64,7 +84,7 @@ class LungeStateMachine(
 
             SquatState.DESCENDING -> {
                 if (applyTransition(
-                        condition = kneeAngleEma <= bottomAngleThreshold,
+                        condition = descentAngle <= bottomAngleThreshold,
                         currentCount = descendingToBottomCount,
                         nextState = SquatState.BOTTOM,
                         threshold = bottomAngleThreshold,
@@ -76,7 +96,7 @@ class LungeStateMachine(
                 } else {
                     descendingToBottomCount = updateCount(
                         descendingToBottomCount,
-                        kneeAngleEma <= bottomAngleThreshold,
+                        descentAngle <= bottomAngleThreshold,
                         allowDecay = false
                     )
                 }
@@ -201,7 +221,18 @@ class LungeStateMachine(
                 repCompleted = repCompleted
             )
         )
-        return LungeStateMachineResult(state = state, repCompleted = repCompleted)
+        return LungeStateMachineResult(
+            state = state,
+            repCompleted = repCompleted,
+            standingToDescendingCount = standingToDescendingCount,
+            descendingToBottomCount = descendingToBottomCount,
+            descendingToStandingCount = descendingToStandingCount,
+            bottomToAscendingCount = bottomToAscendingCount,
+            ascendingToCompleteCount = ascendingToCompleteCount,
+            repCompleteToStandingCount = repCompleteToStandingCount,
+            repCompleteToDescendingCount = repCompleteToDescendingCount,
+            hysteresisFrames = hysteresisFrames
+        )
     }
 
     private fun applyTransition(

@@ -119,8 +119,41 @@ fun LungeDebugOverlay(
                     )
                     Text(
                         text = stringResource(
+                            R.string.smart_workout_debug_lunge_state,
+                            info.state.name
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_phase,
+                            info.phase.name
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_reliable,
+                            booleanText(info.isReliable)
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
                             R.string.smart_workout_debug_lunge_counting_side,
                             poseSideText(info.countingSide)
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_last_knee_angles,
+                            info.lastLeftKneeAngle ?: 0f,
+                            info.lastRightKneeAngle ?: 0f
                         ),
                         color = textMuted,
                         fontSize = textSize.value.sp
@@ -153,6 +186,49 @@ fun LungeDebugOverlay(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_shoulder_samples,
                             info.shoulderSampleCount
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_metrics_null_rate,
+                            info.metricsNullRate,
+                            info.metricsNullStreak
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_thresholds,
+                            info.standingThreshold,
+                            info.descendingThreshold,
+                            info.bottomThreshold,
+                            info.ascendingThreshold,
+                            info.repCompleteThreshold
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_hysteresis_frames,
+                            info.hysteresisFrames
+                        ),
+                        color = textMuted,
+                        fontSize = textSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_lunge_hysteresis_counts,
+                            info.standingToDescendingCount,
+                            info.descendingToBottomCount,
+                            info.descendingToStandingCount,
+                            info.bottomToAscendingCount,
+                            info.ascendingToCompleteCount,
+                            info.repCompleteToStandingCount,
+                            info.repCompleteToDescendingCount
                         ),
                         color = textMuted,
                         fontSize = textSize.value.sp
