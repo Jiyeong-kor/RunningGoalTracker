@@ -34,6 +34,9 @@ fun BottomAndTopBar(
     NavigationBar(windowInsets = WindowInsets(insetPx, insetPx, insetPx, insetPx)) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
+        val isCurrentBottomTab = MainTab.entries.any { tab ->
+            currentDestination.isRouteInHierarchy(tab.route)
+        }
 
         MainTab.entries.forEach { tab ->
             val tabItem = tabItemsByTab[tab] ?: return@forEach
@@ -45,10 +48,10 @@ fun BottomAndTopBar(
 
                 navController.navigateTo(route) {
                     popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
+                        saveState = isCurrentBottomTab
                     }
                     launchSingleTop = true
-                    restoreState = true
+                    restoreState = isCurrentBottomTab
                 }
             }
 
