@@ -35,4 +35,18 @@ class WeeklySummaryCalculatorTest {
         assertEquals(2, summary.recordCountThisWeek)
         assertEquals(0.7f, summary.progress, 0.0001f)
     }
+
+    @Test
+    fun calculateWithoutGoalReturnsZeroProgress() {
+        val records = listOf(
+            RunningRecord(id = 1L, date = 1200L, distanceKm = 3.0, durationMinutes = 20)
+        )
+
+        val summary = calculator.calculate(goal = null, records = records, todayMillis = 1600L)
+
+        assertEquals(null, summary.weeklyGoalKm)
+        assertEquals(3.0, summary.totalThisWeekKm, 0.0)
+        assertEquals(1, summary.recordCountThisWeek)
+        assertEquals(0f, summary.progress, 0.0001f)
+    }
 }
