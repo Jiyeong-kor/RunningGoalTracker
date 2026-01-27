@@ -93,7 +93,7 @@ class RunningTrackerService : Service() {
         val zeroLong = NumericResourceProvider.zeroLong(this)
         distanceMeters = zeroDouble
         lastLocation = null
-        startTimeMillis = System.currentTimeMillis()
+        startTimeMillis = dateProvider.getToday()
         val notification = notificationDispatcher.createNotification(zeroDouble, zeroLong)
         if (!startForegroundSafely(notification)) {
             stateUpdater.markPermissionRequired()
@@ -115,7 +115,7 @@ class RunningTrackerService : Service() {
         elapsedUpdateJob?.cancel()
         stopLocationUpdates()
         val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this)
-        val elapsed = System.currentTimeMillis() - startMillis
+        val elapsed = dateProvider.getToday() - startMillis
         val distanceKm =
             (distanceMeters ?: NumericResourceProvider.zeroDouble(this)) / metersInKm()
         stateUpdater.stop()
@@ -163,7 +163,7 @@ class RunningTrackerService : Service() {
                     startTimeMillis ?: NumericResourceProvider.zeroLong(
                         this@RunningTrackerService
                     )
-                val elapsed = System.currentTimeMillis() - startMillis
+                val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
                     distanceMeters ?: NumericResourceProvider.zeroDouble(
                         this@RunningTrackerService
@@ -203,7 +203,7 @@ class RunningTrackerService : Service() {
                 val startMillis =
                     startTimeMillis ?: NumericResourceProvider
                         .zeroLong(this@RunningTrackerService)
-                val elapsed = System.currentTimeMillis() - startMillis
+                val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
                     distanceMeters ?: NumericResourceProvider
                         .zeroDouble(this@RunningTrackerService)

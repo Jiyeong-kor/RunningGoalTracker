@@ -7,6 +7,7 @@ import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 
@@ -46,7 +47,8 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
         )
 
         ActivityLogHolder.add(
-            status = smoothStatus
+            status = smoothStatus,
+            timestamp = getDateProvider(context).getToday()
         )
     }
 
@@ -79,10 +81,19 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
     private fun getStateUpdater(context: Context): ActivityStateUpdater = getStateHolder(context)
 
+    private fun getDateProvider(context: Context): DateProvider {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ActivityRecognitionEntryPoint::class.java
+        )
+        return entryPoint.dateProvider()
+    }
+
     @dagger.hilt.EntryPoint
     @dagger.hilt.InstallIn(SingletonComponent::class)
     interface ActivityRecognitionEntryPoint {
         fun activityRecognitionStateHolder(): ActivityRecognitionStateHolder
+        fun dateProvider(): DateProvider
     }
 }
 

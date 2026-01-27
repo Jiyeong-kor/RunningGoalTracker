@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresPermission
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,7 +17,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ReminderAlarmScheduler @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val dateProvider: DateProvider
 ) {
     private val alarmManager: AlarmManager =
         context.getSystemService(AlarmManager::class.java)
@@ -66,16 +68,17 @@ class ReminderAlarmScheduler @Inject constructor(
         val zeroInt = NumericResourceProvider.zeroInt(context)
         val oneInt = NumericResourceProvider.oneInt(context)
 
+        val nowMillis = dateProvider.getToday()
         days.forEach { dayOfWeek ->
             val calendar = Calendar.getInstance().apply {
-                timeInMillis = System.currentTimeMillis()
+                timeInMillis = nowMillis
                 set(Calendar.HOUR_OF_DAY, hour)
                 set(Calendar.MINUTE, minute)
                 set(Calendar.SECOND, zeroInt)
                 set(Calendar.MILLISECOND, zeroInt)
                 set(Calendar.DAY_OF_WEEK, dayOfWeek)
 
-                if (timeInMillis <= System.currentTimeMillis()) {
+                if (timeInMillis <= nowMillis) {
                     add(Calendar.WEEK_OF_YEAR, oneInt)
                 }
             }

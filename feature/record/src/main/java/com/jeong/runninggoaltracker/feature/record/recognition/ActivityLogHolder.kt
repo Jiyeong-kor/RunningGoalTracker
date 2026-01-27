@@ -11,9 +11,7 @@ object ActivityLogHolder {
     private val _logs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
 
-    fun add(status: ActivityRecognitionStatus) {
-        val timestamp = System.currentTimeMillis()
-
+    fun add(status: ActivityRecognitionStatus, timestamp: Long) {
         val current = _logs.value
         if (current.firstOrNull()?.status == status) return
 
