@@ -491,7 +491,8 @@ private fun ActivityLogRow(
         modifier = modifier
             .fillMaxWidth()
             .background(surfaceColor, RoundedCornerShape(appSpacingMd()))
-            .padding(appSpacingMd()),
+            .padding(appSpacingMd())
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.spacedBy(appSpacingMd()),
         verticalAlignment = Alignment.CenterVertically
     ) {
