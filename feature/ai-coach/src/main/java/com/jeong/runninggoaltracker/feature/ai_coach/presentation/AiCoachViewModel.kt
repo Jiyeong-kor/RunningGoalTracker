@@ -128,6 +128,13 @@ class AiCoachViewModel @Inject constructor(
 
     fun updateSpeechCooldown(cooldownMs: Long) = Unit.also { speechCooldownMs = cooldownMs }
 
+    fun logUiRepCount(repCount: Int) =
+        logRepCountUpdate(
+            source = SmartWorkoutLogContract.SOURCE_UI,
+            repCount = repCount,
+            timestampMs = dateProvider.getToday()
+        )
+
     fun toggleDebugOverlay() {
         _uiState.update { current ->
             val nextMode = if (current.overlayMode == DebugOverlayMode.OFF) {

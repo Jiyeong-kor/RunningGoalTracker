@@ -69,8 +69,6 @@ import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
-import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
-import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -110,6 +108,10 @@ fun SmartWorkoutRoute(
 
     LaunchedEffect(cooldownMs) {
         viewModel.updateSpeechCooldown(cooldownMs)
+    }
+
+    LaunchedEffect(uiState.repCount, viewModel) {
+        viewModel.logUiRepCount(uiState.repCount)
     }
 
     LaunchedEffect(viewModel, ttsController) {
@@ -178,26 +180,6 @@ fun SmartWorkoutScreen(
         targetValue = uiState.accuracy,
         label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL
     )
-
-    LaunchedEffect(uiState.repCount) {
-        SmartWorkoutLogger.logDebug {
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_REP_COUNT)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_SOURCE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(SmartWorkoutLogContract.SOURCE_UI)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(System.currentTimeMillis())
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_REP_COUNT)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(uiState.repCount)
-            }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         CameraPreview(
