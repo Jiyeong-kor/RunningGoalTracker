@@ -9,4 +9,6 @@
     <string name="goal_preset_basic_fitness">기초 체력 (10km)</string>
     <string name="goal_preset_health_maintain">건강 유지 (20km)</string>
     <string name="goal_save_button">목표 저장하기</string>
+    <string name="goal_action_decrease">목표 거리 줄이기</string>
+    <string name="goal_action_increase">목표 거리 늘리기</string>
 </resources>

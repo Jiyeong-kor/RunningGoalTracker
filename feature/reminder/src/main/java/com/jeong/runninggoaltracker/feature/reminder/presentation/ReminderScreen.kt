@@ -39,6 +39,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -129,7 +134,7 @@ fun ReminderScreen(
             ) {
                 Icon(
                     Icons.Default.Add,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.reminder_add_button_label),
                     tint = Color.White,
                     modifier = Modifier.size(iconSize)
                 )
@@ -179,6 +184,15 @@ private fun ReminderCard(
     val id = reminder.id
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
+    val timeLabel = timeFormatter.formatTime(reminder.hour, reminder.minute)
+    val timePickerLabel = stringResource(
+        R.string.reminder_time_picker_accessibility,
+        timeLabel
+    )
+    val toggleLabel = stringResource(
+        R.string.reminder_toggle_accessibility,
+        timeLabel
+    )
     val cardCornerRadius = dimensionResource(id = R.dimen.reminder_card_corner_radius)
     val cardContentPadding = dimensionResource(id = R.dimen.reminder_card_content_padding)
     val spacingMd = dimensionResource(id = R.dimen.reminder_spacing_md)
@@ -199,7 +213,14 @@ private fun ReminderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.throttleClick { showTimePicker.value = true }) {
+                Column(
+                    modifier = Modifier
+                        .semantics {
+                            contentDescription = timePickerLabel
+                            role = Role.Button
+                        }
+                        .throttleClick { showTimePicker.value = true }
+                ) {
                     Text(
                         timeFormatter.periodLabel(reminder.hour),
                         color = textMuted,
@@ -215,9 +236,7 @@ private fun ReminderCard(
                 }
                 Switch(
                     checked = reminder.enabled,
-                    onCheckedChange = null,
-                    modifier = Modifier.throttleClick {
-                        val enabled = !reminder.enabled
+                    onCheckedChange = { enabled ->
                         if (enabled && reminder.days.isEmpty()) {
                             messageHandler.showMessage(
                                 UiMessage(messageResId = R.string.reminder_error_select_at_least_one_day)
@@ -225,6 +244,10 @@ private fun ReminderCard(
                         } else {
                             onToggleReminder(id, enabled)
                         }
+                    },
+                    modifier = Modifier.semantics {
+                        contentDescription = toggleLabel
+                        role = Role.Switch
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
@@ -253,7 +276,7 @@ private fun ReminderCard(
                 IconButton(onClick = onDeleteReminderThrottled) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.reminder_delete_button_label),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -293,6 +316,9 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
     val dayTextSize = dimensionResource(id = R.dimen.reminder_text_day_size).value.sp
     val selectedAlpha = alphaFromPercent(R.integer.reminder_alpha_selected_day_background_percent)
     val unselectedTextAlpha = alphaFromPercent(R.integer.reminder_alpha_unselected_day_text_percent)
+    val stateLabel = stringResource(
+        if (isSelected) R.string.reminder_day_selected else R.string.reminder_day_unselected
+    )
 
     Box(
         modifier = Modifier
@@ -301,6 +327,11 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
                 color = if (isSelected) accentColor.copy(alpha = selectedAlpha) else Color.Transparent,
                 shape = RoundedCornerShape(bubbleCornerRadius)
             )
+            .semantics {
+                contentDescription = day
+                stateDescription = stateLabel
+                role = Role.Button
+            }
             .throttleClick { onClick() },
         contentAlignment = Alignment.Center
     ) {

@@ -148,6 +148,7 @@ fun GoalScreen(
         ) {
             GoalAdjustButton(
                 icon = Icons.Default.Remove,
+                contentDescription = stringResource(R.string.goal_action_decrease),
                 onClick = onDecreaseThrottled
             )
 
@@ -168,6 +169,7 @@ fun GoalScreen(
 
             GoalAdjustButton(
                 icon = Icons.Default.Add,
+                contentDescription = stringResource(R.string.goal_action_increase),
                 onClick = onIncreaseThrottled
             )
         }
@@ -229,6 +231,7 @@ fun GoalScreen(
 @Composable
 private fun GoalAdjustButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
     onClick: () -> Unit
 ) {
     val textPrimary = appTextPrimaryColor()
@@ -249,7 +252,7 @@ private fun GoalAdjustButton(
         )
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = null, tint = textPrimary)
+            Icon(icon, contentDescription = contentDescription, tint = textPrimary)
         }
     }
 }

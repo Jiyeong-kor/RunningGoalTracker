@@ -46,6 +46,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.AuthError
@@ -386,6 +388,7 @@ private fun SettingsList(
 ) {
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column {
+            val activityToggleLabel = stringResource(id = R.string.mypage_setting_activity_toggle)
             SettingItem(
                 icon = Icons.Default.Notifications,
                 title = stringResource(id = R.string.mypage_setting_notification_title),
@@ -432,9 +435,11 @@ private fun SettingsList(
                 }
                 Switch(
                     checked = uiState.isActivityRecognitionEnabled,
-                    onCheckedChange = null,
-                    modifier = Modifier.throttleClick {
-                        onActivityToggle(!uiState.isActivityRecognitionEnabled)
+                    onCheckedChange = { enabled ->
+                        onActivityToggle(enabled)
+                    },
+                    modifier = Modifier.semantics {
+                        contentDescription = activityToggleLabel
                     }
                 )
             }

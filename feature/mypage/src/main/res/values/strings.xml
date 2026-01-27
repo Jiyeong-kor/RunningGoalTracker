@@ -20,6 +20,7 @@
     <string name="mypage_setting_goal_desc">거리 및 횟수 변경</string>
     <string name="mypage_setting_activity_title">활동 자동 인식</string>
     <string name="mypage_setting_activity_desc">자동으로 러닝을 감지합니다</string>
+    <string name="mypage_setting_activity_toggle">활동 자동 인식 켜기/끄기</string>
     <string name="mypage_setting_delete_account_title">회원 탈퇴</string>
     <string name="mypage_setting_delete_account_desc">계정과 기록을 삭제합니다</string>
     <string name="mypage_delete_account_confirm_title">회원 탈퇴 확인</string>

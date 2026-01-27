@@ -55,6 +55,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -657,6 +662,17 @@ private fun CalendarBottomSheet(
                         Spacer(modifier = Modifier.size(calendarDaySize))
                     } else {
                         val isSelected = day.isSameDay(selectedDateMillis)
+                        val dayLabel = stringResource(
+                            R.string.home_calendar_day_label,
+                            day.dayOfMonth
+                        )
+                        val selectionState = stringResource(
+                            if (isSelected) {
+                                R.string.home_calendar_day_selected
+                            } else {
+                                R.string.home_calendar_day_unselected
+                            }
+                        )
                         Box(
                             modifier = Modifier
                                 .size(calendarDaySize)
@@ -664,6 +680,11 @@ private fun CalendarBottomSheet(
                                     color = if (isSelected) accentColor else appSurfaceColor(),
                                     shape = CircleShape
                                 )
+                                .semantics {
+                                    contentDescription = dayLabel
+                                    stateDescription = selectionState
+                                    role = Role.Button
+                                }
                                 .throttleClick(
                                     onClick = { onDateSelected(day.timestampMillis) }
                                 ),

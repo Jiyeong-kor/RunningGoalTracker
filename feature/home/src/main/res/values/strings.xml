@@ -68,4 +68,7 @@
     <string name="home_day_of_week_fri">금</string>
     <string name="home_day_of_week_sat">토</string>
     <string name="home_day_of_week_sun">일</string>
+    <string name="home_calendar_day_label">%1$d일</string>
+    <string name="home_calendar_day_selected">선택됨</string>
+    <string name="home_calendar_day_unselected">선택 안 됨</string>
 </resources>

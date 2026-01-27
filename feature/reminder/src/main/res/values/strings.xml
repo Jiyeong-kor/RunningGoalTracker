@@ -12,6 +12,10 @@
     <string name="reminder_channel_name">러닝 리마인더</string>
     <string name="reminder_channel_description">러닝 알림을 위한 채널</string>
     <string name="reminder_title_settings">운동 알림 설정</string>
+    <string name="reminder_time_picker_accessibility">알림 시간 변경: %1$s</string>
+    <string name="reminder_toggle_accessibility">알림 활성화: %1$s</string>
+    <string name="reminder_day_selected">선택됨</string>
+    <string name="reminder_day_unselected">선택 안 됨</string>
 
     <string name="day_sun">일</string>
     <string name="day_mon">월</string>
