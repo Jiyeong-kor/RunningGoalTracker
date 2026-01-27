@@ -28,10 +28,9 @@
     <string name="nickname_invalid_error">2~10자의 한글/영문/숫자만 입력할 수 있어요.</string>
     <string name="nickname_taken_error">이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.</string>
     <string name="nickname_available">사용 가능한 닉네임이에요.</string>
-    <string name="privacy_policy_agreement_prefix">Agree to </string>
-    <string name="privacy_policy_agreement_link">Privacy Policy</string>
-    <string name="privacy_policy_agreement_suffix"> (Required)</string>
-    <string name="privacy_policy_agreement_full">Agree to Privacy Policy (Required)</string>
+    <string name="privacy_policy_agreement_link">개인정보처리방침</string>
+    <string name="privacy_policy_agreement_suffix">에 동의합니다.</string>
+    <string name="privacy_policy_agreement_full">개인정보처리방침에 동의합니다.</string>
     <string name="anonymous_sign_in_error">익명 로그인에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="auth_permission_denied_error">권한이 없어 요청을 처리할 수 없습니다. 다시 시도해 주세요.</string>
     <string name="auth_network_error">네트워크 오류로 요청을 처리할 수 없습니다. 연결 상태를 확인해 주세요.</string>

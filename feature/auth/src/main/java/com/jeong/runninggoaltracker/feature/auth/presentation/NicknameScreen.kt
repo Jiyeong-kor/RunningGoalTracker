@@ -51,6 +51,8 @@ fun NicknameScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val spacingXs =
+        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xs)
     val spacingSm =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
     val spacingLg =
@@ -67,7 +69,6 @@ fun NicknameScreen(
         uriHandler.openUri(PrivacyPolicyContract.PRIVACY_POLICY_URL)
     }
     val privacyPolicyText = buildAnnotatedString {
-        append(stringResource(id = R.string.privacy_policy_agreement_prefix))
         pushLink(privacyPolicyLink)
         pushStyle(
             SpanStyle(
@@ -161,7 +162,7 @@ fun NicknameScreen(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacingSm),
+            horizontalArrangement = Arrangement.spacedBy(spacingXs),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -178,7 +179,6 @@ fun NicknameScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier
-                    .padding(top = spacingSm)
                     .semantics {
                         contentDescription = privacyPolicyAccessibilityLabel
                     }
