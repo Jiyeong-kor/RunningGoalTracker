@@ -64,6 +64,7 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val isPrivacyAccepted = viewModel.isPrivacyAccepted.collectAsState().value
     val context = LocalContext.current
     val activity = context as? Activity
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -142,7 +143,9 @@ fun OnboardingScreen(
         OnboardingStep.Nickname -> NicknameScreen(
             modifier = modifier,
             uiState = uiState,
+            isPrivacyAccepted = isPrivacyAccepted,
             onNicknameChanged = viewModel::onNicknameChanged,
+            onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
             onContinue = viewModel::onContinueWithNickname
         )
 

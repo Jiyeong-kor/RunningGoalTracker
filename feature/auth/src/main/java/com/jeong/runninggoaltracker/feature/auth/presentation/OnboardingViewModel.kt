@@ -53,6 +53,7 @@ class OnboardingViewModel @Inject constructor(
     val uiState: StateFlow<OnboardingUiState> = _uiState
     private val _effects = MutableSharedFlow<OnboardingEffect>()
     val effects: SharedFlow<OnboardingEffect> = _effects
+    val isPrivacyAccepted = MutableStateFlow(false)
 
     fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) =
         _uiState.update { currentState ->
@@ -192,6 +193,10 @@ class OnboardingViewModel @Inject constructor(
         _uiState.update { currentState ->
             currentState.copy(showNoInternetDialog = false)
         }
+
+    fun onPrivacyAcceptedChanged(isAccepted: Boolean) {
+        isPrivacyAccepted.value = isAccepted
+    }
 
     private fun NicknameValidationResult.toUiState(): NicknameValidationUiState =
         when (this) {

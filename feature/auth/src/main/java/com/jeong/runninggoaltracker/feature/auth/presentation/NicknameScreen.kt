@@ -16,17 +16,27 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
+import com.jeong.runninggoaltracker.feature.auth.contract.PrivacyPolicyContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -35,7 +45,9 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 @Composable
 fun NicknameScreen(
     uiState: OnboardingUiState,
+    isPrivacyAccepted: Boolean,
     onNicknameChanged: (String) -> Unit,
+    onPrivacyAcceptedChange: (Boolean) -> Unit,
     onContinue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -49,6 +61,27 @@ fun NicknameScreen(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
     val cornerRadius =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_corner_radius)
+    val uriHandler = LocalUriHandler.current
+    val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_agreement_link)
+    val privacyPolicyLink = LinkAnnotation.Url(PrivacyPolicyContract.PRIVACY_POLICY_URL) {
+        uriHandler.openUri(PrivacyPolicyContract.PRIVACY_POLICY_URL)
+    }
+    val privacyPolicyText = buildAnnotatedString {
+        append(stringResource(id = R.string.privacy_policy_agreement_prefix))
+        pushLink(privacyPolicyLink)
+        pushStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline
+            )
+        )
+        append(privacyPolicyLabel)
+        pop()
+        pop()
+        append(stringResource(id = R.string.privacy_policy_agreement_suffix))
+    }
+    val privacyPolicyAccessibilityLabel =
+        stringResource(id = R.string.privacy_policy_agreement_full)
 
     androidx.compose.foundation.layout.Column(
         modifier = modifier
@@ -126,12 +159,37 @@ fun NicknameScreen(
                 color = MaterialTheme.colorScheme.error
             )
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(spacingSm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = isPrivacyAccepted,
+                onCheckedChange = onPrivacyAcceptedChange,
+                enabled = !uiState.isLoading,
+                modifier = Modifier.semantics {
+                    contentDescription = privacyPolicyAccessibilityLabel
+                }
+            )
+            Text(
+                text = privacyPolicyText,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .padding(top = spacingSm)
+                    .semantics {
+                        contentDescription = privacyPolicyAccessibilityLabel
+                    }
+            )
+        }
         val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
         Spacer(modifier = Modifier.height(spacingSm))
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onContinueThrottled,
-            enabled = uiState.isNicknameValid && !uiState.isLoading,
+            enabled = uiState.isNicknameValid && isPrivacyAccepted && !uiState.isLoading,
             contentPadding = PaddingValues(vertical = spacingLg)
         ) {
             if (uiState.isLoading) {
@@ -157,7 +215,9 @@ fun NicknameScreen(
 private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
     NicknameScreen(
         uiState = previewUiState(),
+        isPrivacyAccepted = false,
         onNicknameChanged = {},
+        onPrivacyAcceptedChange = {},
         onContinue = {}
     )
 }
