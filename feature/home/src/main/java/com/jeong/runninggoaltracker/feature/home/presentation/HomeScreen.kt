@@ -781,7 +781,7 @@ private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> {
         set(Calendar.MILLISECOND, 0)
     }
     val start = calendar.timeInMillis
-    calendar.add(Calendar.DAY_OF_YEAR, 6)
+    calendar.add(Calendar.DAY_OF_YEAR, DateTimeContract.WEEK_END_OFFSET_DAYS)
     val end = calendar.timeInMillis
     return start to end
 }
@@ -813,7 +813,9 @@ private data class YearMonthState(
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
         val offset =
-            (firstDayOfWeek - DateTimeContract.WEEK_START_DAY).let { if (it < 0) it + 7 else it }
+            (firstDayOfWeek - DateTimeContract.WEEK_START_DAY).let {
+                if (it < 0) it + DateTimeContract.DAYS_IN_WEEK else it
+            }
         val totalCells = offset + daysInMonth
         return buildList {
             repeat(offset) { add(null) }
