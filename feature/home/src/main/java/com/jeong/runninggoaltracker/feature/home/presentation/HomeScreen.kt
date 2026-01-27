@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -135,6 +136,7 @@ fun HomeScreen(
     val textMuted = appTextMutedColor()
     val weightOne = integerResource(R.integer.home_weight_one).toFloat()
     val horizontalPadding = appSpacingLg()
+    val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
         val formattedDistance = DistanceFormatter.formatDistanceKm(context, goalKm)
@@ -252,6 +254,8 @@ fun HomeScreen(
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
                         .clickable(onClick = onReminderClickThrottled)
+                        .sizeIn(minWidth = minTouchTarget, minHeight = minTouchTarget)
+                        .semantics { role = Role.Button }
                         .padding(horizontal = appSpacingSm(), vertical = appSpacingSm())
                 )
             }
@@ -261,6 +265,7 @@ fun HomeScreen(
             AppSurfaceCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .semantics(mergeDescendants = true) { role = Role.Button }
                     .clickable(onClick = onGoalClickThrottled)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(appSpacingSm())) {
@@ -533,6 +538,7 @@ private fun SectionHeader(
 ) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
+    val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
     val onViewAllClickThrottled = rememberThrottleClick(onClick = onViewAllClick)
 
     Row(
@@ -553,6 +559,8 @@ private fun SectionHeader(
             fontWeight = FontWeight.Medium,
             modifier = Modifier
                 .clickable(onClick = onViewAllClickThrottled)
+                .sizeIn(minWidth = minTouchTarget, minHeight = minTouchTarget)
+                .semantics { role = Role.Button }
                 .padding(horizontal = appSpacingSm(), vertical = appSpacingSm())
         )
     }

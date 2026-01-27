@@ -32,6 +32,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -276,6 +280,10 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                role = Role.RadioButton
+                selected = isSelected
+            }
             .throttleClick(onClick = onClick),
         shape = RoundedCornerShape(cornerRadius),
         color = if (isSelected) {

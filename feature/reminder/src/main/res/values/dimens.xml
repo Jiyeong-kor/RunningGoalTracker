@@ -3,7 +3,7 @@
     <dimen name="reminder_spacing_sm">8dp</dimen>
     <dimen name="reminder_spacing_md">16dp</dimen>
     <dimen name="reminder_spacing_lg">24dp</dimen>
-    <dimen name="reminder_icon_button_size">36dp</dimen>
+    <dimen name="reminder_icon_button_size">48dp</dimen>
     <dimen name="reminder_icon_button_corner_radius">12dp</dimen>
     <dimen name="reminder_icon_size">20dp</dimen>
     <dimen name="reminder_text_title_size">20sp</dimen>
@@ -11,7 +11,7 @@
     <dimen name="reminder_card_content_padding">20dp</dimen>
     <dimen name="reminder_text_period_size">12sp</dimen>
     <dimen name="reminder_text_time_size">28sp</dimen>
-    <dimen name="reminder_day_bubble_size">32dp</dimen>
+    <dimen name="reminder_day_bubble_size">48dp</dimen>
     <dimen name="reminder_day_bubble_corner_radius">8dp</dimen>
     <dimen name="reminder_text_day_size">12sp</dimen>
 </resources>

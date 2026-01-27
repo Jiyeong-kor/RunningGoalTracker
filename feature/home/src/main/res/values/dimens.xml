@@ -33,6 +33,7 @@
     <dimen name="home_activity_title_text_size">16sp</dimen>
     <dimen name="home_activity_subtitle_text_size">12sp</dimen>
     <dimen name="home_activity_log_icon_size">40dp</dimen>
-    <dimen name="home_calendar_grid_height">280dp</dimen>
-    <dimen name="home_calendar_day_size">32dp</dimen>
+    <dimen name="home_calendar_grid_height">336dp</dimen>
+    <dimen name="home_calendar_day_size">48dp</dimen>
+    <dimen name="home_touch_target_min">48dp</dimen>
 </resources>

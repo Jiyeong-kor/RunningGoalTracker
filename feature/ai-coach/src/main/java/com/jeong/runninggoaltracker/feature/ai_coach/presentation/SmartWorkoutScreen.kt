@@ -44,6 +44,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -160,6 +165,7 @@ fun SmartWorkoutScreen(
     val accuracyMultiplier = integerResource(R.integer.smart_workout_accuracy_percent_multiplier)
     val onBackClick = rememberThrottleClick(onClick = onBack)
     val onToggleDebugOverlayClick = rememberThrottleClick(onClick = onToggleDebugOverlay)
+    val debugToggleLabel = stringResource(R.string.smart_workout_debug_toggle)
     val containerColor by animateColorAsState(
         targetValue = if (uiState.isPerfectForm) {
             MaterialTheme.colorScheme.primaryContainer
@@ -247,13 +253,16 @@ fun SmartWorkoutScreen(
                 horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
             ) {
                 Text(
-                    text = stringResource(R.string.smart_workout_debug_toggle),
+                    text = debugToggleLabel,
                     color = textMuted,
                     fontSize = accuracyLabelTextSize.value.sp
                 )
                 Switch(
                     checked = uiState.overlayMode != DebugOverlayMode.OFF,
-                    onCheckedChange = { onToggleDebugOverlayClick() }
+                    onCheckedChange = { onToggleDebugOverlayClick() },
+                    modifier = Modifier.semantics {
+                        contentDescription = debugToggleLabel
+                    }
                 )
             }
         }
@@ -682,7 +691,10 @@ private fun ExerciseTypeOption(
     }
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics(mergeDescendants = true) {
+            role = Role.RadioButton
+            selected = isSelected
+        },
         color = containerColor,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large
