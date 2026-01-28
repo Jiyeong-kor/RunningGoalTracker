@@ -1,8 +1,8 @@
 package com.jeong.runninggoaltracker.feature.record.presentation
 
-import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
@@ -13,13 +13,14 @@ import com.jeong.runninggoaltracker.feature.record.api.model.RunningTrackerState
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -30,17 +31,25 @@ import org.junit.Test
 class RecordViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val repository = FakeRunningRecordRepository()
-    private val activityMonitor = FakeActivityRecognitionMonitor()
-    private val activityController = FakeActivityRecognitionController()
-    private val runningTrackerMonitor = FakeRunningTrackerMonitor()
-    private val runningTrackerController = FakeRunningTrackerController()
+    private val repository = mockk<RunningRecordRepository>()
+    private val activityMonitor = mockk<ActivityRecognitionMonitor>()
+    private val activityController = mockk<ActivityRecognitionController>(relaxed = true)
+    private val runningTrackerMonitor = mockk<RunningTrackerMonitor>()
+    private val runningTrackerController = mockk<RunningTrackerController>(relaxed = true)
+    private val records = MutableStateFlow<List<RunningRecord>>(emptyList())
+    private val activityState = MutableStateFlow(ActivityState())
+    private val activityLogs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
+    private val trackerState = MutableStateFlow(RunningTrackerState())
 
     private lateinit var viewModel: RecordViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        every { repository.getAllRecords() } returns records
+        every { activityMonitor.activityState } returns activityState
+        every { activityMonitor.activityLogs } returns activityLogs
+        every { runningTrackerMonitor.trackerState } returns trackerState
         viewModel = RecordViewModel(
             getRunningRecordsUseCase = GetRunningRecordsUseCase(repository),
             activityRecognitionController = activityController,
@@ -59,8 +68,8 @@ class RecordViewModelTest {
         viewModel.startActivityRecognition()
         viewModel.stopActivityRecognition()
 
-        assertTrue(activityController.started)
-        assertTrue(activityController.stopped)
+        verify { activityController.startUpdates() }
+        verify { activityController.stopUpdates() }
     }
 
     @Test
@@ -71,7 +80,7 @@ class RecordViewModelTest {
             elapsedMillis = 120_000,
             permissionRequired = false
         )
-        runningTrackerMonitor.update(trackerState)
+        this@RecordViewModelTest.trackerState.value = trackerState
         testDispatcher.scheduler.advanceUntilIdle()
 
         val uiState = viewModel.uiState.value
@@ -86,54 +95,7 @@ class RecordViewModelTest {
         viewModel.startTracking()
         viewModel.stopTracking()
 
-        assertTrue(runningTrackerController.started)
-        assertTrue(runningTrackerController.stopped)
+        verify { runningTrackerController.startTracking() }
+        verify { runningTrackerController.stopTracking() }
     }
-
-    private class FakeRunningRecordRepository : RunningRecordRepository {
-        val records = MutableStateFlow<List<RunningRecord>>(emptyList())
-
-        override fun getAllRecords(): Flow<List<RunningRecord>> = records
-
-        override suspend fun addRecord(record: RunningRecord) =
-            run { records.value += record }
-    }
-
-    private class FakeActivityRecognitionController : ActivityRecognitionController {
-        var started = false
-        var stopped = false
-
-        override fun startUpdates() =
-            run { started = true }
-
-        override fun stopUpdates() =
-            run { stopped = true }
-    }
-
-    private class FakeActivityRecognitionMonitor : ActivityRecognitionMonitor {
-        private val _activityState = MutableStateFlow(ActivityState())
-        override val activityState: StateFlow<ActivityState> = _activityState
-        override val activityLogs: StateFlow<List<ActivityLogEntry>> =
-            MutableStateFlow(emptyList())
-    }
-
-    private class FakeRunningTrackerMonitor : RunningTrackerMonitor {
-        private val _state = MutableStateFlow(RunningTrackerState())
-        override val trackerState: StateFlow<RunningTrackerState> = _state
-
-        fun update(state: RunningTrackerState) =
-            run { _state.value = state }
-    }
-
-    private class FakeRunningTrackerController : RunningTrackerController {
-        var started = false
-        var stopped = false
-
-        override fun startTracking() =
-            run { started = true }
-
-        override fun stopTracking() =
-            run { stopped = true }
-    }
-
 }

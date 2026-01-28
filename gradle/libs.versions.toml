@@ -49,6 +49,7 @@ kakaoSdkUser = "2.23.2"
 leakcanary = "2.14"
 
 # Test
+mockk = "1.14.9"
 androidxTestRunner = "1.7.0"
 espressoCore = "3.7.0"
 junit = "4.13.2"
@@ -128,6 +129,7 @@ kakao-sdk-user = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kak
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 
 # Test
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
