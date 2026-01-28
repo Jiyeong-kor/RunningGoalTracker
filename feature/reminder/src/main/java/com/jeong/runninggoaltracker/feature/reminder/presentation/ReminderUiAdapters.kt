@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderTimeContract
 
@@ -62,7 +63,7 @@ private class ResourceDaysOfWeekLabelProvider(
 @Composable
 fun rememberDaysOfWeekLabelProvider(): DaysOfWeekLabelProvider {
     val labels = mapOf(
-        java.util.Calendar.SUNDAY to stringResource(R.string.day_sun),
+        DateTimeContract.WEEK_START_DAY to stringResource(R.string.day_sun),
         java.util.Calendar.MONDAY to stringResource(R.string.day_mon),
         java.util.Calendar.TUESDAY to stringResource(R.string.day_tue),
         java.util.Calendar.WEDNESDAY to stringResource(R.string.day_wed),

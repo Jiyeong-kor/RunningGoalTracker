@@ -5,13 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.kakao.sdk.common.KakaoSdk
 import com.jeong.runninggoaltracker.app.contract.KakaoSdkContract
 import com.jeong.runninggoaltracker.feature.reminder.R as ReminderR
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderNotificationContract
-import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -19,7 +17,6 @@ class RunningGoalTrackerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("KakaoKeyHash", Utility.getKeyHash(this))
         FirebaseApp.initializeApp(this)
         readKakaoNativeAppKey()?.let { appKey ->
             KakaoSdk.init(this, appKey)
