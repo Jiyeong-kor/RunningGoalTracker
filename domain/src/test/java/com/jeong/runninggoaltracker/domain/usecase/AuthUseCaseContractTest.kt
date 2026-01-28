@@ -44,6 +44,8 @@ private class FakeAuthRepository(
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> = Result.success(Unit)
 
+    override suspend fun signInWithKakao(): Result<String> = Result.success("token")
+
     override suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit> =
         reserveResult
 

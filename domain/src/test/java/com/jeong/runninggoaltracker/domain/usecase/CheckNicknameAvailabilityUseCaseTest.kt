@@ -45,6 +45,8 @@ class CheckNicknameAvailabilityUseCaseTest {
 
         override suspend fun signInAnonymously(): Result<Unit> = error("Not used")
 
+        override suspend fun signInWithKakao(): Result<String> = error("Not used")
+
         override suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit> =
             error("Not used")
 

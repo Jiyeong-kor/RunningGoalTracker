@@ -1,7 +1,9 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,9 +27,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
@@ -49,6 +54,7 @@ fun NicknameScreen(
     onNicknameChanged: (String) -> Unit,
     onPrivacyAcceptedChange: (Boolean) -> Unit,
     onContinue: () -> Unit,
+    onKakaoLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacingXs =
@@ -63,6 +69,9 @@ fun NicknameScreen(
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
     val cornerRadius =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_corner_radius)
+    val kakaoButtonHeight = dimensionResource(id = R.dimen.kakao_login_button_height)
+    val kakaoButtonCornerRadius = dimensionResource(id = R.dimen.kakao_login_button_corner_radius)
+    val kakaoLoginButtonText = stringResource(id = R.string.kakao_login_button_text)
     val uriHandler = LocalUriHandler.current
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_agreement_link)
     val privacyPolicyLink = LinkAnnotation.Url(PrivacyPolicyContract.PRIVACY_POLICY_URL) {
@@ -185,6 +194,7 @@ fun NicknameScreen(
             )
         }
         val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
+        val onKakaoLoginThrottled = rememberThrottleClick(onClick = onKakaoLogin)
         Spacer(modifier = Modifier.height(spacingSm))
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -207,6 +217,29 @@ fun NicknameScreen(
                 )
             }
         }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(kakaoButtonHeight)
+                .clip(RoundedCornerShape(kakaoButtonCornerRadius))
+                .background(Color(0xFFFEE500)) // 카카오 노랑
+                .clickable(
+                    enabled = !uiState.isLoading,
+                    role = Role.Button,
+                    onClick = onKakaoLoginThrottled
+                )
+                .semantics(mergeDescendants = true) {
+                    contentDescription = kakaoLoginButtonText
+                }
+        ) {
+            Text(
+                text = kakaoLoginButtonText,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
     }
 }
 
@@ -218,7 +251,8 @@ private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
         isPrivacyAccepted = false,
         onNicknameChanged = {},
         onPrivacyAcceptedChange = {},
-        onContinue = {}
+        onContinue = {},
+        onKakaoLogin = {}
     )
 }
 

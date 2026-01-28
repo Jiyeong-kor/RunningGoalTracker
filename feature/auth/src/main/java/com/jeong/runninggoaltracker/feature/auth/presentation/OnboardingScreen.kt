@@ -146,7 +146,8 @@ fun OnboardingScreen(
             isPrivacyAccepted = isPrivacyAccepted,
             onNicknameChanged = viewModel::onNicknameChanged,
             onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
-            onContinue = viewModel::onContinueWithNickname
+            onContinue = viewModel::onContinueWithNickname,
+            onKakaoLogin = viewModel::onKakaoLoginClicked
         )
 
         OnboardingStep.Success -> SuccessScreen(

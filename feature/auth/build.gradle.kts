@@ -56,8 +56,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.hilt.android)
-    implementation(libs.androidx.ui.tooling.preview)
-    debugImplementation(libs.androidx.ui.tooling)
     ksp(libs.hilt.compiler)
 
     androidTestImplementation(libs.androidx.espresso.core)

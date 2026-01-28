@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.data.repository
 
+import android.content.Context
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
@@ -9,6 +10,9 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
+import com.kakao.sdk.auth.AuthCodeClient
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.user.UserApiClient
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
 import com.jeong.runninggoaltracker.data.contract.UserFirestoreFields
 import com.jeong.runninggoaltracker.data.contract.UsernameFirestoreFields
@@ -25,8 +29,10 @@ import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 class AuthRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase
@@ -40,6 +46,25 @@ class AuthRepositoryImpl @Inject constructor(
                 .addOnFailureListener { error ->
                     continuation.resume(Result.failure(error))
                 }
+        }
+
+    override suspend fun signInWithKakao(): Result<String> =
+        suspendCancellableCoroutine { continuation ->
+            val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
+                if (error != null) {
+                    continuation.resume(Result.failure(error))
+                } else if (token != null) {
+                    continuation.resume(Result.success(token.accessToken))
+                } else {
+                    continuation.resume(Result.failure(IllegalStateException()))
+                }
+            }
+            val client = UserApiClient.instance
+            if (client.isKakaoTalkLoginAvailable(context)) {
+                client.loginWithKakaoTalk(context, AuthCodeClient.DEFAULT_REQUEST_CODE, callback = callback)
+            } else {
+                client.loginWithKakaoAccount(context, null, callback = callback)
+            }
         }
 
     override suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit> {

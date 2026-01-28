@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun signInAnonymously(): Result<Unit>
+    suspend fun signInWithKakao(): Result<String>
     suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit>
     suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean>
     suspend fun deleteAccountAndReleaseNickname(): AuthResult<Unit>

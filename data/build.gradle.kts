@@ -41,6 +41,7 @@ kotlin {
     jvmToolchain(21)
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
 ksp {
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kakao.sdk.user)
 
     // Room
     implementation(libs.bundles.room)

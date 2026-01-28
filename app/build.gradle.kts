@@ -1,4 +1,25 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+val debugStorePassword: String =
+    localProperties.getProperty("DEBUG_STORE_PASSWORD")
+        ?: error("local.properties에 DEBUG_STORE_PASSWORD가 없습니다.")
+
+val debugKeyPassword: String =
+    localProperties.getProperty("DEBUG_KEY_PASSWORD")
+        ?: error("local.properties에 DEBUG_KEY_PASSWORD가 없습니다.")
+
+val debugKeyAlias: String =
+    localProperties.getProperty("DEBUG_KEY_ALIAS") ?: "debugkey"
+
+val kakaoNativeAppKey: String =
+    localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -15,6 +36,15 @@ android {
         version = release(36)
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug-custom.keystore")
+            storePassword = debugStorePassword
+            keyAlias = debugKeyAlias
+            keyPassword = debugKeyPassword
+        }
+    }
+
     defaultConfig {
         applicationId = "com.jeong.runninggoaltracker"
         minSdk = 24
@@ -23,9 +53,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.jeong.runninggoaltracker.app.HiltTestRunner"
+
+        defaultConfig.manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
     }
 
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -69,6 +104,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kakao.sdk.user)
 
     // Hilt
     implementation(libs.androidx.hilt.navigation.compose)
