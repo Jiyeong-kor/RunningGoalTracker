@@ -28,8 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -222,7 +222,7 @@ fun NicknameScreen(
                 .fillMaxWidth()
                 .height(kakaoButtonHeight)
                 .clip(RoundedCornerShape(kakaoButtonCornerRadius))
-                .background(Color(0xFFFEE500)) // 카카오 노랑
+                .background(colorResource(id = R.color.auth_kakao_yellow))
                 .clickable(
                     enabled = !uiState.isLoading,
                     role = Role.Button,
