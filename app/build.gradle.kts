@@ -122,6 +122,7 @@ dependencies {
 
     // Unit test
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
 
     // Android test
     androidTestImplementation(libs.bundles.androidx.compose.test)
